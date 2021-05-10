@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "noImplicitAny": false,
+        "esModuleInterop": true,
+        "strict": true,
+        "allowSyntheticDefaultImports": true,
+        "module": "esnext",
+        "moduleResolution": "node",
+        "isolatedModules": true,
+        "resolveJsonModule": true,
+        "jsx": "preserve",
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "incremental": true,
+        "noFallthroughCasesInSwitch": true
+    }
+}

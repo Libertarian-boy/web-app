@@ -6,10 +6,10 @@ declare module "*.png" {
 declare module "*";
 
 declare function fetch(input: string | URL, init?: {
-    body?: {} | BodyInit;
+    body?: any;
     method?: string;
     headers?: {};
     mode?: string;
     keepalive?: boolean;
     cache?: string
-})
+}): Promise<any>;

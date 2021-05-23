@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useContext} from "react";
+import React, {useEffect, useRef, useContext, useState} from "react";
 
 import * as ContactPresets from "./contact_presets";
 import * as Functions from "../globalThings/functions";
@@ -63,23 +63,25 @@ function Main() {
 
 function IfRame() {
 
-    const SourcePreloaderRef = useRef(null);
-    const IfRameRef = useRef(null);
+    const SourcePreloaderRef = useRef<HTMLDivElement>(null);
+    const IfRameRef = useRef<HTMLIFrameElement>(null);
 
     const {nowWidthWindow} = useContext(MediaContext);
  
     useEffect(() => {
-        const SourcePreloader = SourcePreloaderRef.current as HTMLElement;
-        const IfRame = IfRameRef.current as HTMLElement;
+        if (SourcePreloaderRef && IfRameRef) {
+            const SourcePreloader = SourcePreloaderRef.current as HTMLElement;
+            const IfRame = IfRameRef.current as HTMLElement;
 
-        IfRame.addEventListener("load", () => {
-            SourcePreloader.remove();
-        });
-
-        return () => {
-            IfRame.removeEventListener("load", () => {
+            IfRame.addEventListener("load", () => {
                 SourcePreloader.remove();
             });
+
+            return () => {
+                IfRame.removeEventListener("load", () => {
+                    SourcePreloader.remove();
+                });
+            }
         }
     }, []);
 
@@ -89,18 +91,18 @@ function IfRame() {
                 {
                     position: "relative",
                     width: "48.684%" /* 555px */
-                },
+                } as const,
                 nowWidthWindow === "mobileScreen" ? {
                     display: "flex",
                     justifyContent: "center",
                     width: "85%"
-                } :
+                } as const :
                 nowWidthWindow === "tablet" ? {
                     display: "none"
-                } :
+                } as const :
                 nowWidthWindow === "computerNormalScreen" ? {
                     width: "40%"
-                } : {}
+                } as const : {}
             )
         }>
             <SourcePreloader refProp={SourcePreloaderRef}/>
@@ -125,6 +127,8 @@ function MainBody() {
 
     const {nowWidthWindow} = useContext(MediaContext);
 
+    const [data, setData] = useState(false);
+
     return(
         <div className="main_conteiner__body" style={
             Object.assign(
@@ -136,7 +140,8 @@ function MainBody() {
                 nowWidthWindow === "computerNormalScreen" ? Styles.main_conteiner__body_NormalScreen : {}
             )
         }>
-            <Form/>
+            <Form data={data} setData={setData}/>
+            <DataOfUser data={data}/>
             <ContactInfo/>
             <FooterTextList listOtherStyles={
                 Object.assign(
@@ -153,14 +158,154 @@ function MainBody() {
     )
 }
 
-function Form() {
+function DataOfUser({
+    data
+}: {
+    data: {
+        body: {
+            name: string,
+            email: string,
+            object: string,
+            message?: string
+        }
+    } | boolean
+}) {
+
+    const dataOfUserRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (data) {
+            const dataOfUser = dataOfUserRef.current as HTMLDivElement;
+
+            new Promise(resolve => {
+                setTimeout(() => {
+                    Functions.changeStyleElem(
+                        dataOfUser,
+                        {
+                            display: "flex"
+                        }
+                    );
+                    resolve(true);
+                }, 500);  
+            })
+            .then(result => {
+                if (result) {
+                    dataOfUser?.animate([
+                        {
+                            transform: "translateY(0)",
+                            visibility: "visible"
+                        },
+                        {
+                            transform: "translateY(-20px)",
+                            visibility: "visible"
+                        },
+                        {
+                            transform: "translateY(-20px)",
+                            visibility: "hidden"
+                        }
+                    ], {
+                        duration: 500,
+                        direction: "reverse",
+                        easing: "linear",
+                        fill: "forwards"
+                    });
+                }
+            });
+        }
+    }, [data]);
+
+    return(
+        data ? 
+        <div className="dataOfUser" ref={dataOfUserRef} style={
+            Functions.cloneObject(
+                Styles.dataOfUser
+            )
+        }>
+            <div className="name" style={
+                Functions.cloneObject(
+                    Styles.dataOfUser_item
+                )
+            }>Name: {typeof data === "object" ? data.body.name : undefined}</div>
+            <div className="email"  style={
+                Functions.cloneObject(
+                    Styles.dataOfUser_item
+                )
+            }>Email: {typeof data === "object" ? data.body.email : undefined}</div>
+            <div className="object" style={
+                Functions.cloneObject(
+                    Styles.dataOfUser_item
+                )
+            }>Object: {typeof data === "object" ? data.body.object : undefined}</div>
+            {
+                typeof data === "object" ? data.body.message ?
+                <div className="message" style={
+                    Functions.cloneObject(
+                        Styles.dataOfUser_item
+                    )
+                }>Your message: {data.body.message}</div>
+                : null : undefined
+            }
+        </div>
+        : null
+    )
+}
+
+function Form({
+    data,
+    setData
+}: {
+    data: boolean;
+    setData: (arg: boolean) => any
+}) {
 
     const {nowWidthWindow} = useContext(MediaContext);
+    const formRef = useRef<HTMLFormElement>(null);
+    const emailRef = useRef<HTMLInputElement>(null);
 
-    async function formSubmite(e: Event) {
+    useEffect(() => {
+        if (data) {
+            const form = formRef?.current as HTMLFormElement;
+                new Promise((resolve) => {
+                    let animation = form?.animate([
+                    {
+                        transform: "translateY(0)",
+                        visibility: "visible"
+                    },
+                    {
+                        transform: "translateY(-20px)",
+                        visibility: "visible"
+                    },
+                    {
+                        transform: "translateY(-20px)",
+                        visibility: "hidden"
+                    }
+                    ], {
+                        duration: 500,
+                        fill: "forwards",
+                        easing: "linear",
+                    });
+                    setTimeout(resolve, 500, animation);
+                })
+                .then((animation) => {
+                    if (animation) {
+                        Functions.changeStyleElem(form, {
+                            display: 'none'
+                        });
+                    }
+                });
+            }
+    }, [data]);
+
+    async function formSubmite(e: any) {
         e.preventDefault();
         const form = e.currentTarget as HTMLFormElement;
         const elementOfForm = form.children as HTMLCollectionOf<HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement>;
+        const emailInput = emailRef.current as HTMLInputElement;
+
+        if (emailInput) {
+            console.log(emailInput);
+            return false;
+        }
 
         let dataOfUser = {};
 
@@ -186,7 +331,7 @@ function Form() {
     
             if (response.ok) {
                 const jsonData = await response.json();
-                console.log(jsonData);
+                setData(jsonData);
             } else {
                 const errorData = await response.json();
                 console.log(errorData?.status, errorData?.message);
@@ -209,12 +354,12 @@ function Form() {
                 nowWidthWindow === "tablet" ? Styles.form_Tablet :
                 nowWidthWindow === "computerNormalScreen" ? Styles.form_NormalScreen : {}
             )
-        } onSubmit={formSubmite}>
+        } onSubmit={formSubmite} ref={formRef}>
             <InputOfForm placeholder="your name" type="text" name="name" otherStyles={
                 nowWidthWindow === "tablet" ? Styles.inputOfForm_Tablet :
                 nowWidthWindow === "computerNormalScreen" ? Styles.inputOfForm_NormalScreen : {}
             }/>
-            <InputOfForm placeholder="your email" type="email" name="email" otherStyles={
+            <InputOfForm ref={emailRef} placeholder="your email" type="email" name="email" otherStyles={
                 nowWidthWindow === "mobileScreen" ? {
                     margin: "31px 0 0 0"
                 } :
@@ -237,13 +382,14 @@ function Form() {
     )
 }
 
-function InputOfForm(props: {
+function InputOfForm (props: {
     placeholder: string;
     type: string;
     name: string;
-    otherStyles?: {}
+    otherStyles?: {};
+    ref?: any
 }) {
-
+    
     const {nowWidthWindow} = useContext(MediaContext);
 
     useEffect(() => {
@@ -261,12 +407,19 @@ function InputOfForm(props: {
         `);
     }, []);
 
-    function focus(e: FocusEvent) {
+    function focus(e: { currentTarget: HTMLElement; }): void {
         const target = e.currentTarget as HTMLElement;
+        const style = document.querySelector("style");
+
+        style?.append(`
+            input[type=email]::placeholder {
+                color: #cccccc;
+            }
+        `);
 
         Functions.changeStyleElem(target, {
             outline: "none"
-        })
+        });
     }
 
     const styleInput = Object.assign(
@@ -277,7 +430,7 @@ function InputOfForm(props: {
     );
 
     return (
-        <input type={props.type} name={props.name} placeholder={props.placeholder} onFocus={focus} style={
+        <input ref={props.ref ? props.ref : undefined} type={props.type} name={props.name} placeholder={props.placeholder} onFocus={focus} style={
             Object.assign(
                 styleInput,
                 nowWidthWindow === "mobileScreen" ? Styles.inputOfForm_Mobile : {}
@@ -315,10 +468,10 @@ function Textarea({
         Functions.cloneObject(
             Styles.textarea
         ),
-        isResize ? {} : {resize: "none"}
+        isResize ? {} as const : {resize: "none"} as const
     );
 
-    function focus(e: FocusEvent) {
+    function focus(e: { currentTarget: HTMLElement; }) {
         const target = e.currentTarget as HTMLElement;
 
         Functions.changeStyleElem(target, {
@@ -338,7 +491,7 @@ function Textarea({
 
 function Button() {
 
-    function enter(e: PointerEvent) {
+    function enter(e: { currentTarget: HTMLElement; }) {
         const target = e.currentTarget as HTMLElement;
         Functions.changeStyleElem(target, {
             color: "#7beec7",
@@ -347,7 +500,7 @@ function Button() {
         });
     }
 
-    function leave(e: PointerEvent) {
+    function leave(e: { currentTarget: HTMLElement; }) {
         const target = e.currentTarget as HTMLElement;
         Functions.changeStyleElem(target, {
             color: "#ffffff",
@@ -356,7 +509,7 @@ function Button() {
         });
     }
 
-    function focus(e: FocusEvent) {
+    function focus(e: { currentTarget: HTMLElement; }) {
         const target = e.currentTarget as HTMLElement;
 
         Functions.changeStyleElem(target, {

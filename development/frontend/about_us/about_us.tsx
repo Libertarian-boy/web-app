@@ -90,7 +90,7 @@ function Information() {
     )
 }
 
-function Inf(props) {
+function Inf(props: { second: any; h2: string | number | boolean | {} | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactNodeArray | React.ReactPortal | null | undefined; h3: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; }) {
 
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
 
@@ -206,7 +206,7 @@ function SomeBenefitsMain() {
     )
 }
 
-function Benefit(props) {
+function Benefit(props: { down: any; src: any; nameItem: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; }) {
 
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
 
@@ -318,14 +318,14 @@ function TheDreamTeamMain() {
         }
     }, []);
 
-    const scroll = (e) => {
+    const scroll = (e: { currentTarget: any; }) => {
         const elem = e.currentTarget;
         setScrollWidth(
             Math.ceil(elem.scrollLeft * 100 / elem.scrollWidth) + 11
         );
     };
 
-    const pointerUp = (e) => {
+    const pointerUp = (e: { currentTarget: any; }) => {
         const elem = e.currentTarget;
 
         elem.animate([{
@@ -364,68 +364,70 @@ function TheDreamTeamMain() {
             <TheDreamTeamMainItem src={Person_8} person="Person_8" down={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" || nowWidthWindow === "computerNormalScreen" ? false : true}
             tabIndex={nowWidthWindow === "mobileScreen" || "tablet" ? 8 : undefined} />
         </div>
-        <TheDreamTeamMainProgress scrollWidth={scrollWidth}/>
+        <TheDreamTeamMainProgress scrollWidth={`${scrollWidth}`}/>
         </React.Fragment>
     )
 }
 
-function TheDreamTeamMainItem(props) {
+function TheDreamTeamMainItem(props: { tabIndex: number | undefined; down: any; src: any; person: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; }) {
 
 
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
 
-    const itemRef = useRef(null);
+    const itemRef = useRef<HTMLDivElement>(null);
 
-    const [wasEnter, setWasEnter] = useState(null);
+    const [wasEnter, setWasEnter] = useState<boolean | null>(null);
 
     useEffect(() => {
-        const item = itemRef.current, img = item.children[0], backward = item.children[1];
+        const item = itemRef.current;
 
-        if (nowWidthWindow === "mobileScreen") {
+        if (item) {
+            const img = item.children[0] as HTMLElement, backward = item.children[1] as HTMLElement;
 
+            if (nowWidthWindow === "mobileScreen") {
+                switch(props.tabIndex) {
+                    case 1:
+                        Functions.changeStyleElem(item, {
+                            margin: 0
+                        });
+                        break;
+                    case 8:
+                        Functions.changeStyleElem(item, {
+                            margin: "0 25px 0 25px"
+                        });
+                        break;
+                    default:
+                        Functions.changeStyleElem(item, {
+                            margin: "0 0 0 25px"
+                        });
+                        break;
+                }
 
-            switch(props.tabIndex) {
-                case 1:
-                    Functions.changeStyleElem(item, {
-                        margin: 0
-                    });
-                    break;
-                case 8:
-                    Functions.changeStyleElem(item, {
-                        margin: "0 25px 0 25px"
-                    });
-                    break;
-                default:
-                    Functions.changeStyleElem(item, {
-                        margin: "0 0 0 25px"
-                    });
-                    break;
             }
 
-        }
-
-        if (wasEnter) {
-            Functions.changeStyleElem(img, {
-                zIndex: 1,
-                transform: "rotateY(-180deg)"
-            });
-            Functions.changeStyleElem(backward, {
-                zIndex: 2,
-                transform: "rotateY(0)"
-            });
-        } else if (wasEnter === false) {
-            Functions.changeStyleElem(img, {
-                zIndex: 2,
-                transform: "rotateY(0)"
-            });
-            Functions.changeStyleElem(backward, {
-                zIndex: 1,
-                transform: "rotateY(180deg)"
-            });
+            if (wasEnter) {
+                Functions.changeStyleElem(img, {
+                    zIndex: 1,
+                    transform: "rotateY(-180deg)"
+                });
+                Functions.changeStyleElem(backward, {
+                    zIndex: 2,
+                    transform: "rotateY(0)"
+                });
+            } else if (wasEnter === false) {
+                Functions.changeStyleElem(img, {
+                    zIndex: 2,
+                    transform: "rotateY(0)"
+                });
+                Functions.changeStyleElem(backward, {
+                    zIndex: 1,
+                    transform: "rotateY(180deg)"
+                });
+            }
         }
     });
 
-    const enter = (e) => {
+    const enter = (e: { currentTarget: any; }) => {
         const elem = e.currentTarget;
         setWasEnter(wasEnter === null ? true : !wasEnter);
         Functions.changeStyleElem(elem, {
@@ -433,7 +435,7 @@ function TheDreamTeamMainItem(props) {
         });
     };
 
-    const leave = (e) => {
+    const leave = (e: { currentTarget: any; }) => {
         const elem = e.currentTarget;
         setWasEnter(wasEnter === null ? false : !wasEnter);
         Functions.changeStyleElem(elem, {
@@ -482,16 +484,18 @@ function TheDreamTeamMainItem(props) {
 
 /* Мобильная версия (показатель прокрукти) */
 
-function TheDreamTeamMainProgress(props) {
+function TheDreamTeamMainProgress(props: { scrollWidth: string; }) {
 
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
 
-    const progressRef = useRef(null);
+    const progressRef = useRef<HTMLProgressElement>(null);
 
     useEffect(() => {
         const progressElem = progressRef.current;
 
-        progressElem.setAttribute("value", props.scrollWidth);
+        if (progressElem) {
+            progressElem.setAttribute("value", props.scrollWidth);
+        }
     }, [props.scrollWidth]);
 
     useEffect(() => {
@@ -532,12 +536,14 @@ function GrayBlock() {
 
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
 
-    const ref_grayBlock = useRef(null);
+    const ref_grayBlock = useRef<HTMLDivElement>(null);
 
-    const [wasClick, setWasClick] = useState(null);
+    const [wasClick, setWasClick] = useState<boolean | null>(null);
 
     useEffect(() => {
-        const grayBlock = ref_grayBlock.current, p = grayBlock.children[0], button = grayBlock.children[1],
+        const grayBlock = ref_grayBlock.current;
+        if (grayBlock) {
+            const p = grayBlock.children[0], button = grayBlock.children[1],
         pHeight = p.clientHeight;
         if (wasClick) {
             globalThis.animation1 = p.animate([{
@@ -564,9 +570,10 @@ function GrayBlock() {
 
             button.textContent = "read more";
         }
+        }
     }, [wasClick]);
 
-    const enter = (e) => {
+    const enter = (e: { currentTarget: any; }) => {
         const target = e.currentTarget;
 
         Functions.changeStyleElem(target, {
@@ -576,7 +583,7 @@ function GrayBlock() {
         });
     };
 
-    const leave = (e) => {
+    const leave = (e: { currentTarget: any; }) => {
         const target = e.currentTarget;
 
         Functions.changeStyleElem(target, {
@@ -586,7 +593,7 @@ function GrayBlock() {
         });
     };
 
-    const focus = (e) => {
+    const focus = (e: { currentTarget: any; }) => {
         const target = e.currentTarget;
 
         Functions.changeStyleElem(target, {
@@ -594,7 +601,7 @@ function GrayBlock() {
         });
     };
 
-    const blur = (e) => {
+    const blur = (e: { currentTarget: any; }) => {
         const target = e.currentTarget;
 
         Functions.changeStyleElem(target, {
@@ -668,16 +675,19 @@ function MainTheDreamTeamDown() {
 
 function Slider() {
 
-    const sliderRef = useRef(null);
+    const sliderRef = useRef<HTMLDivElement>(null);
     const [active, setActive] = useState(1);
 
     useEffect(() => {
-        const slides = sliderRef.current.children as HTMLCollectionOf<HTMLElement>;
-        Array.from(slides).forEach(item => {
-            Functions.changeStyleElem(item, {
-                transform: `translateX(-${100 * (active - 1)}%)`
+        const slider = sliderRef.current;
+        if (slider) {
+            const slides = slider.children as HTMLCollectionOf<HTMLElement>;
+            Array.from(slides).forEach(item => {
+                Functions.changeStyleElem(item, {
+                    transform: `translateX(-${100 * (active - 1)}%)`
+                });
             });
-        });
+        }
     }, [active]);
 
     return(
@@ -705,7 +715,7 @@ function Slide() {
 
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
 
-    const buttonFocus = (e) => {
+    const buttonFocus = (e: { currentTarget: any; }) => {
         const event = e.currentTarget;
         Functions.changeStyleElem(event, {
             color: "#7beec7",
@@ -715,7 +725,7 @@ function Slide() {
         })
     };
 
-    const buttonBlur = (e) => {
+    const buttonBlur = (e: { currentTarget: any; }) => {
         const event = e.currentTarget;
         Functions.changeStyleElem(event, {
             color: "#ffffff",
@@ -756,7 +766,7 @@ function Slide() {
     ) 
 }
 
-function SliderButtons(props) {
+function SliderButtons(props: { active: any; setActive: any; }) {
 
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
 
@@ -777,16 +787,16 @@ function SliderButtons(props) {
     )
 }
 
-function SliderButtonsButton(props) {
+function SliderButtonsButton(props: { setActive: (arg0: any) => void; order: any; active: any; mobileAndTabletValue: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; }) {
 
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
 
-    const click = (e) => {
+    const click = (e: { currentTarget: any; }) => {
         const event = e.currentTarget;
         props.setActive(event.dataset.order)
     };
 
-    const focus = (e) => {
+    const focus = (e: { currentTarget: any; }) => {
         const event = e.currentTarget;
         Functions.changeStyleElem(event, {
             outline: "none"
@@ -834,15 +844,15 @@ function Icons() {
     )
 }
 
-function Icon(props) {
+function Icon(props: { mobileFirst: any; src: any; alt: any; }) {
 
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
 
-    const click = (e) => {
+    const click = (e: { stopPropagation: () => void; }) => {
         e.stopPropagation();
     };
 
-    const enter = (e) => {
+    const enter = (e: { currentTarget: any; }) => {
         const event = e.currentTarget;
 
         Functions.changeStyleElem(event, {
@@ -850,7 +860,7 @@ function Icon(props) {
         });
     };
 
-    const leave = (e) => {
+    const leave = (e: { currentTarget: any; }) => {
         const event = e.currentTarget;
 
         Functions.changeStyleElem(event, {

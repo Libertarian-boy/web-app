@@ -23,6 +23,7 @@ const HomePage = React.lazy(() => import("./homepage/homepage"));
 const AboutUs = React.lazy(() => import("./about_us/about_us"));
 const Services = React.lazy(() => import("./services/services"));
 const Contacts = React.lazy(() => import("./contact/contact"));
+const Blog = React.lazy(() => import("./blog/blog"));
 
 /* Функция-компонент для пермещения по якорям */
 function ScrollToHash() {
@@ -49,12 +50,23 @@ function ScrollToHash() {
     return null;
 }
 
-function App() {
+export default function App() {
+
+    interface LoaderContextInterface {
+        up: boolean;
+        name: string;
+        type: string;
+        ext: string;
+        size: string;
+        src: string;
+    }
+    
+    type LoaderContextInterfacePartialed = Partial<LoaderContextInterface>;
 
     const [nowWidthWindow, setNowWidthWindow] = useState("computerNormalScreen");
     const value = {nowWidthWindow, setNowWidthWindow};
 
-    const [data, setData] = useState(null);
+    const [data, setData] = useState<null | LoaderContextInterfacePartialed>(null);
     const contextData = {data, setData};
 
     return(
@@ -95,6 +107,14 @@ function App() {
                         </React.Suspense>
                     </Contexts.LoaderContext.Provider>
                 </Route>
+                <Route exact path="/blog">
+                    <Contexts.LoaderContext.Provider value={contextData}>
+                        <React.Suspense fallback={<Preloader/>}>
+                            <Blog/>
+                            <DownLoader/>
+                        </React.Suspense>
+                    </Contexts.LoaderContext.Provider>
+                </Route>
                 <Route exact path="/">
                     <Redirect from="/" to="/Home"/>
                 </Route>
@@ -106,6 +126,7 @@ function App() {
 
 function GlobalLoad() {
     const {nowWidthWindow, setNowWidthWindow} = useContext(Contexts.MediaContext);
+    const location = useLocation();
 
     const loadFunction = () => {
         /* Для установки значения слайдера мобильной версии портфолио */
@@ -168,7 +189,7 @@ function GlobalLoad() {
             };
 
             Functions.changeStyleElem(root, {
-                overflowX: "auto"
+                overflowX: location.pathname === "/blog" ? null : "auto"
             });
         }, 100);
     };
@@ -192,7 +213,7 @@ function GlobalLoad() {
                 width: 8px;
             }
 
-            html::-webkit-scrollbar-button {
+            html::-webkit-scrollbar-button, .scrollConteiner::-webkit-scrollbar-button {
                 display: none;
             }
 
@@ -202,8 +223,19 @@ function GlobalLoad() {
                 height: 10px;
             }
 
-            html::-webkit-scrollbar-thumb:hover {
+            html::-webkit-scrollbar-thumb:hover, .scrollConteiner::-webkit-scrollbar-thumb:hover {
                 background-color: #d2f9ec;
+            }
+
+            .scrollConteiner::-webkit-scrollbar {
+                background-color: #60606e;
+                width: 4px;
+            }
+
+            .scrollConteiner::-webkit-scrollbar-thumb {
+                background-color: #7beec7;
+                border-radius: 5px;
+                height: 10px;
             }
         `);
 

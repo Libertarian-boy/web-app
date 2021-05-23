@@ -39,7 +39,7 @@ export default function SourcePreloader(props: any) {
             fontFamily: "Montserrat",
             fontSize: "36px",
             lineHeight: "48px",
-            fontWeight: "700",
+            fontWeight: 700,
             textTransform: "uppercase",
             color: "#60606e"
         }}>

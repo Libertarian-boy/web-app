@@ -167,22 +167,22 @@ function WhatWeDoMainTextCheckBoxes() {
                     nowWidthWindow === "mobileScreen" ? Styles.conteinerOfCheckboxItems_Mobile : {}
                 )
             }>
-                <CheckBoxItem name="Stunning on all screens" id={1}/>
-                <CheckBoxItem name="Easy to customize" id={2}/>
-                <CheckBoxItem name="Make a difference" id={3}/>
-                <CheckBoxItem name="Imagine and create" id={4}/>
-                <CheckBoxItem name="Unlimited possibilities" id={5}/>
+                <CheckBoxItem name="Stunning on all screens" id={"1"}/>
+                <CheckBoxItem name="Easy to customize" id={"2"}/>
+                <CheckBoxItem name="Make a difference" id={"3"}/>
+                <CheckBoxItem name="Imagine and create" id={"4"}/>
+                <CheckBoxItem name="Unlimited possibilities" id={"5"}/>
             </div>
             <div className="conteinerOfCheckboxItems" style={
                 Function.cloneObject(
                     Styles.conteinerOfCheckboxItems
                 )
             }>
-                <CheckBoxItem name="Remarkable style" id={6}/>
-                <CheckBoxItem name="Captivating presentations" id={7}/>
-                <CheckBoxItem name="Make your portfolio pop" id={8}/>
-                <CheckBoxItem name="Words that matter" id={9}/>
-                <CheckBoxItem name="Satisfied clients" id={10}/>
+                <CheckBoxItem name="Remarkable style" id={"6"}/>
+                <CheckBoxItem name="Captivating presentations" id={"7"}/>
+                <CheckBoxItem name="Make your portfolio pop" id={"8"}/>
+                <CheckBoxItem name="Words that matter" id={"9"}/>
+                <CheckBoxItem name="Satisfied clients" id={"10"}/>
             </div>
         </div>
     )
@@ -190,7 +190,7 @@ function WhatWeDoMainTextCheckBoxes() {
 
 function CheckBoxItem(props: {
     name: string,
-    id: string | number
+    id: string | undefined
 }) {
 
     const {nowWidthWindow} = useContext(MediaContext);
@@ -326,7 +326,7 @@ function WhatWeDoSkilsMobileButtons(props: {
     const buttonsForSkilsRef = useRef(null);
 
     useEffect(() => {
-        const buttonsForSkilsElem = buttonsForSkilsRef.current as HTMLElement,
+        const buttonsForSkilsElem = buttonsForSkilsRef.current as unknown as HTMLElement,
               buttonsForSlilsButtons = buttonsForSkilsElem.children as HTMLCollectionOf<HTMLElement>;
 
         if (buttonsForSlilsButtons) {
@@ -609,12 +609,12 @@ function PricingPlansMainPlan(props: {
                         Styles.plan_main__checkboxes
                     )
                 }>
-                    <CheckBoxItem name="Lorem ipsum dolor sit amet" id={11}/>
-                    <CheckBoxItem name="Consectetuer adipiscing elit" id={12}/>
-                    <CheckBoxItem name="Sed diam nonummy" id={13}/>
-                    <CheckBoxItem name="Nibh euismod tincidunt" id={14}/>
-                    <CheckBoxItem name="Ut laoreet dolore" id={15}/>
-                    <CheckBoxItem name="Magna aliquam erat volutpat" id={16}/>
+                    <CheckBoxItem name="Lorem ipsum dolor sit amet" id={"11"}/>
+                    <CheckBoxItem name="Consectetuer adipiscing elit" id={"12"}/>
+                    <CheckBoxItem name="Sed diam nonummy" id={"13"}/>
+                    <CheckBoxItem name="Nibh euismod tincidunt" id={"14"}/>
+                    <CheckBoxItem name="Ut laoreet dolore" id={"15"}/>
+                    <CheckBoxItem name="Magna aliquam erat volutpat" id={"16"}/>
                 </div>
                 <ButtonOfPlan/>
             </div>

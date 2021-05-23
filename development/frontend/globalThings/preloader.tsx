@@ -6,50 +6,53 @@ import {MediaContext} from "./context";
 
 export default function Preloader() {
 
-    const preloaderRef = useRef(null);
+    const preloaderRef = useRef<HTMLDivElement>(null);
 
     const {nowWidthWindow} = useContext(MediaContext);
 
     useEffect(() => {
-        const preloaderChildren = preloaderRef.current.children as HTMLCollectionOf<HTMLElement>;
+        const preloaderElem = preloaderRef.current;
+        if (preloaderElem) {
+            const preloaderChildren = preloaderElem.children as HTMLCollectionOf<HTMLElement>;
 
-        let loadingProcess = setTimeout(function process() {
-            let time = 0;
+            let loadingProcess = setTimeout(function process() {
+                let time = 0;
 
-            Array.from(preloaderChildren).forEach( item => {
+                Array.from(preloaderChildren).forEach( item => {
 
-                item.animate([
-                    {
-                        transform: "translateY(0)"
-                    },
-                    {
-                        transform: "translateY(25px)"
-                    },
-                    {
-                        transform: "translateY(0)"
-                    },
-                    {
-                        transform: "translateY(-25px)"
-                    },
-                    {
-                        transform: "translateY(0)"
-                    }
-                ], {
-                    duration: 1000,
-                    easing: "linear",
-                    fill: "forwards",
-                    delay: time * 250
-                })
+                    item.animate([
+                        {
+                            transform: "translateY(0)"
+                        },
+                        {
+                            transform: "translateY(25px)"
+                        },
+                        {
+                            transform: "translateY(0)"
+                        },
+                        {
+                            transform: "translateY(-25px)"
+                        },
+                        {
+                            transform: "translateY(0)"
+                        }
+                    ], {
+                        duration: 1000,
+                        easing: "linear",
+                        fill: "forwards",
+                        delay: time * 250
+                    })
 
-                time++;
-            });
+                    time++;
+                });
 
-            if (document.readyState === "complete") {
-                clearTimeout(loadingProcess);
-            } else {
-                loadingProcess = setTimeout(process, 3500);
-            }
-        }, 0);
+                if (document.readyState === "complete") {
+                    clearTimeout(loadingProcess);
+                } else {
+                    loadingProcess = setTimeout(process, 3500);
+                }
+            }, 0);
+        }
     });
 
     return(

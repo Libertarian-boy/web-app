@@ -12,7 +12,7 @@ export default function GlobalHeader(props: { h1: any; h2: any; p: any; }) {
 
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
 
-    const [wasClick, setClick] = useState(null);
+    const [wasClick, setClick] = useState(false);
 
     return(
         <header style={
@@ -71,33 +71,51 @@ export default function GlobalHeader(props: { h1: any; h2: any; p: any; }) {
     )
 }
 
-function HeaderHeadButton(props: { wasClick: boolean | null; setClick: (arg0: boolean) => void; }) {
+function HeaderHeadButton(props: {
+    wasClick: boolean;
+    setClick: React.Dispatch<React.SetStateAction<boolean>>
+}) {
 
-    const [target, setTarget] = useState(false);
+    const buttonRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
 
-        if (props.wasClick && target) {
-            target.children[0].style.top = "7px";
-            target.children[1].style.opacity = 0;
-            target.children[2].style.top = "7px";
+        const buttonElem = buttonRef.current;
 
-            target.children[0].style.width = "23px";
+        if (props.wasClick && buttonElem) {
+            const blackLinesOfButtons = buttonElem.children as HTMLCollectionOf<HTMLElement>
 
-            target.children[0].style.transform = "rotate(45deg)";
-            target.children[2].style.transform = "rotate(-45deg)";
+            Functions.changeStyleElem(blackLinesOfButtons[0], {
+                top: "7px",
+                width: "23px",
+                transform: "rotate(45deg)"
+            });
+            Functions.changeStyleElem(blackLinesOfButtons[1], {
+                opacity: 0
+            });
+            Functions.changeStyleElem(blackLinesOfButtons[2], {
+                top: "7px",
+                transform: "rotate(-45deg)"
+            });
 
-        } else if (props.wasClick === false && target) {
-            target.children[0].style.top = 0;
-            target.children[1].style.opacity = 1;
-            target.children[2].style.top = "14px";
+        } else if (!props.wasClick && buttonElem) {
+            const blackLinesOfButtons = buttonElem.children as HTMLCollectionOf<HTMLElement>
 
-            target.children[0].style.width = "31px";
-
-            target.children[0].style.transform = "rotate(0)";
-            target.children[2].style.transform = "rotate(0)";
+            Functions.changeStyleElem(blackLinesOfButtons[0], {
+                top: 0,
+                width: "31px",
+                transform: "rotate(0)"
+            });
+            Functions.changeStyleElem(blackLinesOfButtons[1], {
+                opacity: 1
+            });
+            Functions.changeStyleElem(blackLinesOfButtons[2], {
+                top: "14px",
+                transform: "rotate(0)"
+            });
         }
-    }, [props.wasClick, target]);
+
+    }, [props.wasClick]);
 
     const focus = (e: { currentTarget: HTMLElement; }) => {
         Functions.changeStyleElem(e.currentTarget, {
@@ -105,9 +123,8 @@ function HeaderHeadButton(props: { wasClick: boolean | null; setClick: (arg0: bo
         });
     };
 
-    const click = (e: { currentTarget: any; }) => {
-        props.setClick(props.wasClick === null ? true : !props.wasClick);
-        setTarget(e.currentTarget);
+    const click = () => {
+        props.setClick(!props.wasClick);
     };
 
     return(
@@ -115,7 +132,7 @@ function HeaderHeadButton(props: { wasClick: boolean | null; setClick: (arg0: bo
             Functions.cloneObject(
                 GlobalStyles.header_button
             )
-        } onFocus={focus} onClick={click}>
+        } onFocus={focus} onClick={click} ref={buttonRef}>
             <div className="header_button__line" style={
                 Object.assign(
                     Functions.cloneObject(
@@ -144,15 +161,15 @@ function HeaderHeadButton(props: { wasClick: boolean | null; setClick: (arg0: bo
     )
 }
 
-function HeaderHeadList(props: { wasClick: boolean; }) {
+function HeaderHeadList(props: { wasClick: boolean | null; }) {
 
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
 
-    const listRef = useRef(null);
+    const listRef = useRef<HTMLUListElement>(null);
 
     useEffect(() => {
         const list = listRef.current;
-        if (props.wasClick) {
+        if (props.wasClick && list) {
             list.animate([
                 {
                     transform: "scaleX(0)"
@@ -165,7 +182,7 @@ function HeaderHeadList(props: { wasClick: boolean; }) {
                 easing: "linear",
                 fill: "forwards"
             });
-        } else if (props.wasClick === false) {
+        } else if (props.wasClick === false && list) {
             list.animate([
                 {
                     transform: "scaleX(1)"
@@ -223,16 +240,18 @@ export function MobileAndTabletNavVersion(props: { wasClick: boolean; }) {
 
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
 
-    const refUl = useRef(null);
+    const refUl = useRef<HTMLUListElement>(null);
 
     const home = ["Home", "about us", "services", "portfolio", "blog", "contact us"];
 
     useEffect(() => {
-        const ulElement = refUl.current, ulElementChildren = ulElement.children;
+        const ulElement = refUl.current;
 
         let timeShow = 0;
 
-        if (props.wasClick) {
+        if (props.wasClick && ulElement) {
+            const ulElementChildren = ulElement.children as HTMLCollectionOf<HTMLElement>;
+
             Functions.changeStyleElem(ulElement, {
                 transition: ".5s linear", 
                 transform: "translateY(50px)",
@@ -252,7 +271,8 @@ export function MobileAndTabletNavVersion(props: { wasClick: boolean; }) {
             }
 
             timeShow = 0;
-        } else if (props.wasClick === false) {
+        } else if (props.wasClick === false && ulElement) {
+            const ulElementChildren = ulElement.children as HTMLCollectionOf<HTMLElement>;
 
             for (let i = 0; i < ulElementChildren.length; i++) {
                 setTimeout(() => {

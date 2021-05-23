@@ -1,4 +1,6 @@
-export const preloader = {
+import { CSSProperties } from "react";
+
+export const preloader: CSSProperties = {
     position: "fixed",
     top: 0,
     left: 0,
@@ -239,7 +241,7 @@ export const shape11 = {
     border: "none",
     cursor: "pointer",
     transition: ".35s ease-out"
-};
+} as const;
 
 export const mainPrefooterFormStyle = {
     margin: "50px 79px 0 0",
@@ -293,7 +295,7 @@ export const form = {
     backgroundColor: '#ffffff',
 };
 
-export const formInput = {
+export const formInput: CSSProperties = {
     height: "100%",
     width: "74%",
     padding: "0 0 0 19px",
@@ -309,7 +311,7 @@ export const formInput = {
     border: "none"
 };
 
-export const formButton = {
+export const formButton: CSSProperties = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -351,7 +353,7 @@ export const footerUlStyles = {
     justifyContent: "space-between"
 };
 
-export const homeAbout = {
+export const homeAbout: CSSProperties = {
     color: '#9a9a9a',
     fontFamily: 'Open Sans, sans-serif',
     fontSize: 14,
@@ -515,7 +517,7 @@ export const header_forward__mainMobile = {
     margin: "109px 0 109px 0"
 };
 
-export const preloaderConteinerCirclesMobile = {
+export const preloaderConteinerCirclesMobile: CSSProperties = {
     height: "25px",
     width: "25px"
 };

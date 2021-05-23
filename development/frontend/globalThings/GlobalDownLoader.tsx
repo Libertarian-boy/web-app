@@ -6,25 +6,33 @@ import * as GlobalStyles from "./GlobalStyles";
 
 export default function DownLoader() {
 
-    const downloaderRef = useRef(null);
+    const downloaderRef = useRef<HTMLDivElement>(null);
     const {data} = useContext(LoaderContext);
     const {nowWidthWindow} = useContext(MediaContext);
 
     useEffect(() => {
-        if (data?.up) {
-            const downloader = downloaderRef.current;
-            Functions.changeStyleElem(downloader, {
-                bottom: 0
-            });
+        if (data) {
+            const dataUp = data.up;
+
+            if (dataUp) {
+                const downloader = downloaderRef.current;
+                if (downloader) {
+                    Functions.changeStyleElem(downloader, {
+                        bottom: 0
+                    });
+                }
+            }
         }
     }, [data]);
 
     useEffect(() => {
         const clickDocument = () => {
-        const downloader = downloaderRef.current;
-            Functions.changeStyleElem(downloader, {
-                bottom: `-${(downloader.clientHeight + 7) * 100 / (document.documentElement.clientHeight / 2)}%`
-            });
+            const downloader = downloaderRef.current;
+            if (downloader) {
+                Functions.changeStyleElem(downloader, {
+                    bottom: `${-downloader.clientHeight}px`
+                });
+            }
         };
 
         document.addEventListener("click", clickDocument);
@@ -103,7 +111,9 @@ function Button() {
     };
 
     const click = () => {
-        Functions.downloadThing(data.src, data.ext);
+        if (data?.src  && data?.ext) {
+            Functions.downloadThing(data.src, data.ext);
+        }
     };
 
     return(

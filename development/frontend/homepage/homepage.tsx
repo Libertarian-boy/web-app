@@ -61,9 +61,9 @@ function Header() {
     
     const {down} = useContext(Contexts.HeaderContext), {nowWidthWindow} = useContext(Contexts.MediaContext);
 
-    const headerRef = useRef(null), forwardHeaderRef = useRef(null);
+    const headerRef = useRef<HTMLElement>(null), forwardHeaderRef = useRef<HTMLDivElement>(null);
 
-    const [wasClick, setWasClick] = useState(null);
+    const [wasClick, setWasClick] = useState(false);
 
     useEffect(() => {
         const header = headerRef.current, forwardHeader = forwardHeaderRef.current,
@@ -94,7 +94,11 @@ function Header() {
         <header ref={headerRef} style={Object.assign(Functions.cloneObject(Styles.HeaderStyle), {
             backgroundImage: `url(${Layer_1})`
         })}>
-            <div className="header_forward" ref={forwardHeaderRef} style={Styles.HeaderForwardStyle}>
+            <div className="header_forward" ref={forwardHeaderRef} style={
+                Functions.cloneObject(
+                    Styles.HeaderForwardStyle
+                )
+            }>
                 <HeaderForwardHead wasClick={wasClick} setWasClick={setWasClick}/>
                 {/* Мобильная и планшетная версия навигации */}
                 <MobileAndTabletNavVersion wasClick={wasClick}/>
@@ -104,7 +108,7 @@ function Header() {
     )
 }
 
-function HeaderForwardHead(props) {
+function HeaderForwardHead(props: { wasClick: any; setWasClick: any; }) {
 
     return (
         <div className="header_forward__head" style={Styles.HeaderForwardHeadStyle}>
@@ -117,23 +121,29 @@ function HeaderForwardHead(props) {
 
 function Logo() {
     return(
-        <h1 style={Styles.Akad}>akad.</h1>
+        <h1 style={
+            Functions.cloneObject(
+                Styles.Akad
+            )
+        }>akad.</h1>
     )
 }
 
-function HeaderHeadList(props) {
+function HeaderHeadList(props: { wasClick: any; }) {
 
-    const listRef = useRef(null);
+    const listRef = useRef<HTMLUListElement>(null);
 
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
 
     useEffect(() => {
-        if (props.wasClick) {
-            Functions.changeStyleElem(listRef.current, {
+        const listElem = listRef.current;
+
+        if (props.wasClick && listElem) {
+            Functions.changeStyleElem(listElem, {
                 transform: "scaleX(1)"
             });
-        } else if (props.wasClick === false) {
-            Functions.changeStyleElem(listRef.current, {
+        } else if (!props.wasClick && listElem) {
+            Functions.changeStyleElem(listElem, {
                 transform: "scaleX(0)"
             });
         }
@@ -165,50 +175,63 @@ function HeaderHeadList(props) {
     )
 }
 
-function HeaderHeadButton(props) {
+function HeaderHeadButton(props: { wasClick: boolean; setWasClick: (arg0: boolean) => void; }) {
 
-    const [target, setTarget] = useState(false);
+    const buttonRef = useRef<HTMLButtonElement>(null);
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
 
     useEffect(() => {
 
-        if (props.wasClick && target) {
-            target.children[0].style.top = "7px";
-            target.children[1].style.opacity = 0;
-            target.children[2].style.top = "7px";
+        const buttonElem = buttonRef.current;
 
-            target.children[0].style.width = "23px";
+        if (props.wasClick && buttonElem) {
+            const collectionOfLines = buttonElem.children as HTMLCollectionOf<HTMLElement>
 
-            target.children[0].style.transform = "rotate(45deg)";
-            target.children[2].style.transform = "rotate(-45deg)";
+            Functions.changeStyleElem(collectionOfLines[0], {
+                top: "7px",
+                width: "23px",
+                transform: "rotate(45deg)"
+            });
+            Functions.changeStyleElem(collectionOfLines[1], {
+                opacity: 0
+            });
+            Functions.changeStyleElem(collectionOfLines[2], {
+                top: "7px",
+                transform: "rotate(-45deg)"
+            });
 
-            /* Изменения линий кнопки в headerHead*/
-        } else if (props.wasClick === false && target) {
-            target.children[0].style.top = 0;
-            target.children[1].style.opacity = 1;
-            target.children[2].style.top = "14px";
+        } else if (props.wasClick === false && buttonElem) {
+            const collectionOfLines = buttonElem.children as HTMLCollectionOf<HTMLElement>
 
-            target.children[0].style.width = "31px";
-
-            target.children[0].style.transform = "rotate(0)";
-            target.children[2].style.transform = "rotate(0)";
+            Functions.changeStyleElem(collectionOfLines[0], {
+                top: 0,
+                width: "31px",
+                transform: "rotate(0)"
+            });
+            Functions.changeStyleElem(collectionOfLines[1], {
+                opacity: 1
+            });
+            Functions.changeStyleElem(collectionOfLines[2], {
+                top: "14px",
+                transform: "rotate(0)"
+            });
         }
-    }, [props.wasClick, target]);
+    }, [props.wasClick]);
 
-    const focus = (e) => {
+    const focus = (e: { currentTarget: any; }) => {
         Functions.changeStyleElem(e.currentTarget, {
             outline: "none"
         });
     };
 
-    const click = (e) => {
-        props.setWasClick(props.wasClick === null ? true : !props.wasClick);
-        setTarget(e.currentTarget);
+    const click = () => {
+        props.setWasClick(!props.wasClick);
     };
 
     return(
         <button style={Object.assign(Functions.cloneObject(Styles.HeaderHeadButton),
-            nowWidthWindow === "mobileScreen" ? Styles.HeaderHeadButtonMobile : {})} onFocus={focus} onClick={click}>
+            nowWidthWindow === "mobileScreen" ? Styles.HeaderHeadButtonMobile : {})} onFocus={focus} onClick={click}
+            ref={buttonRef}>
             <div className="buttonLineFirst" style={Object.assign(Functions.cloneObject(Styles.HeaderHeadButtonLine), {
                 width: "31px",
                 top: 0
@@ -227,7 +250,11 @@ function HeaderHeadButton(props) {
 
 function HeaderForwardBody() {
     return(
-        <div className="header_forward__body" style={Styles.headerForwardBody}>
+        <div className="header_forward__body" style={
+            Functions.cloneObject(
+                Styles.headerForwardBody
+            )
+        }>
             <HeaderForwardBodyTitle/>
             <HeaderForwardBodyMain/>
         </div>
@@ -244,13 +271,21 @@ function HeaderForwardBodyTitle() {
             nowWidthWindow === "mobileScreen" ? Styles.HeaderForwardTitleMobile :
             nowWidthWindow === "tablet" ? Styles.HeaderForwardTitleTablet : {})
         }>
-            <h4 style={Styles.weRe}>we’re</h4>
+            <h4 style={
+                Functions.cloneObject(
+                    Styles.weRe
+                )
+            }>we’re</h4>
             <h3 style={
                 Object.assign(Functions.cloneObject(Styles.shape5),
                 nowWidthWindow === "mobileScreen" ? Styles.shape5Mobile :
                 nowWidthWindow === "tablet" ? Styles.shape5Table : {})
             }>creative agency</h3>
-            <p style={Styles.loremIpsum}>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+            <p style={
+                Functions.cloneObject(
+                    Styles.loremIpsum
+                )
+            }>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
         </div>
     )
 }
@@ -283,18 +318,18 @@ function HeaderForwardBodyMain() {
 
 function HeaderForwardBodyMainText() {
 
-    const refTextOfHeader = useRef(null);
+    const refTextOfHeader = useRef<HTMLParagraphElement>(null);
     const {down, setDown} = useContext(Contexts.HeaderContext);
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
 
     useEffect(() => {
         const textOfHeader = refTextOfHeader.current;
-        if (down) {
+        if (down && textOfHeader) {
             Functions.changeStyleElem(textOfHeader, {
                 height: `${textOfHeader.clientHeight * 2 + 16}px`,
                 maxHeight: `${textOfHeader.clientHeight * 2 + 16}px`
             });
-        } else if (down === false) {
+        } else if (down === false && textOfHeader) {
             Functions.changeStyleElem(textOfHeader, {
                 height: `${(textOfHeader.clientHeight - 16) / 2}px`,
                 maxHeight: `${(textOfHeader.clientHeight - 16) / 2}px`
@@ -334,19 +369,19 @@ function HeaderForwardBodyMainText() {
     )
 }
 
-function HeaderForwardBodyMainButton(props) {
+function HeaderForwardBodyMainButton(props: { setDown: (arg0: boolean) => void; down: boolean | null; }) {
 
     const refButton = useRef(null);
 
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
 
-    const focus = (e) => {
+    const focus = (e: { currentTarget: any; }) => {
         Functions.changeStyleElem(e.currentTarget, {
             outline: "none"
         });
     };
 
-    const enter = (e) => {
+    const enter = (e: { currentTarget: any; }) => {
         Functions.changeStyleElem(e.currentTarget, {
             transition: ".35s ease-out",
             backgroundColor: "#ffffff",
@@ -355,7 +390,7 @@ function HeaderForwardBodyMainButton(props) {
         });
     };
 
-    const leave = (e) => {
+    const leave = (e: { currentTarget: any; }) => {
         Functions.changeStyleElem(e.currentTarget, {
             transition: ".35s ease-in",
             backgroundColor: "#7beec7",
@@ -385,7 +420,11 @@ function HeaderForwardBodyMainButton(props) {
 
 function Main() {
     return(
-        <main style={Styles.main}>
+        <main style={
+            Functions.cloneObject(
+                Styles.main
+            )
+        }>
             <WhyCooseUs/>
             <OurPortfolio/>
             <GlobalPreFooter/>
@@ -398,7 +437,11 @@ function WhyCooseUs() {
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
 
     return(
-        <div className="main_whyChooseUs" style={Styles.whyChooseUsStyle}>
+        <div className="main_whyChooseUs" style={
+            Functions.cloneObject(
+                Styles.whyChooseUsStyle
+            )
+        }>
             <Functions.TitleText title="why choose us" description="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
             otherStylesTitle={
                 nowWidthWindow === "mobileScreen" ? Styles.titleStyleMobile :
@@ -478,17 +521,17 @@ function WhyChooseUsMainLists() {
     )
 }
 
-function WhyChooseUsMainListsItem(props) {
+function WhyChooseUsMainListsItem(props: { styleForListsItem: any; src: any; alt: any; className: any; styleForH3: any; h3: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; list: string[]; }) {
 
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
 
-    const enter = (e) => {
+    const enter = (e: { currentTarget: any; }) => {
         Functions.changeStyleElem(e.currentTarget, {
             color: "#60606e"
         });
     };
 
-    const leave = (e) => {
+    const leave = (e: { currentTarget: any; }) => {
         Functions.changeStyleElem(e.currentTarget, {
             color: '#999999',
         });
@@ -505,7 +548,7 @@ function WhyChooseUsMainListsItem(props) {
                 ...props.styleForH3
             })}>{props.h3}</h3>
             <ul style={Styles.ListsItemUlStyle}>
-                {props.list.map((item, index) => {
+                {props.list.map((item: string, index: number) => {
                     return <li key={index} style={Object.assign(
                         Functions.cloneObject(Styles.brandingDesign),
                         nowWidthWindow === "mobileScreen" ? Styles.brandingDesignMobile : {}
@@ -521,7 +564,11 @@ function OurPortfolio() {
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
 
     return(
-        <div className="main_ourPortfolio" style={Styles.mainOurPortfolio}>
+        <div className="main_ourPortfolio" style={
+            Functions.cloneObject(
+                Styles.mainOurPortfolio
+            )
+        }>
             <Functions.TitleText title="our portfolio" id="portfolio"
             description="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
             otherStylesTitle={
@@ -569,7 +616,7 @@ function OurPortfolioMainMobile() {
 
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
 
-    const [click, setClick] = useState(null);
+    const [click, setClick] = useState<null | boolean>(null);
 
     return(
         <div className="main_ourPortfolio__mainMobile" style={
@@ -586,9 +633,9 @@ function OurPortfolioMainMobile() {
     )
 }
 
-function CategoriesMobileButton(props) {
+function CategoriesMobileButton(props: { setClick: (arg0: boolean) => void; click: boolean | null; }) {
 
-    const enter = (e) => {
+    const enter = (e: { currentTarget: any; }) => {
         Functions.changeStyleElem(e.currentTarget, {
             transition: ".35s ease-out",
             backgroundColor: "#ffffff",
@@ -597,7 +644,7 @@ function CategoriesMobileButton(props) {
         });
     };
 
-    const leave = (e) => {
+    const leave = (e: { currentTarget: any; }) => {
         Functions.changeStyleElem(e.currentTarget, {
             transition: ".35s ease-in",
             backgroundColor: "#7beec7",
@@ -608,7 +655,9 @@ function CategoriesMobileButton(props) {
 
     return(
         <button style={
-            Styles.categoriesMobileButton
+            Functions.cloneObject(
+                Styles.categoriesMobileButton
+            )
         } onPointerEnter={enter} onPointerLeave={leave} onClick={
             () => props.setClick(props.click === null ? true : !props.click)
         }>
@@ -617,14 +666,19 @@ function CategoriesMobileButton(props) {
     )
 }
 
-function CategoriesMobile(props) {
+/* Mobile categories */
 
-    const categoryRef = useRef(null);
+function CategoriesMobile(props: { click: boolean | null; }) {
+
+    const categoryRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const category = categoryRef.current, categoryChildren = category.children;
+        const category = categoryRef.current;
 
         let intervalCount = 1;
+
+        if (category) {
+            const categoryChildren = category.children as HTMLCollectionOf<HTMLImageElement>
 
         Functions.changeStyleElem(category, {
             maxWidth: `${globalThis.mobilePortfolioSlider}px`
@@ -667,11 +721,14 @@ function CategoriesMobile(props) {
                 }, 250);
             }
         }
+        }
     });
 
     return(
         <div className="categories" id="categories" style={
-            Styles.mainOurPortfolioMainMobileStylesCategory
+            Functions.cloneObject(
+                Styles.mainOurPortfolioMainMobileStylesCategory
+            )
         } ref={categoryRef}
         >
             <Functions.Img isCanBeDownload={true} category={["All", "webdesign", "graphic design", "fashion", "logo design", "advertising"]} src={Layer_5} alt="Layer_5" style={{
@@ -734,9 +791,13 @@ function CategoriesMobile(props) {
 
 /* ------- */
 
-function ChooseCategory(props) {
+function ChooseCategory(props: { category: any; setCategoty: any; }) {
     return(
-        <div className="chooseCategory" style={Styles.chooseCategoryStyles}>
+        <div className="chooseCategory" style={
+            Functions.cloneObject(
+                Styles.chooseCategoryStyles
+            )
+        }>
             <ChooseCategoryTitle/>
             <ChooseCategoryList category={props.category} setCategoty={props.setCategoty}/>
         </div>
@@ -745,22 +806,26 @@ function ChooseCategory(props) {
 
 function ChooseCategoryTitle() {
     return(
-        <h2 style={Styles.chooseCategoryH2Styles}>choose category</h2>
+        <h2 style={
+            Functions.cloneObject(
+                Styles.chooseCategoryH2Styles
+            )
+        }>choose category</h2>
     )
 }
 
-function ChooseCategoryList(props) {
+function ChooseCategoryList(props: { setCategoty: (arg0: any) => void; category: string; }) {
     const items = ["All", "webdesign", "graphic design", "fashion", "logo design", "advertising"];
 
-    const firstLiRef = useRef(null);
+    const firstLiRef = useRef<HTMLLIElement>(null);
 
-    const pointerDown = (e) => {
+    const pointerDown = (e: { currentTarget: { textContent: any; }; }) => {
         props.setCategoty(e.currentTarget.textContent);
     };
 
     /* Функция для изменения отступа верхнего <li/>, в зависимости от состояния*/
 
-    const forFirstLiFunction = (elem) => {
+    const forFirstLiFunction = (elem: HTMLElement) => {
         Functions.changeStyleElem(elem, {
             margin: elem.textContent === props.category ? "0 0 0 -19px" : 0
         });
@@ -769,11 +834,13 @@ function ChooseCategoryList(props) {
     /* Процесс инициализации верхней функции */
 
     useEffect(() => {
-        forFirstLiFunction(firstLiRef.current);
+        firstLiRef.current ? forFirstLiFunction(firstLiRef.current) : undefined;
     });
 
     return(
-        <ul style={Styles.chooseCategoryUlStyles}>
+        <ul style={Functions.cloneObject(
+            Styles.chooseCategoryUlStyles
+        )}>
             {items.map((item, index) => {
                 return <li ref={index === 0 ? firstLiRef : null} key={index} style={
                     props.category === item ? Object.assign(Functions.cloneObject(Styles.CategoryUlItemStyles), Functions.cloneObject(Styles.CategoryUlItemActiveStyles)) : 
@@ -784,74 +851,78 @@ function ChooseCategoryList(props) {
     )
 }
 
-function Categories(props) {
+/* Common categories */
 
-    const categoryRef = useRef(null);
+function Categories(props: { category: string; }) {
 
+    const categoryRef = useRef<HTMLDivElement>(null);
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
+    const [masOrders, setMasOrders] = useState<(number | null)[]>([1, 2, 3, 1, 2, 3, 1, 2, 3]);
 
     useEffect(() => {
-        const categoryItems = categoryRef.current.children;
+        const categoryElem = categoryRef.current;
 
-        /* Обнуление свойства для проверки: это ли верхний ряд */
+        if (categoryElem) {
+            const categoryItems = categoryElem.children as HTMLCollectionOf<HTMLImageElement>
 
-        globalThis.wasFirstLine = false;
+            /* Обнуление свойства для проверки: это ли верхний ряд */
 
-        for (let i = 0; i < categoryItems.length; i++) {
-            if (categoryItems[i].dataset.category.includes(props.category)) {
+            globalThis.wasFirstLine = false;
 
-                /* Показываем элемент */
+            for (let i = 0; i < categoryItems.length; i++) {
+                const category = categoryItems[i].dataset.category?.split(",");
+                if (category) {
+                    if (category.includes(props.category)) {
+                        /* Показываем элемент */
+                        Functions.showElem(categoryItems[i], i);
+                        /* Устанавливает data-order и order (css) */
+                        categoryItems[i].dataset.order = globalThis.order;
+                        categoryItems[i].style.order = globalThis.order;
 
-                Functions.showElem(categoryItems[i], i);
-
-                /* Устанавливает data-order и order (css) */
-
-                categoryItems[i].dataset.order = globalThis.order;
-                categoryItems[i].style.order = globalThis.order;
-
-                /* Провека местоположения элементов для изменения их margin */
-
-                if (globalThis.wasFirstLine) {
-
-                    if (categoryItems[i].dataset.order != 1) {
-                        Functions.changeStyleElem(categoryItems[i], {
-                            margin: "25px 0 0 25px"
-                        });
+                        const order = categoryItems[i].dataset.order;
+                        if (order) {
+                            setMasOrders((prevMas) => {
+                                prevMas.splice(i, 1, +order);
+                                return prevMas;
+                            });
+                            if (globalThis.wasFirstLine) {
+                                if (+order !== 1) {
+                                    Functions.changeStyleElem(categoryItems[i], {
+                                        margin: "25px 0 0 25px"
+                                    });
+                                } else {
+                                    Functions.changeStyleElem(categoryItems[i], {
+                                        margin: "25px 0 0 0"
+                                    });
+                                }
+                            } else {
+                                if (+order !== 1) {
+                                    Functions.changeStyleElem(categoryItems[i], {
+                                        margin: "0 0 0 25px"
+                                    });
+                                } else {
+                                    Functions.changeStyleElem(categoryItems[i], {
+                                        margin: "0px"
+                                    });
+                                }
+                            }
+                        }
+    
+                        /* Проверяем order для определения местоположения (globalThis.wasFirstLine) */
+                        if (globalThis.order === 3) {
+                            globalThis.order = 1;
+                            globalThis.wasFirstLine = true;
+                        } else {
+                            globalThis.order++;
+                        }
                     } else {
-                        Functions.changeStyleElem(categoryItems[i], {
-                            margin: "25px 0 0 0"
-                        });
-                    }
-
-                } else {
-
-                    if (categoryItems[i].dataset.order != 1) {
-                        Functions.changeStyleElem(categoryItems[i], {
-                            margin: "0 0 0 25px"
-                        });
-                    } else {
-                        Functions.changeStyleElem(categoryItems[i], {
-                            margin: "0px"
-                        });
+                        /* Прячем элемент */
+                        Functions.hideElem(categoryItems[i]);
                     }
 
                 }
-
-                /* Проверяем order для определения местоположения (globalThis.wasFirstLine) */
-
-                if (globalThis.order === 3) {
-                    globalThis.order = 1;
-                    globalThis.wasFirstLine = true;
-                } else {
-                    globalThis.order++;
-                }
-            } else {
-
-                /* Прячем элемент */
-
-                Functions.hideElem(categoryItems[i]);
-            }
-        };
+            };
+        }
 
         /* Обнуляем свойство order (отвечающее за очередь) */
 
@@ -868,46 +939,46 @@ function Categories(props) {
                 && document.documentElement.clientWidth < 1190 ? Styles.categoriesMedium : {}
             )
         } ref={categoryRef}>
-            <Functions.Img order={1} isCanBeDownload={true} category={["All", "webdesign", "graphic design", "fashion", "logo design", "advertising"]} src={Layer_5} alt="Layer_5" style={
+            <Functions.Img order={masOrders[0]} isCanBeDownload={true} category={["All", "webdesign", "graphic design", "fashion", "logo design", "advertising"]} src={Layer_5} alt="Layer_5" style={
                 Object.assign(Functions.cloneObject(Styles.topLeftItemCategory), {
                     order: 1
                 })
             }/>
-            <Functions.Img order={2} isCanBeDownload={true} category={["All", "webdesign", "graphic design", "fashion", "logo design"]} src={Layer_6} alt="Layer_6" style={
+            <Functions.Img order={masOrders[1]} isCanBeDownload={true} category={["All", "webdesign", "graphic design", "fashion", "logo design"]} src={Layer_6} alt="Layer_6" style={
                 Object.assign(Functions.cloneObject(Styles.topItemCategory), {
                     order: 2
                 })}/>
-            <Functions.Img order={3} isCanBeDownload={true} category={["All", "webdesign", "graphic design", "fashion", "logo design", "advertising"]} src={Layer_7} alt="Layer_7" style={
+            <Functions.Img order={masOrders[2]} isCanBeDownload={true} category={["All", "webdesign", "graphic design", "fashion", "logo design", "advertising"]} src={Layer_7} alt="Layer_7" style={
                 Object.assign(Functions.cloneObject(Styles.topItemCategory), {
                     order: 3
                 })
             }/>
-            <Functions.Img order={1} isCanBeDownload={true} category={["All", "webdesign", "graphic design", "logo design"]} src={Layer_8} alt="Layer_8" style={
+            <Functions.Img order={masOrders[3]} isCanBeDownload={true} category={["All", "webdesign", "graphic design", "logo design"]} src={Layer_8} alt="Layer_8" style={
                 Object.assign(Functions.cloneObject(Styles.leftItemCategory), {
                     order: 1
                 })
             }/>
-            <Functions.Img order={2} isCanBeDownload={true} category={["All", "webdesign", "graphic design", "fashion", "logo design", "advertising"]} src={Layer_9} alt="Layer_9" style={
+            <Functions.Img order={masOrders[4]} isCanBeDownload={true} category={["All", "webdesign", "graphic design", "fashion", "logo design", "advertising"]} src={Layer_9} alt="Layer_9" style={
                 Object.assign(Functions.cloneObject(Styles.itemCategory), {
                     order: 2
                 })
             }/>
-            <Functions.Img order={3} isCanBeDownload={true} category={["All", "webdesign", "graphic design", "fashion", "advertising"]} src={Layer_10} alt="Layer_10" style={
+            <Functions.Img order={masOrders[5]} isCanBeDownload={true} category={["All", "webdesign", "graphic design", "fashion", "advertising"]} src={Layer_10} alt="Layer_10" style={
                 Object.assign(Functions.cloneObject(Styles.itemCategory), {
                     order: 3
                 })
             }/>
-            <Functions.Img order={1} isCanBeDownload={true} category={["All", "webdesign", "graphic design", "fashion", "logo design", "advertising"]} src={Layer_11} alt="Layer_11" style={
+            <Functions.Img order={masOrders[6]} isCanBeDownload={true} category={["All", "webdesign", "graphic design", "fashion", "logo design", "advertising"]} src={Layer_11} alt="Layer_11" style={
                 Object.assign(Functions.cloneObject(Styles.leftItemCategory), {
                     order: 1
                 })
             }/>
-            <Functions.Img order={2} isCanBeDownload={true} category={["All", "logo design", "advertising"]} src={Layer_14} alt="Layer_13" style={
+            <Functions.Img order={masOrders[7]} isCanBeDownload={true} category={["All", "logo design", "advertising"]} src={Layer_14} alt="Layer_13" style={
                 Object.assign(Functions.cloneObject(Styles.itemCategory), {
                     order: 2
                 })
             }/>
-            <Functions.Img order={3} isCanBeDownload={true} category={["All", "graphic design", "fashion", "advertising"]} src={Layer_13} alt="Layer_14" style={
+            <Functions.Img order={masOrders[8]} isCanBeDownload={true} category={["All", "graphic design", "fashion", "advertising"]} src={Layer_13} alt="Layer_14" style={
                 Object.assign(Functions.cloneObject(Styles.itemCategory), {
                     order: 3
                 })
@@ -915,3 +986,5 @@ function Categories(props) {
         </div>
     )
 }
+
+/* ------ */

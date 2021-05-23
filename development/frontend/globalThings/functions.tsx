@@ -12,7 +12,7 @@ export const cloneObject = (obj: object) => {
     return cloneObj;
 };
 
-export function changeStyleElem<Type extends HTMLElement>(event: Type, style: object) {
+export function changeStyleElem<Type extends HTMLElement | HTMLUListElement | HTMLDivElement | HTMLParagraphElement>(event: Type, style: object) {
     if (!event) return;
     const target = event;
 
@@ -61,7 +61,7 @@ export const hideElem = (elem) => {
     });
 };
 
-export const showElem = (elem, index) => {
+export const showElem = (elem: HTMLElement, index: number) => {
 
     if (globalThis.wasWrited === false) {
         globalThis.elemHeight[index] = elem.clientHeight;
@@ -73,8 +73,10 @@ export const showElem = (elem, index) => {
         width: globalThis.elemWidth[index] + "px",
     });
 
-    if (elem.parentNode.children.length - index === 1) {
-        globalThis.wasWrited = true;
+    if (elem.parentElement) {
+        if (elem.parentElement.children.length - index === 1) {
+            globalThis.wasWrited = true;
+        }
     }
 };
 
@@ -129,6 +131,63 @@ export const downloadThing = (src: string, ext: string) => {
     }
 };
 
+export class CreateUrlRequest {
+    public url: string;
+    public response?: null | Response;
+    public ok?: boolean = false;
+    public body?: string | JSON | {};
+    public method?: string;
+    public keepalive?: boolean;
+
+    constructor(
+        url = "",
+        options = {
+            body: "",
+            method: "GET",
+            keepalive: false
+        } as {
+            body?: string;
+            method?: string;
+            keepalive?: boolean | undefined
+        }
+    ) {
+        this.url = url;
+        this.body = options.body;
+        this.method = options.method;
+        this.keepalive = options.keepalive;
+    }
+
+    public async toFetch() {
+        const response = await fetch(this.url, {
+            body: this?.body ? this.body : undefined,
+            method: this?.method ? this.method : "GET",
+            keepalive: this?.keepalive ? this.keepalive : false
+        });
+        this.response = response;
+        if (this.response!.ok) this.ok = true;
+        return this;
+    }
+
+    public async toMethod(method: string) {
+        if (this.response) {
+            switch(method) {
+                case "json":
+                    return await this.response.json();
+                case "text":
+                    return await this.response.text();
+                case "blob":
+                    return await this.response.blob();
+                case "formData":
+                    return await this.response.formData();
+                default:
+                    return null;
+            }
+        } else {
+            return null;
+        }
+    }
+}
+
 export function Img(props) {
 
     const {setData} = useContext(LoaderContext);
@@ -162,12 +221,16 @@ export function Img(props) {
     };
 
     return(
-        <img data-category={props.category} data-order={props.order} src={props.src} alt={props.alt} className={props.className} style={{
-            cursor: props.isCanBeDownload ? "pointer" : "auto",
-            ...props.style
-        }}
+        <img data-category={props.category} data-order={props.order} src={props.src} alt={props.alt} className={props.className} style={
+            Object.assign({
+                cursor: props.isCanBeDownload ? "pointer" : "auto"
+            },
+                typeof props.style === "object" ? props.style : {}
+            )
+        }
         onClick={
-            props.isCanBeDownload ? downloadImage : undefined
+            props.isCanBeDownload ? downloadImage :
+            props.clickFunc ? props.clickFunc : undefined
         }/>
     )
 }

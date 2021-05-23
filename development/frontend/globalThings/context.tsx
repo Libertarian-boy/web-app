@@ -1,16 +1,26 @@
 import React from "react";
+interface LoaderContextInterface {
+    up: boolean;
+    name: string;
+    type: string;
+    ext: string;
+    size: string;
+    src: string;
+}
+
+type LoaderContextInterfacePartialed = Partial<LoaderContextInterface>;
 
 export const MediaContext = React.createContext({
-    value: null,
-    setValue: () => {}
+    nowWidthWindow: "",
+    setNowWidthWindow: (_: any) => {}
 });
 
 export const HeaderContext = React.createContext({
     down: null,
-    setDown: () => {}
+    setDown: (_: any) => {}
 });
 
 export const LoaderContext = React.createContext({
-    data: null,
-    setData: () => {}
+    data: {} as (LoaderContextInterfacePartialed | null),
+    setData: (_: any) => {}
 });

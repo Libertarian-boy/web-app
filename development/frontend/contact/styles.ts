@@ -1,3 +1,5 @@
+import { CSSProperties } from "react";
+
 export const main = {
     gridArea: "main",
     transform: "translate(-20px, -20px)",
@@ -46,7 +48,7 @@ export const inputOfFormLong = {
     margin: "31px 0 0 0"
 };
 
-export const textarea = {
+export const textarea: CSSProperties = {
     width: "100%", /* 555px */
     height: "179px",
     backgroundColor: "#fefcf9",
@@ -60,7 +62,7 @@ export const textarea = {
     padding: "0 0 0 21px"
 }
 
-export const buttonOfForm = {
+export const buttonOfForm: CSSProperties = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -80,6 +82,26 @@ export const buttonOfForm = {
     padding: 0
 };
 
+export const dataOfUser = {
+    visible: "hidden",
+    display: "none",
+    flexDirection: "column",
+    alignItems: "flex-start",
+    justifyContent: "flex-start",
+    visibility: "hidden",
+};
+
+export const dataOfUser_item = {
+    fontFamily: "Montserrat, sans-serif",
+    fontSize: "12px",
+    lineHeight: "36px",
+    fontWeight: "700",
+    textTransform: "uppercase",
+    color: "#7beec7",
+    borderBottom: "4.5px solid #7beec7",
+    borderRadius: "2.25px"
+};
+
 export const main_conteiner__contactInfo = {
     margin: "100px 0 0 0",
     display: "flex",
@@ -89,11 +111,11 @@ export const main_conteiner__contactInfo = {
     width: "536px"
 };
 
-export const main_conteiner__contactInfo___h3 = {
+export const main_conteiner__contactInfo___h3: CSSProperties = {
     margin: 0,
     fontFamily: "Montserrat, sans-serif",
     fontSize: "18px",
-    fontWeight: "700",
+    fontWeight: 700,
     textTransform: "uppercase",
     color: "#60606e"
 };
@@ -116,8 +138,8 @@ export const contactInfo_info = {
     color: "#999999"
 };
 
-export const contactInfo_info__span = {
-    fontWeight: "700"
+export const contactInfo_info__span: CSSProperties = {
+    fontWeight: 700
 };
 
 export const iframe = {

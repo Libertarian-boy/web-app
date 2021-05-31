@@ -5,6 +5,7 @@ const path = require("path");
 
 const textParser = express.text();
 const blogRouter = express.Router();
+const jsonParser = express.json();
 
 const masOfImages = [];
 
@@ -62,7 +63,7 @@ blogRouter.route("/server/search")
 
 blogRouter.route("/server/posts/:id")
     .get(async (req, res) => {
-        const pathToImage = path.resolve(`C:/Users/Егор/Desktop/web-app/development/backend/images/${
+        const pathToImage = path.resolve(`././images/${
             +req.params.id % 3 === 0 ? "mount" :
             +req.params.id % 2 === 0 ? "mount_smoke" : "mount_snow"
         }.png`);
@@ -96,13 +97,14 @@ blogRouter.route("/server/postOfBlog/:id")
                 _id: id
             });
 
-            const pathToImage = "C:/Users/Егор/Desktop/web-app/development/backend/images/blog_image.png";
+            const pathToImage = path.resolve("././images/blog_image.png");
             const ext = path.extname("blog_image.png");
 
             if (documentOfBlog) {
                 res.status(200).json({
                     ...documentOfBlog
                 });
+                mongoClient.close();
                 res.end();
             } else {
                 fs.readFile(pathToImage, {
@@ -113,6 +115,7 @@ blogRouter.route("/server/postOfBlog/:id")
                             status: "Error",
                             message: "Image not found"
                         });
+                        mongoClient.close();
                         res.end();
                     }
                     await collectionOfBlogs.insertOne({
@@ -136,8 +139,42 @@ blogRouter.route("/server/postOfBlog/:id")
                     res.status(200).json({
                         ...response
                     });
+                    mongoClient.close();
                     res.end();
                 });
+            }
+        }
+    })
+    .put(jsonParser, async (req, res) => {
+        if (req.params?.id) {
+            const _id = req.params.id, body = req.body;
+            const mongoClient = new MongoClient("mongodb://localhost:27017/", {
+                useUnifiedTopology: true
+            });
+            const client = await mongoClient.connect();
+            const collection = client.db("web-app").collection("blogs");
+            
+            if (body) {
+
+                switch(body?.type) {
+                    case "setStateOfLike":
+                        await collection.findOneAndUpdate({
+                            _id: _id
+                        }, {
+                            "$set": {
+                                countOfLikes: body.countOfLikes,
+                                wasLikedByUser: body.wasLikedByUser
+                            }
+                        });
+                        const document = await collection.findOne({
+                            _id: _id
+                        });
+                        res.json(document);
+                        mongoClient.close(),
+                        res.end();
+                        break;
+                }
+
             }
         }
     });

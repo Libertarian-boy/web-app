@@ -632,27 +632,32 @@ function MainConteinerBlogs() {
     const main_conteiner__blogsRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+        document.addEventListener("scroll", () => {
+            setScrollState(pageYOffset);
+        });
+
+        return () => {
+            document.removeEventListener("scroll", () => {
+                setScrollState(pageYOffset);
+            });
+        }
+    }, []);
+
+    useEffect(() => {
         const main_conteiner__blogs = main_conteiner__blogsRef.current;
         if (main_conteiner__blogs) {
-
-            if (main_conteiner__blogs?.scrollHeight - scrollState < main_conteiner__blogs?.clientHeight * 1.5) {
+            if (main_conteiner__blogs.clientHeight - scrollState < main_conteiner__blogs.clientHeight / 5) {
                 setCountPostsObj((prevState) => {
                     return {
                         length: prevState.length + 3
                     }
                 });
             }
-
         }
     }, [scrollState]);
 
-    function scroll(e: { currentTarget: HTMLDivElement; }) {
-        const target = e.currentTarget as HTMLDivElement;
-        setScrollState(target.scrollTop);
-    }
-
     return(
-        <div className="main_conteiner__blogs" ref={main_conteiner__blogsRef} onScroll={scroll} style={
+        <div className="main_conteiner__blogs" ref={main_conteiner__blogsRef} style={
             Functions.cloneObject(
                 Styles.main_conteiner__blogs
             )
@@ -706,8 +711,16 @@ function PostOfBlog({id, style}: {id: number | string, style?: CSSProperties}) {
     };
 
     function reduserOfPostData(state: {
-        countOfLikes: number;
-        countOfComments: number;
+        date?: any; 
+            user?: any; 
+            content?: any; 
+            srcOfImg?: any; 
+            dateOfCreated?: any; 
+            title?: any; 
+            description?: any; 
+            countOfComments?: any;
+            countOfLikes?: any;
+            wasLikedByUser?: any;
     },
         action: { 
             type: any; 
@@ -738,18 +751,12 @@ function PostOfBlog({id, style}: {id: number | string, style?: CSSProperties}) {
                 title: action.title,
                 description: action.description
             }
-            case "like":
+            case "setStateOfLike":
                 return {
                     ...state,
-                    wasLikedByUser: true,
-                    countOfLikes: state.countOfLikes + 1
+                    wasLikedByUser: action.wasLikedByUser,
+                    countOfLikes: action.countOfLikes
                 };
-            case "unLike":
-                return {
-                    ...state,
-                    wasLikedByUser: false,
-                    countOfLikes: state.countOfLikes - 1
-                }
             case "writeComment":
                 return {
                     ...state,
@@ -798,7 +805,7 @@ function PostOfBlog({id, style}: {id: number | string, style?: CSSProperties}) {
         })
         .then(res => {
             let result = res as InitalPostDataInterface;
-            console.log(result);
+            /* console.log(result); */
             dispatchOfPostData({
                 type: "setStartProp",
                 ...result
@@ -811,7 +818,33 @@ function PostOfBlog({id, style}: {id: number | string, style?: CSSProperties}) {
             Styles.main_conteiner__blogs___blog
         ),
         style ? style : {}
-    )
+    );
+
+    async function setStateOfLike(id: number | string): Promise<any> {
+        const request = new Functions.CreateUrlRequest(`/blog/server/postOfBlog/${id}`, {
+            method: "PUT",
+            keepalive: false,
+            headers: {
+                "Content-Type": "application/json; charset=utf-8"
+            },
+            body: JSON.stringify({
+                type: "setStateOfLike",
+                countOfLikes: postData.wasLikedByUser ? postData.countOfLikes - 1 : postData.countOfLikes + 1,
+                wasLikedByUser: !postData.wasLikedByUser
+            })
+        });
+        const response = await request.toFetch();
+        if (response.ok) {
+            const result = await response.toMethod("json");
+            /* console.log(result); */
+            dispatchOfPostData({
+                type: "setStateOfLike",
+                ...result
+            });
+        } else {
+            console.log(response.toMethod("json"));
+        }
+    }
 
     return(
         <div className="main_conteiner__blogs___blog" style={styles}>
@@ -841,7 +874,7 @@ function PostOfBlog({id, style}: {id: number | string, style?: CSSProperties}) {
                     }}/>
                     {postData.countOfComments}
                 </div>
-                <div className="blog_info__likes" style={
+                <div className="blog_info__likes" onClick={() => setStateOfLike(id)} style={
                     Functions.cloneObject(
                         Styles.blog_info__likes
                     )

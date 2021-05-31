@@ -138,30 +138,35 @@ export class CreateUrlRequest {
     public body?: string | JSON | {};
     public method?: string;
     public keepalive?: boolean;
+    public headers?: any
 
     constructor(
         url = "",
         options = {
             body: "",
             method: "GET",
-            keepalive: false
+            keepalive: false,
+            headers: {}
         } as {
-            body?: string;
+            body?: string | JSON | {};
             method?: string;
             keepalive?: boolean | undefined
+            headers?: any
         }
     ) {
         this.url = url;
         this.body = options.body;
         this.method = options.method;
         this.keepalive = options.keepalive;
+        this.headers = options.headers;
     }
 
     public async toFetch() {
         const response = await fetch(this.url, {
             body: this?.body ? this.body : undefined,
             method: this?.method ? this.method : "GET",
-            keepalive: this?.keepalive ? this.keepalive : false
+            keepalive: this?.keepalive ? this.keepalive : false,
+            headers: this?.headers ? this.headers : {}
         });
         this.response = response;
         if (this.response!.ok) this.ok = true;

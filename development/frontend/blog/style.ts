@@ -304,6 +304,16 @@ export const blog_info__likes: CSSProperties = {
     cursor: "pointer"
 };
 
+export const commentOfPost: CSSProperties = {
+    transition: ".25s ease-out",
+    transitionProperty: "width, margin, box-shadow",
+    transformOrigin: "left center",
+    padding: "0 0 0 10px",
+    border: 0,
+    color: "#7beec7",
+    outline: 0
+};
+
 export const title: CSSProperties = {
     margin: "20px 0 0 0",
     fontFamily: "Montserrat, sans-serif",
@@ -319,7 +329,10 @@ export const descriptionOfPost: CSSProperties = {
     fontSize: "14px",
     lineHeight: "24px",
     fontWeight: 400,
-    color: "#999999"
+    color: "#999999",
+    overflowY: "hidden",
+    maxHeight: "72px",
+    height: "72px"
 };
 
 export const toReadDescription: CSSProperties = {
@@ -331,5 +344,6 @@ export const toReadDescription: CSSProperties = {
     fontSize: "14px",
     fontWeight: 700,
     textTransform: "uppercase",
-    color: "#60606e"
+    color: "#60606e",
+    cursor: "pointer"
 };

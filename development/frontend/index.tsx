@@ -189,7 +189,7 @@ function GlobalLoad() {
             };
 
             Functions.changeStyleElem(root, {
-                overflowX: location.pathname === "/blog" ? null : "auto"
+                overflowX: location.pathname === "/blog" ? undefined : "auto"
             });
         }, 100);
     };

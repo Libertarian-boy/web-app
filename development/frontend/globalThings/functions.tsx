@@ -1,6 +1,6 @@
 import type * as Types from "./types";
 
-import React, {useContext} from "react";
+import React, {CSSProperties, useContext} from "react";
 import {titleStyle, titleStyleH2, titleStyleH2Block, titleStyleP} from "../globalThings/GlobalStyles";
 import {LoaderContext} from "./context";
 
@@ -12,7 +12,7 @@ export const cloneObject = (obj: object) => {
     return cloneObj;
 };
 
-export function changeStyleElem<Type extends HTMLElement | HTMLUListElement | HTMLDivElement | HTMLParagraphElement>(event: Type, style: object) {
+export function changeStyleElem<Type extends HTMLElement | HTMLUListElement | HTMLDivElement | HTMLParagraphElement>(event: Type, style: CSSProperties) {
     if (!event) return;
     const target = event;
 
@@ -135,10 +135,10 @@ export class CreateUrlRequest {
     public url: string;
     public response?: null | Response;
     public ok?: boolean = false;
-    public body?: string | JSON | {};
-    public method?: string;
-    public keepalive?: boolean;
-    public headers?: any
+    public body?: string | JSON | {} | undefined;
+    public method?: string | undefined;
+    public keepalive?: boolean | undefined;
+    public headers?: any | undefined
 
     constructor(
         url = "",
@@ -248,7 +248,7 @@ export function TitleText({
         <div className="title" style={Object.assign(cloneObject(titleStyle), {
             ...props.otherStylesTitle
         })}>
-            <h2 id={id ? id : undefined} style={
+            <h2 id={id} style={
                     cloneObject(
                         titleStyleH2
                     )

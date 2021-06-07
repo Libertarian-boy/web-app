@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState, KeyboardEvent, CSSProperties, useReducer} from "react";
+import React, {useEffect, useRef, useState, KeyboardEvent, CSSProperties, useReducer, PointerEvent} from "react";
 
 import * as BlogPresets from "./blog_presets";
 import * as Styles from "./style";
@@ -13,6 +13,10 @@ import Search from "./images/search.png";
 import Comment from "./images/comment.png";
 import Heart from "./images/heart.png";
 import Arrow from "./images/arrow.png";
+
+import {initalPostData} from "./initalStateOfPost";
+import {reduserOfPostData} from "./reduserPostOfBlog";
+import type {InitalPostDataInterface} from "./types";
 
 export default function Blog() {
     return(
@@ -418,7 +422,7 @@ function Post({src, title, date, style}: {
     src: string;
     title: string;
     date: string | Date;
-    style?: {}
+    style?: CSSProperties
 }) {
 
     const styleMain = Object.assign(
@@ -679,118 +683,7 @@ function MainConteinerBlogs() {
 }
 
 function PostOfBlog({id, style}: {id: number | string, style?: CSSProperties}) {
-
-    interface InitalPostDataInterface {
-        srcOfImg: null | string;
-        dateOfCreated: null | string;
-        countOfComments: number;
-        comment: {
-            date: null | string;
-            user: null | string;
-            content: null | string;
-        };
-        countOfLikes: number;
-        wasLikedByUser: boolean;
-        title: string;
-        description: string
-    };
-
-    const initalPostData: InitalPostDataInterface = {
-        srcOfImg: null,
-        dateOfCreated: null,
-        countOfComments: 0,
-        comment: {
-            date: null,
-            user: null,
-            content: null,
-        },
-        countOfLikes: 0,
-        wasLikedByUser: false,
-        title: "",
-        description: ""
-    };
-
-    function reduserOfPostData(state: {
-        date?: any; 
-            user?: any; 
-            content?: any; 
-            srcOfImg?: any; 
-            dateOfCreated?: any; 
-            title?: any; 
-            description?: any; 
-            countOfComments?: any;
-            countOfLikes?: any;
-            wasLikedByUser?: any;
-    },
-        action: { 
-            type: any; 
-            date?: any; 
-            user?: any; 
-            content?: any; 
-            srcOfImg?: any; 
-            dateOfCreated?: any; 
-            title?: any; 
-            description?: any; 
-            countOfComments?: any;
-            countOfLikes?: any;
-            wasLikedByUser?: any;
-        }) {
-        switch(action?.type) {
-            case "setStartProp": 
-            return {
-                srcOfImg: action.srcOfImg,
-                dateOfCreated: action.dateOfCreated,
-                countOfComments: action.countOfComments,
-                comment: {
-                    date: action.date,
-                    user: action.user,
-                    content: action.content,
-                },
-                countOfLikes: action.countOfLikes,
-                wasLikedByUser: action.wasLikedByUser,
-                title: action.title,
-                description: action.description
-            }
-            case "setStateOfLike":
-                return {
-                    ...state,
-                    wasLikedByUser: action.wasLikedByUser,
-                    countOfLikes: action.countOfLikes
-                };
-            case "writeComment":
-                return {
-                    ...state,
-                    countOfComments: state.countOfComments + 1,
-                    comment: {
-                        date: action.date,
-                        user: action.user,
-                        content: action.content
-                    }
-                };
-            case "setSrcOfImg":
-                return {
-                    ...state,
-                    srcOfImg: action.srcOfImg
-                };
-            case "setDateOfCreated":
-                return {
-                    ...state,
-                    dateOfCreated: action.dateOfCreated
-                };
-            case "setTitle":
-                return {
-                    ...state,
-                    title: action.title
-                };
-            case "setDescription":
-                return {
-                    ...state,
-                    description: action.description
-                };
-            default:
-                throw new Error("Not exist type of action!");
-        }
-    };
+    const [descriptionIsOpen, setDescriptionIsOpen] = useState<boolean | null>(null);
 
     const [postData, dispatchOfPostData] = useReducer(reduserOfPostData, initalPostData);
 
@@ -851,61 +744,241 @@ function PostOfBlog({id, style}: {id: number | string, style?: CSSProperties}) {
             <Functions.Img src={postData.srcOfImg} style={{
                 width: "100%"
             }}/>
-            <div className="blog_info" style={
+            <BlogInfo postData={postData} id={id} setStateOfLike={setStateOfLike} setSubmited={dispatchOfPostData} />
+            <TitleOfPost postData={postData} />
+            <Description descriptionIsOpen={descriptionIsOpen} postData={postData}/>
+            <ReadDescription descriptionIsOpen={descriptionIsOpen} setDescriptionIsOpen={setDescriptionIsOpen}/>
+        </div>
+    )
+}
+
+function BlogInfo({postData, id, setStateOfLike, setSubmited}) {
+    const [commentIsOpen, setCommentIsOpen] = useState<null | boolean>(null);
+
+    return(
+        <div className="blog_info" style={
+            Functions.cloneObject(
+                Styles.blog_info
+            )
+        }>
+            <div className="blog_info__date" style={
                 Functions.cloneObject(
-                    Styles.blog_info
+                    Styles.blog_info__date
                 )
             }>
-                <div className="blog_info__date" style={
-                    Functions.cloneObject(
-                        Styles.blog_info__date
-                    )
-                }>
-                    {postData.dateOfCreated}
-                </div>
-                <div className="blog_info__comment" style={
-                    Functions.cloneObject(
-                        Styles.blog_info__comment
-                    )
-                }>
-                    <Functions.Img src={Comment} style={{
-                        margin: "0 9px 0 0",
-                        cursor: "pointer"
-                    }}/>
-                    {postData.countOfComments}
-                </div>
-                <div className="blog_info__likes" onClick={() => setStateOfLike(id)} style={
-                    Functions.cloneObject(
-                        Styles.blog_info__likes
-                    )
-                }>
-                    <Functions.Img src={Heart} style={{
-                        margin: "0 8px 0 0",
-                        cursor: "pointer"
-                    }}/>
-                    {postData.countOfLikes}
-                </div>
+                {postData.dateOfCreated}
             </div>
-            <h4 className="title" style={
-                Styles.title
-            }>
-                {postData.title}
-            </h4>
-            <p className="descriptionOfPost" style={
-                Styles.descriptionOfPost
-            }>
-                {postData.description}
-            </p>
-            <div className="toReadDescription" style={
+            <div className="blog_info__comment"
+            onClick={() => setCommentIsOpen(commentIsOpen === null ? true : !commentIsOpen)}
+            style={
                 Functions.cloneObject(
-                    Styles.toReadDescription
+                    Styles.blog_info__comment
                 )
             }>
-                continue reading
-                <Functions.Img src={Arrow} style={{
-                    margin: "0 0 0 9px"
+                <Functions.Img src={Comment} style={{
+                    margin: "0 9px 0 0",
+                    cursor: "pointer"
                 }}/>
+                {postData.countOfComments}
             </div>
+            <CommentEnterOfPost commentIsOpen={commentIsOpen} setSubmited={setSubmited} id={id} postData={postData}/>
+            <div className="blog_info__likes" onClick={() => setStateOfLike(id)} style={
+                Functions.cloneObject(
+                    Styles.blog_info__likes
+                )
+            }>
+                <Functions.Img src={Heart} style={{
+                    margin: "0 8px 0 0",
+                    cursor: "pointer"
+                }}/>
+                {postData.countOfLikes}
+            </div>
+        </div>
+    )
+}
+
+function CommentEnterOfPost({commentIsOpen, setSubmited, id, postData}) {
+    const commentRef = useRef<null | HTMLInputElement>(null);
+    const [commentEnterWidth, setCommentEnterWidth] = useState<null | number>(null);
+
+    const submit = async (e: KeyboardEvent) => {
+        const inputElement = e.currentTarget as HTMLInputElement;
+        let value = inputElement.value, dateObj = new Date();
+        const action = {
+            type: "writeComment",
+            countOfComments: postData.countOfComments + 1,
+            comment: {
+                date: `${dateObj.getHours()}:${dateObj.getMinutes()}:${dateObj.getSeconds()}`,
+                user: undefined,
+                content: value
+            }
+        };
+        if (e.key.toLowerCase() === "enter") {
+            const request = new Functions.CreateUrlRequest(`/blog/server/postOfBlog/${id}`, {
+                method: "PUT",
+                keepalive: false,
+                headers: {
+                    "Content-Type": "application/json; charset=utf-8"
+                },
+                body: JSON.stringify(action)
+            });
+            const response = await request.toFetch();
+            if (response.ok) {
+                const result = await response.toMethod("json");
+                console.log(result);
+                setSubmited({
+                    type: "writeComment",
+                    ...result
+                });
+                value = "";
+            } else {
+                throw new Error("Something wrong, try again!");
+            }
+        }
+    };
+
+    useEffect(() => {
+        const commentEnter = commentRef.current as HTMLInputElement;
+        if (!commentEnterWidth) {
+            setCommentEnterWidth(commentEnter.clientWidth);
+        }
+        Functions.changeStyleElem(commentEnter, {
+            width: 0
+        });
+    }, []);
+
+    useEffect(() => {
+        const comment = commentRef.current as HTMLInputElement;
+        if (commentIsOpen) {
+            Functions.changeStyleElem(comment, {
+                width: `${commentEnterWidth}px`,
+                margin: "0 0 0 10px",
+                boxShadow: "0 0 0 3px #7beec7"
+            });
+        } else if (commentIsOpen === false) {
+            Functions.changeStyleElem(comment, {
+                width: 0,
+                margin: 0,
+                boxShadow: "0 0 0 0 #7beec7"
+            });
+        }
+    }, [commentIsOpen]);
+
+    return(
+        <input ref={commentRef} type="text" name="comment" placeholder="Enter your comment..."
+        onKeyPress={submit}
+        style={Styles.commentOfPost} />
+    )
+}
+
+function TitleOfPost({postData}) {
+    return(
+        <h4 className="title" style={
+            Styles.title
+        }>
+            {postData.title}
+        </h4>
+    )
+}
+
+function Description({postData, descriptionIsOpen}) {
+    const descriptionOfPostRef = useRef<HTMLParagraphElement | null>(null);
+    useEffect(() => {
+        const descriptionOfPost = descriptionOfPostRef.current as HTMLParagraphElement;
+        const nowHeightDescriptionOfPost = descriptionOfPost.clientHeight;
+        if (descriptionIsOpen) {
+            descriptionOfPost.animate([
+                {
+                    maxHeight: nowHeightDescriptionOfPost + "px",
+                    height: nowHeightDescriptionOfPost + "px"
+                },
+                {
+                    maxHeight: nowHeightDescriptionOfPost * 2 + 4 + "px",
+                    height: nowHeightDescriptionOfPost * 2 + 4 + "px"
+                }
+            ], {
+                duration: 250,
+                easing: "linear",
+                fill: "forwards"
+            });
+        } else if (descriptionIsOpen === false) {
+            descriptionOfPost.animate([
+                {
+                    maxHeight: nowHeightDescriptionOfPost + "px",
+                    height: nowHeightDescriptionOfPost + "px"
+                },
+                {
+                    maxHeight: (nowHeightDescriptionOfPost) - 4 / 2 + "px",
+                    height: (nowHeightDescriptionOfPost - 4) / 2 + "px"
+                }
+            ], {
+                duration: 250,
+                easing: "linear",
+                fill: "forwards"
+            });
+        }
+    }, [descriptionIsOpen]);
+
+    return(
+        <p className="descriptionOfPost" ref={descriptionOfPostRef} style={
+            Styles.descriptionOfPost
+        }>
+            {postData?.description}
+            <br/>
+            {postData?.description}
+        </p>
+    )
+}
+
+function ReadDescription({descriptionIsOpen, setDescriptionIsOpen}) {
+
+    const pointerEnter = (e: PointerEvent<HTMLDivElement>) => {
+        let current = e.currentTarget as HTMLElement;
+        let imgElement = current.querySelector("img") as HTMLImageElement;
+
+        Functions.changeStyleElem(current, {
+            backgroundColor: "#7beec7",
+            color: "#ffffff",
+            transition: "color ease-in .25s, background-color ease-out .25s"
+        });
+        Functions.changeStyleElem(imgElement, {
+            margin: `${descriptionIsOpen ? "-2px" : "2px"} 0 0 9px`,
+            transition: ".25s linear",
+            transitionProperty: "transform",
+            transform: descriptionIsOpen ? "rotateZ(-90deg)" : "rotateZ(90deg)"
+        });
+    };
+
+    const pointerDown = (e: { currentTarget: HTMLElement; }) => {
+        let current = e.currentTarget as HTMLElement;
+        let imgElement = current.querySelector("img") as HTMLImageElement;
+
+        Functions.changeStyleElem(current, {
+            backgroundColor: "#ffffff",
+            color: "#60606e",
+            transition: "color ease-in .25s, background-color ease-out .25s"
+        });
+        Functions.changeStyleElem(imgElement, {
+            margin: "2px 0 0 9px",
+            transform: "rotate(0)"
+        });
+    };
+
+    return(
+        <div className="toReadDescription" style={
+            Functions.cloneObject(
+                Styles.toReadDescription
+            )
+        } onPointerEnter={pointerEnter} onPointerDown={pointerDown} onClick={() => setDescriptionIsOpen(
+            descriptionIsOpen === null ? true : !descriptionIsOpen
+        )}>
+            {
+                descriptionIsOpen ? "hide text" : "continue reading"
+            }
+            <Functions.Img src={Arrow} style={{
+                margin: "2px 0 0 9px",
+                cursor: "pointer"
+            }}/>
         </div>
     )
 }

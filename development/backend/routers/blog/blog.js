@@ -2,6 +2,7 @@ const express = require("express");
 const {MongoClient} = require("mongodb");
 const fs = require("fs");
 const path = require("path");
+const chalk = require("chalk");
 
 const textParser = express.text();
 const blogRouter = express.Router();
@@ -68,20 +69,26 @@ blogRouter.route("/server/posts/:id")
             +req.params.id % 2 === 0 ? "mount_smoke" : "mount_snow"
         }.png`);
 
-        let imageFile = fs.readFileSync(pathToImage, {
+        fs.readFile(pathToImage, {
             encoding: "base64"
+        }, (err, data) => {
+            if (err) {
+                res.status(404).json({
+                    status: "Error",
+                    code: 404
+                });
+                return;
+            }
+            const ext = path.extname("image.png");
+            masOfImages.push(`data:image/${ext.split(".").pop()};base64,${data}`);
+            res.type("json");
+            res.status(200).json({
+                src: masOfImages,
+                title: "Magna mollis ultricies",
+                date: "3th oct 2012"
+            });
+            res.end();
         });
-        const ext = path.extname("image.png");
-
-        masOfImages.push(`data:image/${ext.split(".").pop()};base64,${imageFile}`);
-        res.type("png");
-
-        res.status(200).json({
-            src: masOfImages,
-            title: "Magna mollis ultricies",
-            date: "3th oct 2012"
-        });
-        res.end();
     });
 
 blogRouter.route("/server/postOfBlog/:id")
@@ -146,17 +153,18 @@ blogRouter.route("/server/postOfBlog/:id")
         }
     })
     .put(jsonParser, async (req, res) => {
-        if (req.params?.id) {
+        if (req.params.id) {
             const _id = req.params.id, body = req.body;
             const mongoClient = new MongoClient("mongodb://localhost:27017/", {
                 useUnifiedTopology: true
             });
             const client = await mongoClient.connect();
             const collection = client.db("web-app").collection("blogs");
+            let document;
             
             if (body) {
 
-                switch(body?.type) {
+                switch(body.type) {
                     case "setStateOfLike":
                         await collection.findOneAndUpdate({
                             _id: _id
@@ -166,15 +174,32 @@ blogRouter.route("/server/postOfBlog/:id")
                                 wasLikedByUser: body.wasLikedByUser
                             }
                         });
-                        const document = await collection.findOne({
+                        document = await collection.findOne({
                             _id: _id
                         });
                         res.json(document);
-                        mongoClient.close(),
-                        res.end();
                         break;
+                    case "writeComment":
+                        await collection.findOneAndUpdate({
+                            _id: _id
+                        }, {
+                            "$set": {
+                                countOfComments: body.countOfComments,
+                                comment: {
+                                    date: body.comment.date,
+                                    user: body.comment.user,
+                                    content: body.comment.content
+                                }
+                            }
+                        });
+                        document = await collection.findOne({
+                            _id: _id
+                        });
+                        res.json(document);
+                        break; 
                 }
-
+                mongoClient.close(),
+                res.end();
             }
         }
     });

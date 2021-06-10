@@ -130,11 +130,7 @@ blogRouter.route("/server/postOfBlog/:id")
                         srcOfImg: `data:image/${ext.split(".").pop()};base64,${data}`,
                         dateOfCreated: "October 13, 2015",
                         countOfComments: 8,
-                        comment: {
-                            date: null,
-                            user: null,
-                            content: null,
-                        },
+                        comment: [],
                         countOfLikes: 15,
                         wasLikedByUser: false,
                         title: "THE BIG LEAGUES OUR TURN STRAIGHTNIN",
@@ -202,6 +198,16 @@ blogRouter.route("/server/postOfBlog/:id")
                 res.end();
             }
         }
+    });
+
+blogRouter.route("/blog/server/postOfBlog/comments")
+    .get((req, res) => {
+        
+    });
+
+blogRouter.route("/blog/server/postOfBlog/comments/:id")
+    .get((req, res) => {
+        
     });
 
 module.exports = {

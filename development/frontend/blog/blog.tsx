@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState, KeyboardEvent, CSSProperties, useReducer, PointerEvent} from "react";
+import React, {useEffect, useRef, useState, KeyboardEvent, CSSProperties, useReducer, PointerEvent, Reducer} from "react";
 
 import * as BlogPresets from "./blog_presets";
 import * as Styles from "./style";
@@ -14,9 +14,9 @@ import Comment from "./images/comment.png";
 import Heart from "./images/heart.png";
 import Arrow from "./images/arrow.png";
 
-import {initalPostData} from "./initalStateOfPost";
-import {reduserOfPostData} from "./reduserPostOfBlog";
-import type {InitalPostDataInterface} from "./types";
+import * as InitalStates from "./initalStateOfPost";
+import * as Reducers from "./reduserPostOfBlog";
+import type * as TypesOfBlog from "./types";
 
 export default function Blog() {
     return(
@@ -152,10 +152,11 @@ function SearchInput() {
                     throw new Error(error);
                 }
             } catch (error) {
+                let errorMessage = error as Error;
                 console.log(`
-                    message: ${error.message},
-                    status: ${error.status}
-                `)
+                    message: ${errorMessage.message},
+                    status: ${errorMessage}
+                `);
             }
         }
     }
@@ -685,7 +686,9 @@ function MainConteinerBlogs() {
 function PostOfBlog({id, style}: {id: number | string, style?: CSSProperties}) {
     const [descriptionIsOpen, setDescriptionIsOpen] = useState<boolean | null>(null);
 
-    const [postData, dispatchOfPostData] = useReducer(reduserOfPostData, initalPostData);
+    const [postData, dispatchOfPostData] = useReducer<Reducer<TypesOfBlog.InitalPostDataInterface, TypesOfBlog.ActionOfPostReduser>>(
+        Reducers.reducerOfPostData, InitalStates.initalPostData
+    );
 
     useEffect(() => {
         const request = new Functions.CreateUrlRequest(`/blog/server/postOfBlog/${id}`, {
@@ -697,7 +700,7 @@ function PostOfBlog({id, style}: {id: number | string, style?: CSSProperties}) {
             return response.toMethod("json");
         })
         .then(res => {
-            let result = res as InitalPostDataInterface;
+            let result = res as Omit<TypesOfBlog.ActionOfPostReduser, "type">;
             /* console.log(result); */
             dispatchOfPostData({
                 type: "setStartProp",
@@ -745,6 +748,7 @@ function PostOfBlog({id, style}: {id: number | string, style?: CSSProperties}) {
                 width: "100%"
             }}/>
             <BlogInfo postData={postData} id={id} setStateOfLike={setStateOfLike} setSubmited={dispatchOfPostData} />
+            <Comments idOfPost={id} />
             <TitleOfPost postData={postData} />
             <Description descriptionIsOpen={descriptionIsOpen} postData={postData}/>
             <ReadDescription descriptionIsOpen={descriptionIsOpen} setDescriptionIsOpen={setDescriptionIsOpen}/>
@@ -868,6 +872,71 @@ function CommentEnterOfPost({commentIsOpen, setSubmited, id, postData}) {
         <input ref={commentRef} type="text" name="comment" placeholder="Enter your comment..."
         onKeyPress={submit}
         style={Styles.commentOfPost} />
+    )
+}
+
+function Comments({idOfPost}) {
+    const [countOfComment, setCountOfComment] = useState(0);
+
+    useEffect(() => {
+        const request = new Functions.CreateUrlRequest(`/blog/server/postOfBlog/${idOfPost}/comments`);
+        request.toFetch()
+            .then((response) => {
+              if (response.ok) {
+                  return response.toMethod("text");
+              } else {
+                  throw new Error("Error from server");
+              }
+            })
+            .then((result) => {
+                setCountOfComment(+result);
+            });
+    }, []);
+
+    return(
+        <div className="comments">
+            {
+                Array.from({length: countOfComment}).map((_, index) => {
+                  return(
+                      <CommentElement idOfPost={idOfPost} index={index} />
+                  )  
+                })
+            }
+        </div>
+    )
+}
+
+function CommentElement({idOfPost, index}) {
+    const [dataOfComment, dispathDataOfComment] = useReducer<Reducer<TypesOfBlog.InitalCommentDataInterface, TypesOfBlog.ActionOfCommentReduser>>(
+        Reducers.reducerOfCommentData, InitalStates.initalCommentData
+    );
+
+    useEffect(() => {
+        const request = new Functions.CreateUrlRequest(`/blog/server/postOfBlog/${idOfPost}/comments/${index}`);
+        request.toFetch()
+        .then(response => {
+            if (response.ok) {
+                return response.toMethod("json");
+            } else {
+                throw new Error("Error from server!");
+            }
+        })
+        .then(result => {
+            dispathDataOfComment({
+                type: "CREATE_COMMENT",
+                ...result
+            })
+        });
+    });
+
+    return(
+        <div className="comment">
+            <div className="comment_head">
+                <h5>{
+                        `Data of write: ${dataOfComment.dateOfWrite}`
+                    }</h5>
+            </div>
+        </div>
     )
 }
 

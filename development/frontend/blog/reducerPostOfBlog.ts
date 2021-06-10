@@ -1,39 +1,15 @@
-export function reduserOfPostData(state: {
-    date?: any; 
-        user?: any; 
-        content?: any; 
-        srcOfImg?: any; 
-        dateOfCreated?: any; 
-        title?: any; 
-        description?: any; 
-        countOfComments?: any;
-        countOfLikes?: any;
-        wasLikedByUser?: any;
-},
-    action: { 
-        type: any; 
-        date?: any; 
-        user?: any; 
-        content?: any; 
-        srcOfImg?: any; 
-        dateOfCreated?: any; 
-        title?: any; 
-        description?: any; 
-        countOfComments?: any;
-        countOfLikes?: any;
-        wasLikedByUser?: any;
-    }) {
+import * as TypesOfBlog from "./types";
+
+export function reducerOfPostData(state: TypesOfBlog.InitalPostDataInterface, action: TypesOfBlog.ActionOfPostReduser) {
     switch(action?.type) {
         case "setStartProp": 
         return {
             srcOfImg: action.srcOfImg,
             dateOfCreated: action.dateOfCreated,
             countOfComments: action.countOfComments,
-            comment: {
-                date: action.date,
-                user: action.user,
-                content: action.content,
-            },
+            comments: [
+                ...action.comments
+            ],
             countOfLikes: action.countOfLikes,
             wasLikedByUser: action.wasLikedByUser,
             title: action.title,
@@ -49,11 +25,13 @@ export function reduserOfPostData(state: {
             return {
                 ...state,
                 countOfComments: state.countOfComments + 1,
-                comment: {
-                    date: action.date,
-                    user: action.user,
-                    content: action.content
-                }
+                comments: state.comments.push(
+                    {
+                        date: action.comment.date,
+                        user: action.comment.user,
+                        content: action.comment.content
+                    }
+                )
             };
         case "setSrcOfImg":
             return {
@@ -79,3 +57,15 @@ export function reduserOfPostData(state: {
             throw new Error("Not exist type of action!");
     }
 };
+
+export function reducerOfCommentData(state: TypesOfBlog.InitalCommentDataInterface, action: TypesOfBlog.ActionOfCommentReduser) {
+    switch(action.type) {
+        case "CREATE_COMMENT":
+            return {
+                ...state,
+                ...action
+            }
+        default:
+            return state;
+    }
+} 

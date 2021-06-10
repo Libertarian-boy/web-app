@@ -1,16 +1,18 @@
-import type {InitalPostDataInterface} from "./types";
+import type * as TypesOfBlog from "./types";
 
-export const initalPostData: InitalPostDataInterface = {
+export const initalPostData: TypesOfBlog.InitalPostDataInterface = {
     srcOfImg: null,
     dateOfCreated: null,
     countOfComments: 0,
-    comment: {
-        date: null,
-        user: null,
-        content: null,
-    },
+    comments: [],
     countOfLikes: 0,
     wasLikedByUser: false,
     title: "",
     description: ""
+};
+
+export const initalCommentData: TypesOfBlog.InitalCommentDataInterface = {
+    userName: null,
+    dateOfWrite: null,
+    content: null
 };

@@ -1,19 +1,19 @@
-import React, {useEffect} from "react";
+import React, {useEffect, forwardRef} from "react";
 
-export default function SourcePreloader(props: any) {
+const SourcePreloader = forwardRef((_: any, ref: React.ForwardedRef<HTMLDivElement>) => {
 
     useEffect(() => {
-        const sourcePreloader = props.refProp.current as HTMLElement;
-
+        const reference = ref as React.RefObject<HTMLDivElement>;
+        const sourcePreloader = reference.current as HTMLElement;
         const animatePreloader = sourcePreloader.animate([
             {
-                background: "linear-gradient(135deg, rgba(254,252,249,1) 0%, rgba(123,238,199,1) 0%)"
+                filter: "hue-rotate(0)"
             },
             {
-                background: "linear-gradient(135deg, rgba(254,252,249,1) 100%, rgba(123,238,199,1) 100%)"
+                filter: "hue-rotate(360deg)"
             }
         ], {
-            duration: 500,
+            duration: 2500,
             fill: "forwards",
             easing: "linear",
             iterations: Infinity,
@@ -26,7 +26,7 @@ export default function SourcePreloader(props: any) {
     }, []);
 
     return (
-        <div className="sourcePreloader" ref={props.refProp} style={{
+        <div className="sourcePreloader" ref={ref} style={{
             position: "absolute",
             top: 0,
             left: 0,
@@ -41,9 +41,12 @@ export default function SourcePreloader(props: any) {
             lineHeight: "48px",
             fontWeight: 700,
             textTransform: "uppercase",
-            color: "#60606e"
+            color: "#60606e",
+            zIndex: 200
         }}>
             Loading...
         </div>
     )
-}
+});
+
+export default SourcePreloader;

@@ -1,4 +1,5 @@
-import React, {useEffect, useRef, useState, KeyboardEvent, CSSProperties, useReducer, PointerEvent, Reducer} from "react";
+import React, {useEffect, useRef, useState, useContext, KeyboardEvent, CSSProperties, useReducer, PointerEvent, Reducer, Dispatch, SetStateAction, MouseEventHandler, PointerEventHandler, FocusEventHandler} from "react";
+import IonIcon from "@reacticons/ionicons";
 
 import * as BlogPresets from "./blog_presets";
 import * as Styles from "./style";
@@ -8,14 +9,12 @@ import GlobalChangeLocation from "../globalThings/GlobalChangeLocationOn";
 import GlobalHeader from "../globalThings/GlobalHeader";
 import GlobalPreFooter from "../globalThings/GlobalPrefooter";
 import GlobalFooter from "../globalThings/GlobalFooter";
+import SourcePreloader from "../globalThings/SourcePreloader";
 
-import Search from "./images/search.png";
-import Comment from "./images/comment.png";
-import Heart from "./images/heart.png";
-import Arrow from "./images/arrow.png";
+import {MediaContext} from "../globalThings/context";
 
 import * as InitalStates from "./initalStateOfPost";
-import * as Reducers from "./reduserPostOfBlog";
+import * as Reducers from "./reducerPostOfBlog";
 import type * as TypesOfBlog from "./types";
 
 export default function Blog() {
@@ -27,8 +26,6 @@ export default function Blog() {
             <BlogPresets.OrientationChange/>
             {/* Проверка и изменения при изменении размера экрана */}
             <BlogPresets.Resize/>
-            {/* Для установки глобальных значений */}
-            <BlogPresets.LetGlobalThis/>
             {/* Для анимации появления header, main, footer */}
             <GlobalHeader h1="akad." h2="BLOG POSTS" p="HOME / BLOG"/>
             <Main/>
@@ -52,10 +49,16 @@ function Main() {
 }
 
 function MainConteiner() {
+    const {nowWidthWindow} = useContext(MediaContext);
+
     return(
         <div className="main_conteiner" style={
-            Functions.cloneObject(
-                Styles.main_conteiner
+            Object.assign(
+                Functions.cloneObject(
+                    Styles.main_conteiner
+                ),
+                nowWidthWindow === "mobileScreen" ? Styles.main_conteinerMobile :
+                nowWidthWindow === "tablet" ? Styles.main_conteinerTablet : {}
             )
         }>
             <MainConteinerBlogs/>
@@ -65,10 +68,27 @@ function MainConteiner() {
 }
 
 function MainConteinerInfo() {
+    const {nowWidthWindow} = useContext(MediaContext);
+
+    useEffect(() => {
+        const style = document.querySelector("style");
+        style!.append(`
+            .main_conteiner__info::-webkit-scrollbar, .main_conteiner__info::-webkit-scrollbar-button,
+            .main_conteiner__info::-webkit-scrollbar-thumb {
+                display: none;
+            }
+        `);
+    }, []);
+
     return(
         <div className="main_conteiner__info" style={
-            Functions.cloneObject(
-                Styles.main_conteiner__info
+            Object.assign(
+                Functions.cloneObject(
+                    Styles.main_conteiner__info
+                ),
+                nowWidthWindow === "mobileScreen" ? Styles.main_conteiner__infoMobile :
+                nowWidthWindow === "tablet" ? Styles.main_conteiner__infoTablet :
+                nowWidthWindow === "computerNormalScreen" ? Styles.main_conteinerNormal : {}
             )
         }>
             <SearchInput/>
@@ -85,8 +105,8 @@ function MainConteinerInfo() {
 }
 
 function SearchInput() {
-
-    const optgroupRef = useRef<HTMLOptGroupElement>(null);
+    const {nowWidthWindow} = useContext(MediaContext);
+    const divRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -120,16 +140,48 @@ function SearchInput() {
                     width: 0;
                     height: 0; 
                 }
+
+                .pushIntoInput::-webkit-scrollbar, .pushIntoInput::-webkit-scrollbar-button,
+                .pushIntoInput::-webkit-scrollbar-thumb {
+                    display: none;
+                }
             `);
         }
     }, []);
 
-    async function keyDown(e: React.KeyboardEvent<HTMLInputElement>, otherArg?: string) {
+    useEffect(() => {
+        const request = new Functions.CreateUrlRequest("/blog/server/search");
+        request.toFetch()
+        .then(response => {
+            if (response.ok) {
+                return response.toMethod("json");
+            } else {
+                throw new Error("Error: Something went wrong!");
+            }
+        })
+        .then(result => {
+            const div = divRef.current as HTMLDivElement;
+            let res = result.searches as any[] | undefined;
+            if (typeof res === "undefined") {
+                return;
+            }
+            res.forEach(item => {
+                const pushIntoInput_field = document.createElement("div");
+                pushIntoInput_field.className = "pushIntoInput_field";
+                pushIntoInput_field.textContent = item.search;
+                Functions.changeStyleElem(pushIntoInput_field, Styles.pushIntoInput_field);
+                div.insertAdjacentElement("beforeend", pushIntoInput_field);
+            });
+        });
+    }, []);
+
+    async function keyDown(e: KeyboardEvent<HTMLInputElement> | PointerEvent<HTMLElement>, otherArg?: string) {
         
         const input = inputRef.current as HTMLInputElement;
-        if (e.key === "Enter" || otherArg) {
+        let event = e as React.KeyboardEvent<HTMLInputElement>;
+        if (event.key === "Enter" || otherArg) {
             try {
-                const request = new Functions.CreateUrlRequest("blog/server/search", {
+                const request = new Functions.CreateUrlRequest("/blog/server/search", {
                     body: input.value,
                     method: "POST",
                     keepalive: true
@@ -138,15 +190,13 @@ function SearchInput() {
                 const response = await request.toFetch();
                 
                 if (response.ok) {
-                    const result = await response.toMethod("json");
-                    /* console.log(result); */
-
-                    const optgroup = optgroupRef.current as HTMLOptGroupElement;
-                    if (optgroup) {
-                        optgroup.insertAdjacentHTML("afterbegin", `
-                            <option value=${result?.search}></option>
-                        `);
-                    }
+                    const result = await response.toMethod("text");
+                    const div = divRef.current as HTMLDivElement;
+                    const pushIntoInput_field = document.createElement("div");
+                    pushIntoInput_field.className = "pushIntoInput_field";
+                    pushIntoInput_field.textContent = result;
+                    Functions.changeStyleElem(pushIntoInput_field, Styles.pushIntoInput_field);
+                    div.insertAdjacentElement("beforeend", pushIntoInput_field);
                 } else {
                     const error = await response.toMethod("json");
                     throw new Error(error);
@@ -161,6 +211,31 @@ function SearchInput() {
         }
     }
 
+    const focus = () => {
+        const div = divRef.current as HTMLDivElement;
+        Functions.changeStyleElem(div, {
+            top: "calc(100% + 10px)",
+            left: 0,
+            opacity: 1
+        });
+    };
+
+    const blur = () => {
+        const div = divRef.current as HTMLDivElement;
+        Functions.changeStyleElem(div, {
+            top: "100%",
+            left: "100%",
+            opacity: 0
+        });
+    };
+
+    const setValueOfInput: MouseEventHandler<HTMLDivElement> = (e) => {
+        const input = inputRef.current as HTMLInputElement;
+        let target = e.target as HTMLDivElement;
+        target = target.closest(".pushIntoInput_field") as HTMLDivElement;
+        input.value = target.textContent as string;
+    };
+
     return(
         <>
             <div className="inputSearch" style={
@@ -168,38 +243,43 @@ function SearchInput() {
                     Styles.inputSearch_conteiner
                 )
             }>
-                <input type="search" name="search" list="inputSearchList" placeholder="search..." style={
+                <input type="search" name="search" placeholder="search..." autoComplete="off" autoCorrect="on" onFocus={focus} onBlur={blur} style={
                     Functions.cloneObject(
                         Styles.inputSearch
                     )
                 } onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => keyDown(e)} ref={inputRef}/>
-                <Functions.Img src={Search} alt="search" style={{
-                    position: "absolute",
-                    cursor: "pointer",
-                    top: "13px",
-                    right: "19px"
-                }} clickFunc={(e: KeyboardEvent<HTMLInputElement>) => keyDown(e, "click")}/>
+                <IonIcon name="search" style={
+                    Object.assign(
+                        Functions.cloneObject(
+                            Styles.searchIcon
+                        ),
+                        nowWidthWindow === "tablet" || nowWidthWindow === "mobileScreen" ? Styles.searchIconMobileAndTablet : {}
+                    )
+                } onPointerDown={
+                    (e: PointerEvent<HTMLElement>) => keyDown(e, "click")
+                } />
+                <div className="pushIntoInput" style={Styles.pushIntoInput} ref={divRef} onClick={setValueOfInput} >
+                    <div className="pushIntoInput_field" style={Styles.pushIntoInput_field}>HTML</div>
+                    <div className="pushIntoInput_field" style={Styles.pushIntoInput_field}>JavaScript</div>
+                    <div className="pushIntoInput_field" style={Styles.pushIntoInput_field}>CSS</div>
+                </div>
             </div>
-            <datalist id="inputSearchList">
-                <optgroup label="Cannon searchs">
-                    <option value="HTML"></option>
-                    <option value="JavaScript"></option>
-                    <option value="CSS"></option>
-                </optgroup>
-                <optgroup ref={optgroupRef} label="Other your search"></optgroup>
-            </datalist>
         </>
     )
 }
 
 function Posts() {
+    const {nowWidthWindow} = useContext(MediaContext);
 
     const [step, setStep] = useState(1);
 
     return(
         <div className="conteiner_info__posts" style={
-            Functions.cloneObject(
-                Styles.conteiner_info__posts
+            Object.assign(
+                Functions.cloneObject(
+                    Styles.conteiner_info__posts
+                ),
+                nowWidthWindow === "mobileScreen" ? Styles.conteiner_info__postsMobile : {}
             )
         }>
             <h2 style={
@@ -210,19 +290,23 @@ function Posts() {
                 posts
             </h2>
             <div className="info_posts__titles" style={
-                Functions.cloneObject(
-                    Styles.info_posts__titles
+                Object.assign(
+                    Functions.cloneObject(
+                        Styles.info_posts__titles
+                    ),
+                    nowWidthWindow === "mobileScreen" ? Styles.info_posts__titlesMobile :
+                    nowWidthWindow === "tablet" ? Styles.info_posts__titlesTablet : {}
                 )
             }>
-                <PostsTitle title="latest" dataStep={1} step={step} setStep={setStep} style={{
-                    margin: "0 0 0 19px"
-                }}/>
-                <PostsTitle title="popular" dataStep={2} step={step} setStep={setStep} style={{
-                    margin: "0 0 0 38px"
-                }}/>
-                <PostsTitle title="comments" dataStep={3} step={step} setStep={setStep} style={{
-                    margin: "0 5px 0 23px"
-                }}/>
+                <PostsTitle title="latest" dataStep={1} step={step} setStep={setStep} style={
+                    { margin: "0 0 0 19px" }
+                }/>
+                <PostsTitle title="popular" dataStep={2} step={step} setStep={setStep} style={
+                    { margin: "0 0 0 38px" }
+                }/>
+                <PostsTitle title="comments" dataStep={3} step={step} setStep={setStep} style={
+                    { margin: "0 5px 0 23px" }
+                }/>
             </div>
             <PostsLine step={step}/>
             <ConteinerOfPosts step={step}/>
@@ -266,11 +350,21 @@ function PostsLine({
 }: {
     step: number
 }) {
-
+    const {nowWidthWindow} = useContext(MediaContext);
     const greenLineRef = useRef(null);
 
     useEffect(() => {
+        const styleTag = document.querySelector("style");
+        styleTag?.append(`
+            .info_posts__lineConteiner::-webkit-scrollbar, .info_posts__lineConteiner::-webkit-scrollbar-button, .info_posts__lineConteiner::-webkit-scrollbar-thumb {
+                display: none;
+            }
+        `);
+    });
+
+    useEffect(() => {
         const greenLine = greenLineRef.current as unknown as HTMLDivElement;
+        const greenLineParent = greenLine.offsetParent as HTMLDivElement;
         const info_posts__lineConteiner = greenLine.parentElement as HTMLElement;
 
         greenLine.animate([
@@ -279,7 +373,7 @@ function PostsLine({
                 greenLine.offsetLeft + "px" : getComputedStyle(greenLine).left + "px"
             },
             {
-                left: Math.round(info_posts__lineConteiner.clientWidth / 3) * (step - 1) + "px"
+                left: (Math.round(info_posts__lineConteiner.clientWidth / 3) * (step - 1)) * 100 / greenLineParent.clientWidth + "%"
             }
         ], {
             duration: 200,
@@ -291,8 +385,12 @@ function PostsLine({
 
     return(
         <div className="info_posts__lineConteiner" style={
-            Functions.cloneObject(
-                Styles.info_posts__lineConteiner
+            Object.assign(
+                Functions.cloneObject(
+                    Styles.info_posts__lineConteiner
+                ),
+                nowWidthWindow === "mobileScreen" ? Styles.info_posts__lineConteinerMobile :
+                nowWidthWindow === "tablet" ? Styles.info_posts__lineConteinerTablet : {}
             )
         }>
             <div className="greenLine" ref={greenLineRef} style={
@@ -330,43 +428,19 @@ function ConteinerOfPosts({step}: {step: number}) {
                 Styles.info_posts__body
             )
         }>
-            <PostsColumn id={"1"} scroll={scroll}/>
-            <PostsColumn id={"2"} scroll={scroll}/>
-            <PostsColumn id={"3"} scroll={scroll}/>
+            <PostsColumn idOfPostColumn={"1"} scroll={scroll}/>
+            <PostsColumn idOfPostColumn={"2"} scroll={scroll}/>
+            <PostsColumn idOfPostColumn={"3"} scroll={scroll}/>
         </div>
     )
 }
 
-function PostsColumn({id, scroll}: {id: string; scroll: number}) {
-    const [isSuccess, setIsSuccess] = useState<null | boolean | {
-        src: string[];
-        title: string;
-        date: string | Date;
-    }>(null);
+function PostsColumn({idOfPostColumn, scroll}: {idOfPostColumn: string; scroll: number}) {
     const [countPosts, setCountPosts] = useState<{length: number}>({
         length: 6
     });
-    const [nowImage, setNowImage] = useState<number>(1);
 
     const postBobyRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        if (nowImage <= 3) {
-            const request = new Functions.CreateUrlRequest(`blog/server/posts/${nowImage}`);
-            request.toFetch()
-            .then((result) => {
-                return result.toMethod("json");
-            })
-            .then(compleateResult => {
-                setNowImage(nowImage + 1);
-                setIsSuccess(compleateResult);
-            },
-            err => {
-                console.log(err);
-                setIsSuccess(false);
-            });
-        }
-    }, [nowImage]);
 
     useEffect(() => {
         const postBoby = postBobyRef.current;
@@ -376,25 +450,19 @@ function PostsColumn({id, scroll}: {id: string; scroll: number}) {
                     length: countPosts.length + 6
                 });
             }
-
         }
     }, [scroll]);
 
     return(
-        <div className="posts_body__column scrollConteiner" id={id} ref={postBobyRef} style={
+        <div className="posts_body__column scrollConteiner" id={idOfPostColumn} ref={postBobyRef} style={
             Functions.cloneObject(
                 Styles.posts_body__column
             )
         }>
             {
-                typeof isSuccess === "object" && isSuccess !== null ? 
                 Array.from(countPosts).map((_, index) => {
                     return(
                         <Post key={index}
-                        src={(index + 1) % 3 === 0 ? isSuccess.src[6] :
-                            (index + 1) % 2 === 0 ? isSuccess.src[3] : isSuccess.src[0] }
-                        title={isSuccess.title as string}
-                        date={isSuccess.date as string | Date}
                         style={
                             index === 0 ? 
                             {
@@ -403,28 +471,43 @@ function PostsColumn({id, scroll}: {id: string; scroll: number}) {
                             {
                                 margin: "10px 0 0 0"
                             }
-                        }/> 
+                        }
+                        idOfPost={`${index + 1}`} /> 
                     );
                 })
-                :
-                <p>
-                    {
-                        isSuccess === false ?
-                        "Error! Please reload the page" as string :
-                        "Loading..." as string
-                    }
-                </p>
             }
         </div>
     )
 }
 
-function Post({src, title, date, style}: {
-    src: string;
-    title: string;
-    date: string | Date;
-    style?: CSSProperties
+function Post({style, idOfPost}: {
+    style?: CSSProperties;
+    idOfPost: string;
 }) {
+    const {nowWidthWindow} = useContext(MediaContext);
+    const [dataOfPost, setdataOfPost] = useState<null | {
+        src: string;
+        title: string;
+        date: string | Date;
+    }>(null);
+
+    useEffect(() => {
+        const request = new Functions.CreateUrlRequest(`/blog/server/posts?idOfPost=${idOfPost}`);
+        request.toFetch()
+        .then((result) => {
+            if (result.ok) {
+                return result.toMethod("json");
+            } else {
+                throw new Error("Error: request to server is failed!");
+            }
+        })
+        .then(compleateResult => {
+            setdataOfPost(compleateResult);
+        },
+        err => {
+            console.log(err);
+        });
+    }, []);
 
     const styleMain = Object.assign(
         Functions.cloneObject(
@@ -435,21 +518,37 @@ function Post({src, title, date, style}: {
 
     return (
         <div className="column_post" style={
-            styleMain
+            Object.assign(
+                styleMain,
+                nowWidthWindow === "mobileScreen" ? Styles.column_postMobile : {}
+            )
         }>
-            <Functions.Img src={src}/>
-            <div className="column_post__text" style={
-                Functions.cloneObject(
-                    Styles.column_post__text
-                )
-            }>
-                <h5 style={
-                    Styles.column_post__text___h5
-                }>{title}</h5>
+            {
+                dataOfPost ? 
+                <>
+                    <Functions.Img src={dataOfPost!.src}/>
+                    <div className="column_post__text" style={
+                        Functions.cloneObject(
+                            Styles.column_post__text
+                        )
+                    }>
+                        <h5 style={
+                            Styles.column_post__text___h5
+                        }>{dataOfPost.title}</h5>
+                        <p style={
+                            Styles.column_post__text___p
+                        }>{dataOfPost.date}</p>
+                    </div>
+                </>
+                :
                 <p style={
-                    Styles.column_post__text___p
-                }>{date}</p>
-            </div>
+                    {
+                        color: "#7beec7"
+                    }
+                }>
+                    Loading...
+                </p>
+            }
         </div>
     )
 }
@@ -543,6 +642,7 @@ function Category({name, count}: {name: string; count: number}) {
 }
 
 function Tags() {
+    const {nowWidthWindow} = useContext(MediaContext);
     return(
         <div className="tags" style={
             Functions.cloneObject(
@@ -559,37 +659,33 @@ function Tags() {
                     width: "67px"
                 }}/>
                 <Tag title="javascript" style={{
-                    width: "99px",
-                    margin: "0 0 0 5px"
+                    width: "99px"
                 }}/>
                 <Tag title="jquery" style={{
-                    width: "88px",
-                    margin: "0 0 0 4px"
+                    width: "86px"
                 }}/>
                 <Tag title="html5" style={{
-                    width: "77px",
-                    margin: "5px 0 0 0"
+                    width: "77px"
                 }}/>
                 <Tag title="bootstrap" style={{
-                    width: "103px",
-                    margin: "5px 0 0 4px"
+                    width: "103px"
                 }}/>
                 <div className="break" style={
-                    Functions.cloneObject(
-                        Styles.breakElem
+                    Object.assign(
+                        Functions.cloneObject(
+                            Styles.breakElem
+                        ),
+                        nowWidthWindow === "mobileScreen" ? Styles.breakElemMobile : {}
                     )
                 }></div>
                 <Tag title="css" style={{
-                    width: "67px",
-                    margin: "5px 0 0 0px"
+                    width: "67px"
                 }}/>
                 <Tag title="javascript" style={{
-                    width: "99px",
-                    margin: "5px 0 0 5px"
+                    width: "99px"
                 }}/>
                 <Tag title="jquery" style={{
-                    width: "88px",
-                    margin: "5px 0 0 4px"
+                    width: "86px"
                 }}/>
             </div>
         </div>
@@ -629,11 +725,13 @@ function Tag({title, style}: {title: string; style: CSSProperties}) {
 }
 
 function MainConteinerBlogs() {
+    const {nowWidthWindow} = useContext(MediaContext);
 
     const [countPostsObj, setCountPostsObj] = useState<{length: number}>({
         length: 3
     });
     const [scrollState, setScrollState] = useState(0);
+    const [areAllPostsLoaded, setAreAllPostsLoaded] = useState<boolean>(false);
     const main_conteiner__blogsRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -651,7 +749,7 @@ function MainConteinerBlogs() {
     useEffect(() => {
         const main_conteiner__blogs = main_conteiner__blogsRef.current;
         if (main_conteiner__blogs) {
-            if (main_conteiner__blogs.clientHeight - scrollState < main_conteiner__blogs.clientHeight / 5) {
+            if (main_conteiner__blogs.clientHeight - scrollState < main_conteiner__blogs.clientHeight / 5 && areAllPostsLoaded) {
                 setCountPostsObj((prevState) => {
                     return {
                         length: prevState.length + 3
@@ -659,21 +757,26 @@ function MainConteinerBlogs() {
                 });
             }
         }
-    }, [scrollState]);
+    }, [scrollState, areAllPostsLoaded]);
 
     return(
         <div className="main_conteiner__blogs" ref={main_conteiner__blogsRef} style={
-            Functions.cloneObject(
-                Styles.main_conteiner__blogs
+            Object.assign(
+                Functions.cloneObject(
+                    Styles.main_conteiner__blogs
+                ),
+                nowWidthWindow === "mobileScreen" ? Styles.main_conteiner__blogsMobile :
+                nowWidthWindow === "tablet" ? Styles.main_conteiner__blogsTablet :
+                nowWidthWindow === "computerNormalScreen" ? Styles.main_conteiner__blogsNormal : {}
             )
         }>
         {
             Array.from(countPostsObj).map((_, index) => {
                 return(
-                    <PostOfBlog key={index} id={`${index}`} style={
+                    <PostOfBlog key={index} idOfPost={`${index}`} setAreAllPostsLoaded={setAreAllPostsLoaded} style={
                         index === 0 ?
                         {} : {
-                            margin: "102px 0 0 0"
+                            margin: nowWidthWindow === "mobileScreen" ? "50px 0 0 0" : "102px 0 0 0"
                         }
                     }/>
                 )
@@ -683,15 +786,21 @@ function MainConteinerBlogs() {
     )
 }
 
-function PostOfBlog({id, style}: {id: number | string, style?: CSSProperties}) {
+function PostOfBlog({idOfPost, style, setAreAllPostsLoaded}: {idOfPost: number | string; style?: CSSProperties; setAreAllPostsLoaded: Dispatch<SetStateAction<boolean>>}) {
+    const {nowWidthWindow} = useContext(MediaContext);
     const [descriptionIsOpen, setDescriptionIsOpen] = useState<boolean | null>(null);
-
+    const [commentIsOpen, setCommentIsOpen] = useState<null | boolean>(null);
     const [postData, dispatchOfPostData] = useReducer<Reducer<TypesOfBlog.InitalPostDataInterface, TypesOfBlog.ActionOfPostReduser>>(
         Reducers.reducerOfPostData, InitalStates.initalPostData
     );
 
+    const SourcePreloaderRef = useRef<HTMLDivElement>(null);
+    const ImgRef = useRef<HTMLImageElement>(null);
+    const main_conteiner__blogs___conteinerRef = useRef<HTMLDivElement>(null);
+
     useEffect(() => {
-        const request = new Functions.CreateUrlRequest(`/blog/server/postOfBlog/${id}`, {
+        setAreAllPostsLoaded(false);
+        const request = new Functions.CreateUrlRequest(`/blog/server/postsOfBlog?idOfPost=${idOfPost}&action=getPost`, {
             method: "GET",
             keepalive: false
         });
@@ -701,23 +810,84 @@ function PostOfBlog({id, style}: {id: number | string, style?: CSSProperties}) {
         })
         .then(res => {
             let result = res as Omit<TypesOfBlog.ActionOfPostReduser, "type">;
-            /* console.log(result); */
             dispatchOfPostData({
                 type: "setStartProp",
                 ...result
             });
+            setAreAllPostsLoaded(true);
         });
+    }, []);
+
+    useEffect(() => {
+        const sourcePreloader = SourcePreloaderRef.current as HTMLDivElement;
+        const img = ImgRef.current as HTMLImageElement;
+        const main_conteiner__blogs___conteiner = main_conteiner__blogs___conteinerRef.current as HTMLDivElement;
+        
+        img.addEventListener("load", () => {
+            sourcePreloader.remove();
+            Functions.changeStyleElem(main_conteiner__blogs___conteiner, {
+                height: "auto",
+                maxHeight: "auto"
+            });
+        });
+
+        return () => {
+            img.removeEventListener("load", () => {
+                sourcePreloader.remove();
+                Functions.changeStyleElem(main_conteiner__blogs___conteiner, {
+                    height: "auto",
+                    maxHeight: "auto"
+                });
+            });
+        }
     }, []);
 
     const styles = Object.assign(
         Functions.cloneObject(
-            Styles.main_conteiner__blogs___blog
+            Styles.main_conteiner__blogs___conteiner
         ),
         style ? style : {}
     );
 
-    async function setStateOfLike(id: number | string): Promise<any> {
-        const request = new Functions.CreateUrlRequest(`/blog/server/postOfBlog/${id}`, {
+    return(
+        <div className="main_conteiner__blogs___conteiner" style={styles} ref={main_conteiner__blogs___conteinerRef}>
+            <SourcePreloader ref={SourcePreloaderRef} />
+            <div className="main_conteiner__blogs___blog" style={
+                Object.assign(
+                    Functions.cloneObject(
+                        Styles.main_conteiner__blogs___blog
+                    ),
+                    nowWidthWindow === "mobileScreen" ? Styles.main_conteiner__blogs___blogMobile : {}
+                )
+            }>
+                <Functions.Img isCanBeDownload={true} ref={ImgRef} src={postData.srcOfImg ?? ""} style={{
+                    width: "100%"
+                }}/>
+                <BlogInfo postData={postData} id={idOfPost} dispatchOfPostData={dispatchOfPostData} commentIsOpen={commentIsOpen} setCommentIsOpen={setCommentIsOpen} />
+                <CommentEnterOfPost commentIsOpen={commentIsOpen} dispatchOfPostData={dispatchOfPostData} idOfPost={idOfPost} postData={postData}/>
+                <Comments idOfPost={idOfPost} countOfComments={postData.countOfComments} />
+                <TitleOfPost postData={postData} />
+                <Description descriptionIsOpen={descriptionIsOpen} postData={postData} />
+                <ReadDescription descriptionIsOpen={descriptionIsOpen} setDescriptionIsOpen={setDescriptionIsOpen} />
+            </div>
+        </div>
+    )
+}
+
+function BlogInfo(
+    {postData, id, dispatchOfPostData, setCommentIsOpen, commentIsOpen}:
+    {
+        postData: TypesOfBlog.InitalPostDataInterface,
+        id: string | number,
+        setCommentIsOpen: Dispatch<SetStateAction<null | boolean>>,
+        commentIsOpen: null | boolean,
+        dispatchOfPostData: Dispatch<TypesOfBlog.ActionOfPostReduser>
+    }
+) {
+    const {nowWidthWindow} = useContext(MediaContext);
+
+    async function setStateOfLike(idOfPost: number | string): Promise<any> {
+        const request = new Functions.CreateUrlRequest(`/blog/server/postsOfBlog?idOfPost=${idOfPost}`, {
             method: "PUT",
             keepalive: false,
             headers: {
@@ -732,7 +902,6 @@ function PostOfBlog({id, style}: {id: number | string, style?: CSSProperties}) {
         const response = await request.toFetch();
         if (response.ok) {
             const result = await response.toMethod("json");
-            /* console.log(result); */
             dispatchOfPostData({
                 type: "setStateOfLike",
                 ...result
@@ -743,26 +912,12 @@ function PostOfBlog({id, style}: {id: number | string, style?: CSSProperties}) {
     }
 
     return(
-        <div className="main_conteiner__blogs___blog" style={styles}>
-            <Functions.Img src={postData.srcOfImg} style={{
-                width: "100%"
-            }}/>
-            <BlogInfo postData={postData} id={id} setStateOfLike={setStateOfLike} setSubmited={dispatchOfPostData} />
-            <Comments idOfPost={id} />
-            <TitleOfPost postData={postData} />
-            <Description descriptionIsOpen={descriptionIsOpen} postData={postData}/>
-            <ReadDescription descriptionIsOpen={descriptionIsOpen} setDescriptionIsOpen={setDescriptionIsOpen}/>
-        </div>
-    )
-}
-
-function BlogInfo({postData, id, setStateOfLike, setSubmited}) {
-    const [commentIsOpen, setCommentIsOpen] = useState<null | boolean>(null);
-
-    return(
         <div className="blog_info" style={
-            Functions.cloneObject(
-                Styles.blog_info
+            Object.assign(
+                Functions.cloneObject(
+                    Styles.blog_info
+                ),
+                nowWidthWindow === "mobileScreen" ? Styles.blog_infoMobile : {}
             )
         }>
             <div className="blog_info__date" style={
@@ -779,46 +934,59 @@ function BlogInfo({postData, id, setStateOfLike, setSubmited}) {
                     Styles.blog_info__comment
                 )
             }>
-                <Functions.Img src={Comment} style={{
-                    margin: "0 9px 0 0",
-                    cursor: "pointer"
-                }}/>
+                <IonIcon name="chatbox-ellipses" style={Styles.iconOfComment} />
                 {postData.countOfComments}
             </div>
-            <CommentEnterOfPost commentIsOpen={commentIsOpen} setSubmited={setSubmited} id={id} postData={postData}/>
             <div className="blog_info__likes" onClick={() => setStateOfLike(id)} style={
                 Functions.cloneObject(
                     Styles.blog_info__likes
                 )
             }>
-                <Functions.Img src={Heart} style={{
-                    margin: "0 8px 0 0",
-                    cursor: "pointer"
-                }}/>
+                <IonIcon name="heart" style={
+                    Object.assign(
+                        {},
+                        Styles.heartIcon,
+                        postData.wasLikedByUser ? {
+                            color: "red"
+                        } : {}
+                    )
+                } />
                 {postData.countOfLikes}
             </div>
         </div>
     )
 }
 
-function CommentEnterOfPost({commentIsOpen, setSubmited, id, postData}) {
-    const commentRef = useRef<null | HTMLInputElement>(null);
-    const [commentEnterWidth, setCommentEnterWidth] = useState<null | number>(null);
+function CommentEnterOfPost(
+    {commentIsOpen, dispatchOfPostData, idOfPost, postData}:
+    {
+        commentIsOpen: boolean | null;
+        dispatchOfPostData: Dispatch<TypesOfBlog.ActionOfPostReduser>;
+        idOfPost: string | number;
+        postData: TypesOfBlog.InitalPostDataInterface
+    }
+) {
+    const {nowWidthWindow} = useContext(MediaContext);
+    const commentRef = useRef<null | HTMLTextAreaElement>(null);
+    const textAreaConteinerRef = useRef<HTMLDivElement>(null);
+    const [heightOfTextArea, setHeightOfTextArea] = useState<null | number | string>(null);
 
-    const submit = async (e: KeyboardEvent) => {
-        const inputElement = e.currentTarget as HTMLInputElement;
-        let value = inputElement.value, dateObj = new Date();
-        const action = {
-            type: "writeComment",
-            countOfComments: postData.countOfComments + 1,
-            comment: {
-                date: `${dateObj.getHours()}:${dateObj.getMinutes()}:${dateObj.getSeconds()}`,
-                user: undefined,
-                content: value
-            }
-        };
-        if (e.key.toLowerCase() === "enter") {
-            const request = new Functions.CreateUrlRequest(`/blog/server/postOfBlog/${id}`, {
+    const submit = async () => {
+        const commentElement = commentRef.current as HTMLTextAreaElement;
+        let value = commentElement.value;
+        if (value.length > 0) {
+            const dateObj = new Date();
+            let hours = dateObj.getHours(), minutes = dateObj.getMinutes(), seconds = dateObj.getSeconds();
+            const action = {
+                type: "writeComment",
+                countOfComments: postData.countOfComments + 1,
+                comment: {
+                    dateOfWrite: `${hours < 10 ? `0${hours}`: hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`,
+                    userName: undefined,
+                    content: value
+                }
+            };
+            const request = new Functions.CreateUrlRequest(`/blog/server/postsOfBlog?action=writeComment&idOfPost=${idOfPost}`, {
                 method: "PUT",
                 keepalive: false,
                 headers: {
@@ -826,93 +994,138 @@ function CommentEnterOfPost({commentIsOpen, setSubmited, id, postData}) {
                 },
                 body: JSON.stringify(action)
             });
+            commentElement.value = "";
             const response = await request.toFetch();
             if (response.ok) {
                 const result = await response.toMethod("json");
-                console.log(result);
-                setSubmited({
+                dispatchOfPostData({
                     type: "writeComment",
                     ...result
                 });
-                value = "";
             } else {
-                throw new Error("Something wrong, try again!");
+                console.error("Something wrong, try again!");
             }
+        } else {
+            const styleTag = document.querySelector("style");
+            styleTag?.append(`
+               .enterComment::placeholder {
+                   color: #de2323
+               } 
+            `);
+            commentElement.placeholder = "Please, enter a comment containing letters...";
+            commentElement.blur();
         }
     };
 
+    const focus: FocusEventHandler<HTMLTextAreaElement> = (e) => {
+        const commentElem = e.currentTarget as HTMLTextAreaElement;
+        commentElem.placeholder = "Enter your comment...";
+        const styleTag = document.querySelector("style");
+        styleTag?.append(`
+            .enterComment::placeholder {
+                color: #999999
+            } 
+        `);
+    };
+
     useEffect(() => {
-        const commentEnter = commentRef.current as HTMLInputElement;
-        if (!commentEnterWidth) {
-            setCommentEnterWidth(commentEnter.clientWidth);
+        const textAreaConteiner = textAreaConteinerRef.current as HTMLDivElement, styleTag = document.querySelector("style") as HTMLStyleElement;
+
+        styleTag.append(`
+            .enterComment::-webkit-scrollbar, .enterComment::-webkit-scrollbar-button, .enterComment::-webkit-scrollbar-thumb {
+                display: none;
+            }
+            .enterComment::placeholder {
+                color: #999999;
+            }
+        `);
+
+        if (!heightOfTextArea) {
+            setHeightOfTextArea(textAreaConteiner.clientHeight);
         }
-        Functions.changeStyleElem(commentEnter, {
-            width: 0
+        Functions.changeStyleElem(textAreaConteiner, {
+            height: 0
         });
     }, []);
 
     useEffect(() => {
-        const comment = commentRef.current as HTMLInputElement;
+        const textAreaConteiner = textAreaConteinerRef.current as HTMLDivElement;
         if (commentIsOpen) {
-            Functions.changeStyleElem(comment, {
-                width: `${commentEnterWidth}px`,
-                margin: "0 0 0 10px",
-                boxShadow: "0 0 0 3px #7beec7"
+            Functions.changeStyleElem(textAreaConteiner, {
+                height: `${heightOfTextArea}px`,
+                width: nowWidthWindow === "mobileScreen" ? "calc(90% - 6px)" : "50%",
+                margin: "15px 0 0 0",
+                boxShadow: "0 0 0 3px #7beec7",
             });
         } else if (commentIsOpen === false) {
-            Functions.changeStyleElem(comment, {
+            Functions.changeStyleElem(textAreaConteiner, {
                 width: 0,
                 margin: 0,
-                boxShadow: "0 0 0 0 #7beec7"
+                boxShadow: "0 0 0 0 #7beec7",
+                height: 0
             });
         }
     }, [commentIsOpen]);
 
     return(
-        <input ref={commentRef} type="text" name="comment" placeholder="Enter your comment..."
-        onKeyPress={submit}
-        style={Styles.commentOfPost} />
-    )
-}
-
-function Comments({idOfPost}) {
-    const [countOfComment, setCountOfComment] = useState(0);
-
-    useEffect(() => {
-        const request = new Functions.CreateUrlRequest(`/blog/server/postOfBlog/${idOfPost}/comments`);
-        request.toFetch()
-            .then((response) => {
-              if (response.ok) {
-                  return response.toMethod("text");
-              } else {
-                  throw new Error("Error from server");
-              }
-            })
-            .then((result) => {
-                setCountOfComment(+result);
-            });
-    }, []);
-
-    return(
-        <div className="comments">
-            {
-                Array.from({length: countOfComment}).map((_, index) => {
-                  return(
-                      <CommentElement idOfPost={idOfPost} index={index} />
-                  )  
-                })
-            }
+        <div className="textAreaConteiner" style={Styles.teaxtAreaConteiner} ref={textAreaConteinerRef}>
+            <textarea ref={commentRef} className="enterComment" name="comment" autoComplete="off" placeholder="Enter your comment..."
+            onFocus={focus}
+            style={Styles.commentOfPost} />
+            <IonIcon name="arrow-forward-circle" className="arrow_submit" style={Styles.arrow_submit} onPointerDown={submit} />
         </div>
     )
 }
 
-function CommentElement({idOfPost, index}) {
+function Comments({idOfPost, countOfComments}: {idOfPost: string | number, countOfComments: number}) {
+    const {nowWidthWindow} = useContext(MediaContext);
+    const [wasButtonOfCommentClicked, setWasButtonOfCommentClicked] = useState(false);
+    const [nowComments, setNowComments] = useState(0);
+    const [isButtonExist, setIsButtonExist] = useState(false);
+
+    useEffect(() => {
+        if (countOfComments > 3) {
+            setIsButtonExist(true);
+        }
+    }, [countOfComments]);
+    
+    useEffect(() => {
+        if (!wasButtonOfCommentClicked) {
+            setNowComments(
+                countOfComments <= 3 ? countOfComments : 3
+            );
+        } else if (nowComments < countOfComments && !isButtonExist) {
+            setNowComments(countOfComments);
+        }
+    }, [countOfComments, wasButtonOfCommentClicked, isButtonExist]);
+
+    return(
+        <div className="comments" style={nowWidthWindow === "mobileScreen" ? Styles.commentsMobile : {}}>
+            {
+                Array.from({length: nowComments}).map((_, index) => {
+                  return(
+                      <CommentElement idOfPost={`${idOfPost}`} key={index} idOfComment={`${index}`} />
+                  )  
+                })
+            }
+            {countOfComments <= 3 || !isButtonExist ? null : <ShowMoreCommentsButton
+            setNowComments={setNowComments}
+            nowComments={nowComments}
+            setIsButtonExist={setIsButtonExist}
+            setWasButtonOfCommentClicked={setWasButtonOfCommentClicked}
+            countOfComments={countOfComments} />}
+        </div>
+    )
+}
+
+function CommentElement({idOfPost, idOfComment}: {idOfPost: string; idOfComment: string}) {
+    const {nowWidthWindow} = useContext(MediaContext);
     const [dataOfComment, dispathDataOfComment] = useReducer<Reducer<TypesOfBlog.InitalCommentDataInterface, TypesOfBlog.ActionOfCommentReduser>>(
         Reducers.reducerOfCommentData, InitalStates.initalCommentData
     );
 
     useEffect(() => {
-        const request = new Functions.CreateUrlRequest(`/blog/server/postOfBlog/${idOfPost}/comments/${index}`);
+        const request = new Functions.CreateUrlRequest(`/blog/server/postsOfBlog?action=commentsOfPost&idOfPost=${idOfPost}&idOfComment=${idOfComment}`);
         request.toFetch()
         .then(response => {
             if (response.ok) {
@@ -925,25 +1138,119 @@ function CommentElement({idOfPost, index}) {
             dispathDataOfComment({
                 type: "CREATE_COMMENT",
                 ...result
-            })
+            });
         });
-    });
+    }, []);
 
     return(
-        <div className="comment">
-            <div className="comment_head">
-                <h5>{
-                        `Data of write: ${dataOfComment.dateOfWrite}`
-                    }</h5>
+        <div className="comment" style={
+            Object.assign(
+                Functions.cloneObject(
+                    Styles.comment
+                ),
+                nowWidthWindow === "mobileScreen" ? Styles.commentMobile : {}
+            )
+        }>
+            <div className="comment_head" style={
+                Object.assign(
+                    Functions.cloneObject(
+                        Styles.comment_head
+                    ),
+                    nowWidthWindow === "mobileScreen" ? Styles.comment_headMobile : {}
+                )
+            }>
+                <h5 className="h5OfCommentHead" style={
+                    Object.assign(
+                        Functions.cloneObject(
+                            Styles.h5OfCommentHead
+                        ),
+                        nowWidthWindow === "mobileScreen" ? { margin: 0 } : { margin: "0 0 0 25px" }
+                    )
+                }>
+                    User: {dataOfComment.userName ?? "Anonymous"}
+                </h5>
+                <h5 className="h5OfCommentHead" style={
+                    Object.assign(
+                        Functions.cloneObject(
+                            Styles.h5OfCommentHead
+                        ),
+                        nowWidthWindow === "mobileScreen" ? { margin: 0 } : { margin: "0 25px 0 0" }
+                    )
+                }>
+                    Data of write: {dataOfComment.dateOfWrite}
+                </h5>
             </div>
+            <p className="contentOfComment" style={Styles.contentOfComment}>
+                {dataOfComment.content}
+            </p>
         </div>
     )
 }
 
+function ShowMoreCommentsButton({setNowComments, countOfComments, nowComments, setWasButtonOfCommentClicked, setIsButtonExist}:
+    {setNowComments: Dispatch<SetStateAction<number>>, countOfComments: number, nowComments: number, setWasButtonOfCommentClicked: Dispatch<SetStateAction<boolean>>,
+    setIsButtonExist: Dispatch<SetStateAction<boolean>>}) {
+
+    useEffect(() => {
+        const nowCountOfComments = countOfComments - nowComments;
+        if (nowCountOfComments <= 0) {
+            setIsButtonExist(false);
+        }
+    }, [nowComments]);
+
+    const pointerEventOnButton: PointerEventHandler<HTMLButtonElement> = (e) => {
+        const button = e.currentTarget as HTMLButtonElement;
+        const type = e.type;
+        if (type === "pointerenter") {
+            Functions.changeStyleElem(button, {
+                color: "#ffffff",
+                backgroundColor: "#7beec7",
+                WebkitBoxShadow: "0px 0px 16px 8px #7beec7",
+                MozBoxShadow: "0px 0px 16px 8px #7beec7",
+                boxShadow: "0px 0px 16px 8px #7beec7"
+            });
+        }
+        if (type === "pointerleave") {
+            Functions.changeStyleElem(button, {
+                color: "#999999",
+                backgroundColor: "#e5e5e5",
+                WebkitBoxShadow: "0px 0px 0 0 #7beec7",
+                MozBoxShadow: "0px 0px 0 0 #7beec7",
+                boxShadow: "0px 0px 0 0 #7beec7"
+            });
+        }
+    };
+
+    return(
+        <button onClick={() => {
+            setWasButtonOfCommentClicked(true);
+            setNowComments((state) => {
+                let stayCountOfComments = countOfComments - state;
+                if (stayCountOfComments >= 3) {
+                    return state + 3;
+                } else if (stayCountOfComments > 0) {
+                    return state + stayCountOfComments;
+                } else {
+                    return state;
+                }
+            });
+        }} className="showMoreComments" onPointerEnter={pointerEventOnButton} onPointerLeave={pointerEventOnButton} style={Styles.showMoreComments}>
+            Show more...
+        </button>
+    )
+}
+
 function TitleOfPost({postData}) {
+    const {nowWidthWindow} = useContext(MediaContext);
+
     return(
         <h4 className="title" style={
-            Styles.title
+            Object.assign(
+                Functions.cloneObject(
+                    Styles.title
+                ),
+                nowWidthWindow === "mobileScreen" ? Styles.titleMobile : {}
+            )
         }>
             {postData.title}
         </h4>
@@ -951,19 +1258,28 @@ function TitleOfPost({postData}) {
 }
 
 function Description({postData, descriptionIsOpen}) {
+    const {nowWidthWindow} = useContext(MediaContext);
     const descriptionOfPostRef = useRef<HTMLParagraphElement | null>(null);
+
     useEffect(() => {
         const descriptionOfPost = descriptionOfPostRef.current as HTMLParagraphElement;
-        const nowHeightDescriptionOfPost = descriptionOfPost.clientHeight;
+        Functions.changeStyleElem(descriptionOfPost, {
+            height: descriptionOfPost.scrollHeight / 2 + "px",
+            maxHeight: descriptionOfPost.scrollHeight / 2 + "px"
+        });
+    }, [postData?.description]);
+
+    useEffect(() => {
+        const descriptionOfPost = descriptionOfPostRef.current as HTMLParagraphElement;
         if (descriptionIsOpen) {
             descriptionOfPost.animate([
                 {
-                    maxHeight: nowHeightDescriptionOfPost + "px",
-                    height: nowHeightDescriptionOfPost + "px"
+                    maxHeight: descriptionOfPost.scrollHeight / 2 + "px",
+                    height: descriptionOfPost.scrollHeight / 2 + "px"
                 },
                 {
-                    maxHeight: nowHeightDescriptionOfPost * 2 + 4 + "px",
-                    height: nowHeightDescriptionOfPost * 2 + 4 + "px"
+                    maxHeight: descriptionOfPost.scrollHeight + "px",
+                    height: descriptionOfPost.scrollHeight + "px"
                 }
             ], {
                 duration: 250,
@@ -973,12 +1289,12 @@ function Description({postData, descriptionIsOpen}) {
         } else if (descriptionIsOpen === false) {
             descriptionOfPost.animate([
                 {
-                    maxHeight: nowHeightDescriptionOfPost + "px",
-                    height: nowHeightDescriptionOfPost + "px"
+                    maxHeight: descriptionOfPost.scrollHeight + "px",
+                    height: descriptionOfPost.scrollHeight + "px"
                 },
                 {
-                    maxHeight: (nowHeightDescriptionOfPost) - 4 / 2 + "px",
-                    height: (nowHeightDescriptionOfPost - 4) / 2 + "px"
+                    maxHeight: descriptionOfPost.scrollHeight / 2 + "px",
+                    height: descriptionOfPost.scrollHeight / 2 + "px"
                 }
             ], {
                 duration: 250,
@@ -990,7 +1306,12 @@ function Description({postData, descriptionIsOpen}) {
 
     return(
         <p className="descriptionOfPost" ref={descriptionOfPostRef} style={
-            Styles.descriptionOfPost
+            Object.assign(
+                Functions.cloneObject(
+                    Styles.descriptionOfPost
+                ),
+                nowWidthWindow === "mobileScreen" ? Styles.descriptionOfPostMobile : {}
+            )
         }>
             {postData?.description}
             <br/>
@@ -1000,35 +1321,34 @@ function Description({postData, descriptionIsOpen}) {
 }
 
 function ReadDescription({descriptionIsOpen, setDescriptionIsOpen}) {
+    const {nowWidthWindow} = useContext(MediaContext);
 
-    const pointerEnter = (e: PointerEvent<HTMLDivElement>) => {
+    const pointerEnter: PointerEventHandler<HTMLDivElement> & MouseEventHandler<HTMLDivElement> = (e: PointerEvent<HTMLDivElement>) => {
         let current = e.currentTarget as HTMLElement;
-        let imgElement = current.querySelector("img") as HTMLImageElement;
+        let iconElement = current.querySelector(".icon-element") as HTMLImageElement;
 
         Functions.changeStyleElem(current, {
             backgroundColor: "#7beec7",
             color: "#ffffff",
             transition: "color ease-in .25s, background-color ease-out .25s"
         });
-        Functions.changeStyleElem(imgElement, {
-            margin: `${descriptionIsOpen ? "-2px" : "2px"} 0 0 9px`,
+        Functions.changeStyleElem(iconElement, {
             transition: ".25s linear",
             transitionProperty: "transform",
             transform: descriptionIsOpen ? "rotateZ(-90deg)" : "rotateZ(90deg)"
         });
     };
 
-    const pointerDown = (e: { currentTarget: HTMLElement; }) => {
+    const pointerDown: PointerEventHandler<HTMLDivElement> = (e) => {
         let current = e.currentTarget as HTMLElement;
-        let imgElement = current.querySelector("img") as HTMLImageElement;
+        let iconElement = current.querySelector(".icon-element") as HTMLImageElement;
 
         Functions.changeStyleElem(current, {
             backgroundColor: "#ffffff",
             color: "#60606e",
             transition: "color ease-in .25s, background-color ease-out .25s"
         });
-        Functions.changeStyleElem(imgElement, {
-            margin: "2px 0 0 9px",
+        Functions.changeStyleElem(iconElement, {
             transform: "rotate(0)"
         });
     };
@@ -1038,16 +1358,19 @@ function ReadDescription({descriptionIsOpen, setDescriptionIsOpen}) {
             Functions.cloneObject(
                 Styles.toReadDescription
             )
-        } onPointerEnter={pointerEnter} onPointerDown={pointerDown} onClick={() => setDescriptionIsOpen(
-            descriptionIsOpen === null ? true : !descriptionIsOpen
-        )}>
+        }
+        onPointerEnter={ nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? () => undefined : pointerEnter}
+        onClick={
+            (e: PointerEvent<HTMLDivElement>) => {
+                setDescriptionIsOpen(descriptionIsOpen === null ? true : !descriptionIsOpen);
+                nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? pointerEnter(e) : pointerDown(e);
+            }
+        }
+        >
             {
                 descriptionIsOpen ? "hide text" : "continue reading"
             }
-            <Functions.Img src={Arrow} style={{
-                margin: "2px 0 0 9px",
-                cursor: "pointer"
-            }}/>
+            <IonIcon name="arrow-forward" className="icon-element" style={Styles.arrowIcon} />
         </div>
     )
 }

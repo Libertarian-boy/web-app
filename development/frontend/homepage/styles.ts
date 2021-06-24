@@ -1,5 +1,7 @@
 //Основные стили (только десктопная версия)
 
+import { CSSProperties } from "react";
+
 export const HeaderStyle = {
     gridArea: "header",
     backgroundRepeat: "no-repeat",
@@ -188,7 +190,7 @@ export const shape4 = {
     zIndex: 1
 };
 
-export const porroQuisquam = {
+export const porroQuisquam: CSSProperties = {
     margin: "19px 0 0 0",
     overflowY: "hidden",
     lineHeight: "30px",
@@ -203,7 +205,8 @@ export const porroQuisquam = {
     letterSpacing: 'normal',
     textAlign: 'left',
     transition: ".35s ease-in",
-    transitionPropetry: "height, max-height"
+    transitionProperty: "height, max-height",
+    willChange: "height, max-height"
 };
 
 export const shape7 = {
@@ -347,7 +350,7 @@ export const chooseCategoryUlStyles = {
     listStyleType: "none"
 };
 
-export const CategoryUlItemStyles = {
+export const CategoryUlItemStyles: CSSProperties = {
     margin: "29px 0 0 0",
     padding: "0 20px 0 20px",
     color: '#60606e',
@@ -363,42 +366,31 @@ export const CategoryUlItemStyles = {
     transition: ".35s linear"
 };
 
-export const CategoryUlItemActiveStyles = {
+export const CategoryUlItemActiveStyles: CSSProperties = {
     margin: "29px 0 0 -19px",
     backgroundColor: '#7beec7',
     color: '#ffffff'
 };
 
-export const categories = {
+export const categories: CSSProperties = {
     width: "845px",
     maxWidth: "845px",
-    height: "889px",
-    maxHeight: "889px",
+    height: "894px",
+    maxHeight: "894px",
     justifyContent: "flex-start",
     alignItems: "flex-start",
     margin: "0 0 0 125px",
     display: "flex",
-    flexFlow: "column wrap"
+    flexFlow: "column wrap",
+    gap: "30px",
+    overflowX: "hidden"
 };
 
-export const itemCategory = {
-    margin: "25px 0 0 25px",
-    transition: ".55s ease-in"
-};
-
-export const topLeftItemCategory = {
-    margin: 0,
-    transition: ".55s ease-in"
-};
-
-export const topItemCategory = {
-    margin: "0 0 0 25px",
-    transition: ".55s ease-in"
-};
-
-export const leftItemCategory = {
-    margin: "25px 0 0 0",
-    transition: ".55s ease-in"
+export const itemCategory: CSSProperties = {
+    transitionDuration: ".3s",
+    transitionTimingFunction: "ease-in",
+    transitionProperty: "height, width",
+    willChange: "height, width"
 };
 
 /* Стили для мобильных устройств */
@@ -485,11 +477,7 @@ export const whyChooseUsImgMobile = {
     display: "none"
 };
 
-export const mainOurPortfolioMainStylesMobile = {
-    display: "none"
-};
-
-export const mainOurPortfolioMainMobileStyles = {
+export const mainOurPortfolioMainMobileStyles: CSSProperties = {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -519,18 +507,17 @@ export const categoriesMobileButton = {
     cursor: "pointer"
 };
 
-export const mainOurPortfolioMainMobileStylesCategory = {
+export const mainOurPortfolioMainMobileStylesCategory: CSSProperties = {
     display: "flex",
     alignItems: "center",
     flexDirection: "column",
-    margin: "20px 0 0 0",
     justifyContent: "flex-start",
-    transition: ".3s ease-in",
-    transformOrigin: "center top",
+    width: "82%",
+    gap: "10px",
     height: "0px",
-    width: "0px",
-    transform: "scale3d(0, 0, 1)",
-    opacity: "0"
+    transitionDuration: ".2s",
+    transitionTimingFunction: "linear",
+    transitionProperty: "margin"
 };
 
 /* Стили для планшета */
@@ -599,10 +586,11 @@ export const whyChooseUsImgTablet = {
     margin: "35px 0 0 0"
 };
 
-export const whyChooseUsMainListsStyleTablet = {
+export const whyChooseUsMainListsStyleTablet: CSSProperties = {
     width: "100%",
-    justifyContent: "space-around",
-    alignItems: "flex-start"
+    justifyContent: "space-evenly",
+    alignItems: "flex-start",
+    gap: "20px 30px"
 };
 
 export const categoriesTablet = {

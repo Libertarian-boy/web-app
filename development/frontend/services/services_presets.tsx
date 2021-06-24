@@ -124,8 +124,3 @@ export function Resize() {
 
     return null;
 }
-
-export function LetGlobalThis() {
-
-    return null;
-}

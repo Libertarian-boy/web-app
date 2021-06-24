@@ -1,75 +1,57 @@
-const express = require("express");
-const {MongoClient} = require("mongodb");
-const fs = require("fs");
-const path = require("path");
-const chalk = require("chalk");
+import { text, Router, json } from "express";
+import { readFile } from "fs";
+import { resolve, extname } from "path";
 
-const textParser = express.text();
-const blogRouter = express.Router();
-const jsonParser = express.json();
-
-const masOfImages = [];
+const textParser = text();
+export const blogRouter = Router();
+const jsonParser = json();
 
 blogRouter.route("/server/search")
-    .post(textParser, async (req, res) => {
-        try {
-            
-            if (!req.body) {
-                res.status(404).json({
-                    message: "Body not found",
-                    status: "Error",
-                    body: null
-                });
-                throw new Error("Body not found");
-            }
-
-            const mongoClient = new MongoClient("mongodb://localhost:27017/", {
-                useUnifiedTopology: true
+    .get(async (req, res) => {
+        const searchCollection = req.app.locals.webAppDb.collection("searchs-requests");
+        let searches = await searchCollection.find().toArray();
+        if (searches) {
+            res.status(202).json({
+                searches: searches
             });
+        } else {
+            res.status(200).send(undefined);
+        }
+    })
+    .post(textParser, async (req, res) => {
+        if (!req.body) {
+            res.status(404).send("Error: request body isn`t valid!");
+        }
+        const searchCollection = req.app.locals.webAppDb.collection("searchs-requests");
+        let body = req.body;
+        const document = await searchCollection.findOne({
+            search: body
+        });
 
-            const client = await mongoClient.connect();
-            let body = req.body;
-            const searchRequests = client.db("web-app").collection("searchs-requests");
-            
-            const document = await searchRequests.findOne({
+        if (document) {
+            res.status(200).send(document.search);
+        } else {
+            await searchCollection.insertOne({
                 search: body
             });
-
-            if (document) {
-                res.status(200).json(document);
-            } else {
-                await searchRequests.insertOne({
-                    search: body
-                });
-                const document = await searchRequests.findOne({
-                    search: body
-                });
-                res.status(202).json(document);
-            }
-
-            client.close();
-            res.end();
-    
-        } catch (error) {
-            res.status(400).json({
-                message: error.message,
-                status: "Error",
-                body: undefined
+            const document = await searchCollection.findOne({
+                search: body
             });
-
-            client.close();
-            res.end();
+            res.status(202).send(document.search);
         }
     });
 
-blogRouter.route("/server/posts/:id")
+blogRouter.route("/server/posts")
     .get(async (req, res) => {
-        const pathToImage = path.resolve(`././images/${
-            +req.params.id % 3 === 0 ? "mount" :
-            +req.params.id % 2 === 0 ? "mount_smoke" : "mount_snow"
-        }.png`);
+        const idOfPost = +req.query.idOfPost;
+        const pathToImage = resolve(
+            `././images/${
+                idOfPost % 3 === 0 ? "mount" :
+                idOfPost % 2 === 0 ? "mount_smoke" : "mount_snow"
+            }.png`
+        );
 
-        fs.readFile(pathToImage, {
+        readFile(pathToImage, {
             encoding: "base64"
         }, (err, data) => {
             if (err) {
@@ -79,91 +61,109 @@ blogRouter.route("/server/posts/:id")
                 });
                 return;
             }
-            const ext = path.extname("image.png");
-            masOfImages.push(`data:image/${ext.split(".").pop()};base64,${data}`);
+            const ext = extname("image.png");
             res.type("json");
             res.status(200).json({
-                src: masOfImages,
+                src: `data:image/${ext.split(".").pop()};base64,${data}`,
                 title: "Magna mollis ultricies",
                 date: "3th oct 2012"
             });
-            res.end();
         });
     });
 
-blogRouter.route("/server/postOfBlog/:id")
+blogRouter.route("/server/postsOfBlog")
     .get(async (req, res) => {
-        const id = req.params.id;
-        if (id) {
-            const mongoClient = new MongoClient("mongodb://localhost:27017/", {
-                useUnifiedTopology: true
+        const action = req.query.action, idOfPost = req.query.idOfPost;
+        if (action && idOfPost) {
+            const collectionOfBlogs = req.app.locals.webAppDb.collection("blogs");
+            let documentOfBlog = await collectionOfBlogs.findOne({
+                _id: idOfPost
             });
-            const client = await mongoClient.connect();
-            const collectionOfBlogs = client.db("web-app").collection("blogs");
-            const documentOfBlog = await collectionOfBlogs.findOne({
-                _id: id
-            });
-
-            const pathToImage = path.resolve("././images/blog_image.png");
-            const ext = path.extname("blog_image.png");
-
-            if (documentOfBlog) {
-                res.status(200).json({
-                    ...documentOfBlog
-                });
-                mongoClient.close();
-                res.end();
-            } else {
-                fs.readFile(pathToImage, {
-                    encoding: "base64"
-                }, async (err, data) => {
-                    if (err) {
-                        res.status(404).json({
-                            status: "Error",
-                            message: "Image not found"
+            switch(action) {
+                case "getPost":
+                    const pathToImage = resolve("././images/blog_image.png");
+                    const ext = extname("blog_image.png");
+                    if (documentOfBlog) {
+                        res.status(200).json(documentOfBlog);
+                    } else {
+                        readFile(pathToImage, {
+                            encoding: "base64"
+                        }, async (err, data) => {
+                            if (err) {
+                                res.status(500).json({
+                                    status: "Error",
+                                    message: "Image not found"
+                                });
+                            }
+                            await collectionOfBlogs.insertOne({
+                                _id: idOfPost,
+                                srcOfImg: `data:image/${ext.split(".").pop()};base64,${data}`,
+                                dateOfCreated: "October 13, 2015",
+                                countOfComments: 0,
+                                comments: [],
+                                countOfLikes: 0,
+                                wasLikedByUser: false,
+                                title: "THE BIG LEAGUES OUR TURN STRAIGHTNIN",
+                                description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+                            });
+                            const response = await collectionOfBlogs.findOne({
+                                _id: idOfPost
+                            });
+                            res.status(200).json(response);
                         });
-                        mongoClient.close();
-                        res.end();
                     }
-                    await collectionOfBlogs.insertOne({
-                        _id: id,
-                        srcOfImg: `data:image/${ext.split(".").pop()};base64,${data}`,
-                        dateOfCreated: "October 13, 2015",
-                        countOfComments: 8,
-                        comment: [],
-                        countOfLikes: 15,
-                        wasLikedByUser: false,
-                        title: "THE BIG LEAGUES OUR TURN STRAIGHTNIN",
-                        description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
-                    });
-                    const response = await collectionOfBlogs.findOne({
-                        _id: id
-                    });
-                    res.status(200).json({
-                        ...response
-                    });
-                    mongoClient.close();
-                    res.end();
-                });
+                    break;
+                case "countOfComments":
+                    if (documentOfBlog) {
+                        const countOfComments = documentOfBlog.countOfComments;
+                        res.status(200).send(`${countOfComments}`);
+                    } else {
+                        documentOfBlog = await collectionOfBlogs.findOne({
+                            _id: idOfPost
+                        });
+                        if (documentOfBlog) {
+                            const countOfComments = documentOfBlog.countOfComments;
+                            res.status(200).send(`${countOfComments}`);
+                        } else {
+                            res.status(400).send("Error: param of blog countOfComments - not found!")
+                        }
+                    }
+                    break;
+                case "commentsOfPost":
+                    const idOfComment = +req.query.idOfComment;
+                    if (documentOfBlog && idOfComment) {
+                        const comment = documentOfBlog.comments[idOfComment];
+                        res.status(200).json(comment);
+                    } else {
+                        documentOfBlog = await collectionOfBlogs.findOne({
+                            _id: idOfPost
+                        });
+                        if (documentOfBlog) {
+                            const comment = documentOfBlog.comments[idOfComment];
+                            res.status(200).json(comment);
+                        } else {
+                            res.status(400).send("Error: param of blog arrayOfComments - not found!")
+                        }
+                    }
+                    break;
+                default:
+                    res.status(400).send("Search param isn`t valid!");
+                    break;
             }
+        } else {
+            res.status(400).send("Error: request query isn`t valid!")
         }
     })
     .put(jsonParser, async (req, res) => {
-        if (req.params.id) {
-            const _id = req.params.id, body = req.body;
-            const mongoClient = new MongoClient("mongodb://localhost:27017/", {
-                useUnifiedTopology: true
-            });
-            const client = await mongoClient.connect();
-            const collection = client.db("web-app").collection("blogs");
+        if (req.query.idOfPost) {
+            const idOfPost = req.query.idOfPost, body = req.body;
+            const collection =  req.app.locals.webAppDb.collection("blogs");
             let document;
-            
             if (body) {
-
                 switch(body.type) {
                     case "setStateOfLike":
                         await collection.findOneAndUpdate({
-                            _id: _id
+                            _id: idOfPost
                         }, {
                             "$set": {
                                 countOfLikes: body.countOfLikes,
@@ -171,45 +171,35 @@ blogRouter.route("/server/postOfBlog/:id")
                             }
                         });
                         document = await collection.findOne({
-                            _id: _id
+                            _id: idOfPost
                         });
                         res.json(document);
                         break;
                     case "writeComment":
                         await collection.findOneAndUpdate({
-                            _id: _id
+                            _id: idOfPost
                         }, {
                             "$set": {
-                                countOfComments: body.countOfComments,
-                                comment: {
-                                    date: body.comment.date,
-                                    user: body.comment.user,
+                                countOfComments: body.countOfComments
+                            },
+                            "$push": {
+                                comments: {
+                                    dateOfWrite: body.comment.dateOfWrite,
+                                    userName: body.comment.userName,
                                     content: body.comment.content
                                 }
                             }
                         });
                         document = await collection.findOne({
-                            _id: _id
+                            _id: idOfPost
                         });
                         res.json(document);
                         break; 
                 }
-                mongoClient.close(),
-                res.end();
+            } else {
+                res.status(400).send("Error: request body isn`t valid!");
             }
+        } else {
+            res.status(400).send("Error: request query isn`t valid!");
         }
     });
-
-blogRouter.route("/blog/server/postOfBlog/comments")
-    .get((req, res) => {
-        
-    });
-
-blogRouter.route("/blog/server/postOfBlog/comments/:id")
-    .get((req, res) => {
-        
-    });
-
-module.exports = {
-    blogRouter: blogRouter
-}

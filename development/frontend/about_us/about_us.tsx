@@ -43,8 +43,6 @@ export default function AboutUs() {
             <AboutUsPresets.OrientationChange/>
             {/* Проверка и изменения при изменении размера экрана */}
             <AboutUsPresets.Resize/>
-            {/* Для установки глобальных значений */}
-            <AboutUsPresets.LetGlobalThis/>
             {/* Для анимации появления header, main, footer */}
             <GlobalChangeLocationOn/>
             <GlobalHeader h1="akad." h2="about us" p="home / about"/>
@@ -455,12 +453,19 @@ function TheDreamTeamMainItem(props: { tabIndex: number | undefined; down: any; 
                 props.down ? Styles.theDreamTeam_main__item___down : {}
             )
         } ref={itemRef}
-        onPointerEnter={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? undefined : enter}
-        onPointerLeave={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? undefined : leave}
+        onPointerEnter={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? () => undefined : enter}
+        onPointerLeave={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? () => undefined : leave}
         tabIndex={props.tabIndex}
-        onFocus={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? enter : undefined}
-        onBlur={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? leave : undefined}>
-            <Functions.Img src={props.src} alt={props.person} className="theDreamTeam_main__item___image" style={
+        onFocus={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? enter : () => undefined}
+        onBlur={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? leave : () => undefined}
+        onClick={
+            nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? () => undefined : () => {
+                const theDreamTeam_main__item = itemRef.current as HTMLDivElement;
+                const img = theDreamTeam_main__item.children[0] as HTMLImageElement;
+                if (img.tagName.toLowerCase() === "img") img.click();
+            }
+        }>
+            <Functions.Img src={props.src} alt={props.person} isCanBeDownload={true} className="theDreamTeam_main__item___image" style={
                 Functions.cloneObject(
                     Styles.theDreamTeam_main__item___img
                 )
@@ -543,14 +548,16 @@ function GrayBlock() {
     useEffect(() => {
         const grayBlock = ref_grayBlock.current;
         if (grayBlock) {
-            const p = grayBlock.children[0], button = grayBlock.children[1],
-        pHeight = p.clientHeight;
+            const p = grayBlock.children[0], button = grayBlock.children[1];
         if (wasClick) {
-            globalThis.animation1 = p.animate([{
-                maxHeight: `${pHeight}px`
-            }, {
-                maxHeight: `${pHeight * 4 + 4}px`
-            }], {
+            p.animate([
+                {
+                    maxHeight: `${p.clientHeight}px`
+                },
+                {
+                    maxHeight: `${p.scrollHeight}px`
+                }
+            ], {
                 duration: 300,
                 fill: "forwards",
                 easing: "ease-out"
@@ -558,11 +565,13 @@ function GrayBlock() {
 
             button.textContent = "hide text";
         } else if (wasClick === false) {
-            globalThis.animation2 = p.animate([{
-                maxHeight: `${pHeight}px`
-            }, {
-                maxHeight: `${(pHeight - 4) / 4}px`
-            }], {
+            p.animate([
+                {
+                    maxHeight: `${p.scrollHeight}px`
+                }, {
+                    maxHeight: `${p.scrollHeight / 4}px`
+                }
+            ], {
                 duration: 300,
                 fill: "forwards",
                 easing: "ease-in"

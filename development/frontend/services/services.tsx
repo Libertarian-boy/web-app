@@ -25,8 +25,6 @@ export default function Services() {
             <ServicesPresets.OrientationChange/>
             {/* Проверка и изменения при изменении размера экрана */}
             <ServicesPresets.Resize/>
-            {/* Для установки глобальных значений */}
-            <ServicesPresets.LetGlobalThis/>
             {/* Для анимации появления header, main, footer */}
             <GlobalChangeLocation/>
             <GlobalHeader h1="akad." h2="our services" p="home / services"/>

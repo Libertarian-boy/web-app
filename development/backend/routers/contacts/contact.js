@@ -1,8 +1,8 @@
-const express = require("express");
-const {MongoClient} = require("mongodb");
+import { json, Router } from "express";
+import { MongoClient } from "mongodb";
 
-const jsonParser = express.json();
-const routerContact = express.Router();
+const jsonParser = json();
+export const routerContact = Router();
 
 routerContact.post("/server", jsonParser, (req, res) => {
 
@@ -53,7 +53,3 @@ routerContact.post("/server", jsonParser, (req, res) => {
         });
     }
 });
-
-module.exports = {
-    routerContact: routerContact
-}

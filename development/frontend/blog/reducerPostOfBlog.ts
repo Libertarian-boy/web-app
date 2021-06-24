@@ -1,6 +1,6 @@
 import * as TypesOfBlog from "./types";
 
-export function reducerOfPostData(state: TypesOfBlog.InitalPostDataInterface, action: TypesOfBlog.ActionOfPostReduser) {
+export function reducerOfPostData(state: TypesOfBlog.InitalPostDataInterface, action: TypesOfBlog.ActionOfPostReduser): TypesOfBlog.InitalPostDataInterface {
     switch(action?.type) {
         case "setStartProp": 
         return {
@@ -25,13 +25,7 @@ export function reducerOfPostData(state: TypesOfBlog.InitalPostDataInterface, ac
             return {
                 ...state,
                 countOfComments: state.countOfComments + 1,
-                comments: state.comments.push(
-                    {
-                        date: action.comment.date,
-                        user: action.comment.user,
-                        content: action.comment.content
-                    }
-                )
+                comments: [...state.comments, action.comment]
             };
         case "setSrcOfImg":
             return {
@@ -58,7 +52,7 @@ export function reducerOfPostData(state: TypesOfBlog.InitalPostDataInterface, ac
     }
 };
 
-export function reducerOfCommentData(state: TypesOfBlog.InitalCommentDataInterface, action: TypesOfBlog.ActionOfCommentReduser) {
+export function reducerOfCommentData(state: TypesOfBlog.InitalCommentDataInterface, action: TypesOfBlog.ActionOfCommentReduser): TypesOfBlog.InitalCommentDataInterface {
     switch(action.type) {
         case "CREATE_COMMENT":
             return {

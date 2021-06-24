@@ -48,7 +48,7 @@ export function OrientationChange() {
 
     const orientationChangeFunction = () => {
         setTimeout(() => {
-            Functions.setValueContextWindow(setNowWidthWindow, 30);
+            Functions.setValueContextWindow(setNowWidthWindow, 0);
         }, 15);
     };
 

@@ -22,8 +22,8 @@ export const preloaderConteiner = {
 };
 
 export const preloaderConteinerCircles = {
-    height: "40px",
-    width: "40px",
+    height: "30px",
+    width: "30px",
     borderRadius: "50%",
     backgroundColor: "rgb(255, 255, 255)"
 };
@@ -71,12 +71,13 @@ export const titleStyleP = {
 
 /* Стили для глобального Headers */
 
-export const header = {
+export const header: CSSProperties = {
     gridArea: "header",
     backgroundRepeat: "no-repeat",
     backgroundSize: "cover",
     transform: "translate(-20px, -20px)",
-    opacity: 0
+    opacity: 0,
+    backgroundAttachment: "fixed"
 };
 
 export const header_forward = {
@@ -391,10 +392,21 @@ export const footerTextUl = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    width: 175,
+    width: "175px",
     padding: 0,
     listStyleType: "none",
     alignSelf: "flex-end"
+};
+
+export const logoStyle: CSSProperties = {
+    transition: ".3s ease-in",
+    transitionProperty: "color",
+    fontFamily: "Ionicons",
+    fontSize: "18px",
+    fontWeight: 400,
+    textTransform: "uppercase",
+    color: "#999999",
+    display: "flex"
 };
 
 /* Стили для загрузчика файлов и изображений */
@@ -423,13 +435,14 @@ export const downloader_inf = {
     width: "70%"
 };
 
-export const downloader_inf__li = {
+export const downloader_inf__li: CSSProperties = {
     fontFamily: "Montserrat, sans-serif",
     fontSize: "18px",
     lineHeight: "48px",
     fontWeight: 700,
     textTransform: "uppercase",
-    color: "#ffffff"
+    color: "#ffffff",
+    textAlign: "center"
 };
 
 export const downloader_button = {
@@ -459,7 +472,7 @@ export const HeaderHeadListMobileAndTablet = {
     display: "none"
 };
 
-export const MobileVersionNavStyle = {
+export const MobileVersionNavStyle: CSSProperties = {
     margin: "0",
     opacity: "0",
     transform: "translateY(-10px)",
@@ -471,7 +484,8 @@ export const MobileVersionNavStyle = {
     flexDirection: "column",
     justifyContent: "flex-start",
     alignItems: "center",
-    transition: "5s linear"
+    transition: "5s linear",
+    willChange: "transform, opacity, height"
 };
 
 export const MobileNavVersionLiStyle = {
@@ -515,11 +529,6 @@ export const MobileNavVersionLiNavLinkActiveStyle = {
 
 export const header_forward__mainMobile = {
     margin: "109px 0 109px 0"
-};
-
-export const preloaderConteinerCirclesMobile: CSSProperties = {
-    height: "25px",
-    width: "25px"
 };
 
 export const mainPrefooterStylesMobile = {

@@ -11,5 +11,6 @@ declare function fetch(input: string | URL, init?: {
     headers?: {};
     mode?: string;
     keepalive?: boolean;
-    cache?: string
+    cache?: string;
+    signal?: AbortSignal | undefined;
 }): Promise<any>;

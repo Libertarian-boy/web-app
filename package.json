@@ -2,10 +2,11 @@
   "name": "web-app",
   "version": "1.0.0",
   "description": "React web application",
-  "main": "index.js",
+  "main": "./development/backend/index.mjs",
   "scripts": {
     "start": "webpack serve",
-    "build": "webpack"
+    "build": "webpack",
+    "dev": "webpack && concurrently \"webpack --watch\" \"nodemon docs/server\""
   },
   "devDependencies": {
     "@babel/core": "^7.14.0",
@@ -20,6 +21,7 @@
     "@types/webpack-hot-middleware": "^2.25.4",
     "babel-loader": "^8.2.2",
     "clean-webpack-plugin": "^3.0.0",
+    "concurrently": "^6.2.0",
     "crypto-browserify": "^3.12.0",
     "html-webpack-plugin": "^5.3.1",
     "node-polyfill-webpack-plugin": "^1.0.3",
@@ -29,11 +31,14 @@
     "ts-loader": "^8.1.0",
     "url-loader": "^4.1.1",
     "webpack-cli": "^4.5.0",
-    "webpack-dev-middleware": "^3.7.3"
+    "webpack-dev-middleware": "^3.7.3",
+    "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
+    "@reacticons/ionicons": "^5.5.0",
     "chalk": "^2.4.2",
     "express": "^4.17.1",
+    "ionicons": "^5.5.1",
     "mongodb": "^3.6.6",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",

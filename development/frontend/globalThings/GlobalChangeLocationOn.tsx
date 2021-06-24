@@ -6,9 +6,9 @@ export default function GlobalChangeLocationOn() {
     const location = useLocation();
 
     useEffect(() => {
-        const header = document.querySelector("header") ?? null,
-            main = document.querySelector("main") ?? null,
-            footer = document.querySelector("footer") ?? null;
+        const header = document.querySelector("header") as HTMLElement,
+            main = document.querySelector("main") as HTMLElement,
+            footer = document.querySelector("footer") as HTMLElement;
         
         appearElem(header, document.documentElement.scrollTop >= document.documentElement.clientHeight / 2 ? 900 : 100);
         appearElem(main, 500);

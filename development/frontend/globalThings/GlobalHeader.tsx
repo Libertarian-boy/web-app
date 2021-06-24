@@ -237,7 +237,6 @@ function HeaderHeadList(props: { wasClick: boolean | null; }) {
 /* Мобильная и планшетная версия навигации */
 
 export function MobileAndTabletNavVersion(props: { wasClick: boolean; }) {
-
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
 
     const refUl = useRef<HTMLUListElement>(null);
@@ -321,6 +320,11 @@ export function MobileAndTabletNavVersion(props: { wasClick: boolean; }) {
                             }
                             activeStyle={
                                 GlobalStyles.MobileNavVersionLiNavLinkActiveStyle
+                            }
+                            onClick={
+                                (e: MouseEvent) => {
+                                    props.wasClick ? undefined : e.preventDefault();
+                                }
                             }>
                                 {item}
                             </NavLink>

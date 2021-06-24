@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useContext, useState} from "react";
+import React, {useEffect, useRef, useContext, useState, forwardRef} from "react";
 
 import * as ContactPresets from "./contact_presets";
 import * as Functions from "../globalThings/functions";
@@ -105,7 +105,7 @@ function IfRame() {
                 } as const : {}
             )
         }>
-            <SourcePreloader refProp={SourcePreloaderRef}/>
+            <SourcePreloader ref={SourcePreloaderRef}/>
             <iframe
             src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d1469510.5405111327!2d-72.687162299521!3d43.99787768466286!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sru!2sru!4v1620397999419!5m2!1sru!2sru" 
             loading="lazy"
@@ -299,48 +299,50 @@ function Form({
     async function formSubmite(e: any) {
         e.preventDefault();
         const form = e.currentTarget as HTMLFormElement;
-        const elementOfForm = form.children as HTMLCollectionOf<HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement>;
-        const emailInput = emailRef.current as HTMLInputElement;
+        const elementsOfForm = form.children as HTMLCollectionOf<HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement>;
+        let canSubmit = true;
 
-        if (emailInput) {
-            console.log(emailInput);
-            return false;
-        }
-
-        let dataOfUser = {};
-
-        Array.from(elementOfForm).forEach(item => {
-            const name = item.getAttribute("name"), value = item.value;
-
-            if (name) {
-                dataOfUser[name] = value.length === 0 ? null : value.toLowerCase();
+        Array.from(elementsOfForm).forEach(item => {
+            if (item.tagName.toLowerCase() !== "button" && item.value.length <= 0) {
+                canSubmit = false;
+                item.value = "Please enter this input!";
+                item.style.color = "rgb(224, 13, 13)";
             }
         });
 
-        dataOfUser = JSON.stringify(dataOfUser);
+        if (canSubmit) {
+            let dataOfUser = {};
+            Array.from(elementsOfForm).forEach(item => {
+                const name = item.getAttribute("name"), value = item.value;
 
-        try {
-            const response = await fetch("/contact us/server", {
-                method: "POST",
-                body: dataOfUser,
-                keepalive: true,
-                headers: {
-                    "Content-Type": "application/json; charset=utf-8"
+                if (name) {
+                    dataOfUser[name] = value.length === 0 ? null : value.toLowerCase();
                 }
             });
-    
-            if (response.ok) {
-                const jsonData = await response.json();
-                setData(jsonData);
-            } else {
-                const errorData = await response.json();
-                console.log(errorData?.status, errorData?.message);
-                throw new Error(`Error`);
+            dataOfUser = JSON.stringify(dataOfUser);
+
+            try {
+                const response = await fetch("/contact us/server", {
+                    method: "POST",
+                    body: dataOfUser,
+                    keepalive: true,
+                    headers: {
+                        "Content-Type": "application/json; charset=utf-8"
+                    }
+                });
+        
+                if (response.ok) {
+                    const jsonData = await response.json();
+                    setData(jsonData);
+                } else {
+                    console.error("Error: Something went wrong!");
+                }
+            } catch (error) {
+                let errorMessage = error as Error;
+                console.log(
+                    errorMessage.message
+                );
             }
-        } catch (error) {
-            console.log(
-                error.message
-            );
         }
     }
 
@@ -382,13 +384,12 @@ function Form({
     )
 }
 
-function InputOfForm (props: {
+const InputOfForm = forwardRef(function InputOfForm(props: {
     placeholder: string;
     type: string;
     name: string;
     otherStyles?: {};
-    ref?: any
-}) {
+}, ref: React.ForwardedRef<HTMLInputElement>) {
     
     const {nowWidthWindow} = useContext(MediaContext);
 
@@ -408,15 +409,9 @@ function InputOfForm (props: {
     }, []);
 
     function focus(e: { currentTarget: HTMLElement; }): void {
-        const target = e.currentTarget as HTMLElement;
-        const style = document.querySelector("style");
-
-        style?.append(`
-            input[type=email]::placeholder {
-                color: #cccccc;
-            }
-        `);
-
+        const target = e.currentTarget as HTMLInputElement;
+        /Please enter this input!/i.test(target.value) ? target.value = "" : undefined;
+        target.style.color = "black";
         Functions.changeStyleElem(target, {
             outline: "none"
         });
@@ -430,14 +425,14 @@ function InputOfForm (props: {
     );
 
     return (
-        <input ref={props.ref ? props.ref : undefined} type={props.type} name={props.name} placeholder={props.placeholder} onFocus={focus} style={
+        <input ref={ref} type={props.type} name={props.name} placeholder={props.placeholder} onFocus={focus} style={
             Object.assign(
                 styleInput,
                 nowWidthWindow === "mobileScreen" ? Styles.inputOfForm_Mobile : {}
             )
         }/>
     )
-}
+})
 
 function Textarea({
     isResize = true,
@@ -472,11 +467,12 @@ function Textarea({
     );
 
     function focus(e: { currentTarget: HTMLElement; }) {
-        const target = e.currentTarget as HTMLElement;
-
+        const target = e.currentTarget as HTMLTextAreaElement;
+        /Please enter this input!/i.test(target.value) ? target.value = "" : undefined;
+        target.style.color = "black";
         Functions.changeStyleElem(target, {
             outline: "none"
-        })
+        });
     }
 
     return (
@@ -543,7 +539,7 @@ function ContactInfo() {
                     Functions.cloneObject(
                         Styles.main_conteiner__contactInfo___p
                     ),
-                    nowWidthWindow === "mobileScreen" ? Styles.main_conteiner__contactInfo___p_Mobile : {}
+                    nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? Styles.main_conteiner__contactInfo___p_Mobile : {}
                 )
             }>
                 Lorem ipsum dolor sit amet, conse adipisicing elit. Libero incidunt quod ab mollitia quia dolorum conse.
@@ -553,7 +549,7 @@ function ContactInfo() {
                     Functions.cloneObject(
                         Styles.contactInfo_info
                     ),
-                    nowWidthWindow === "mobileScreen" ? Styles.contactInfo_info_Mobile : {}
+                    nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? Styles.contactInfo_info_Mobile : {}
                 )
             }>
             13D, Functional apartment, Unique colony,<br/>

@@ -1,7 +1,5 @@
 const root = document.getElementById("root");
 
-import type * as Types from "./globalThings/types";
-
 import React, {useState, useContext, useEffect} from "react";
 import ReactDom from "react-dom";
 import {
@@ -24,6 +22,7 @@ const AboutUs = React.lazy(() => import("./about_us/about_us"));
 const Services = React.lazy(() => import("./services/services"));
 const Contacts = React.lazy(() => import("./contact/contact"));
 const Blog = React.lazy(() => import("./blog/blog"));
+const MobileSwitcher = React.lazy(() => import("./blog/MobileSwitcher"));
 
 /* Функция-компонент для пермещения по якорям */
 function ScrollToHash() {
@@ -63,7 +62,7 @@ export default function App() {
     
     type LoaderContextInterfacePartialed = Partial<LoaderContextInterface>;
 
-    const [nowWidthWindow, setNowWidthWindow] = useState("computerNormalScreen");
+    const [nowWidthWindow, setNowWidthWindow] = useState<"" | "mobileScreen" | "tablet" | "computerNormalScreen" | "computerLargeScreen">("computerLargeScreen");
     const value = {nowWidthWindow, setNowWidthWindow};
 
     const [data, setData] = useState<null | LoaderContextInterfacePartialed>(null);
@@ -74,51 +73,40 @@ export default function App() {
             <ScrollToHash/>
             <Contexts.MediaContext.Provider value={value}>
                 <GlobalLoad/>
+            <Contexts.LoaderContext.Provider value={contextData}>
             <Switch>
                 <Route exact path="/Home">
-                    <Contexts.LoaderContext.Provider value={contextData}>
-                        <React.Suspense fallback={<Preloader/>}>
-                            <HomePage/>
-                            <DownLoader/>
-                        </React.Suspense>
-                    </Contexts.LoaderContext.Provider>
+                    <React.Suspense fallback={<Preloader/>}>
+                        <HomePage/>
+                    </React.Suspense>
                 </Route>
                 <Route exact path="/about us">
-                    <Contexts.LoaderContext.Provider value={contextData}>
-                        <React.Suspense fallback={<Preloader/>}>
-                            <AboutUs/>
-                            <DownLoader/>
-                        </React.Suspense>
-                    </Contexts.LoaderContext.Provider>
+                    <React.Suspense fallback={<Preloader/>}>
+                        <AboutUs/>
+                    </React.Suspense>
                 </Route>
                 <Route exact path="/services">
-                    <Contexts.LoaderContext.Provider value={contextData}>
-                        <React.Suspense fallback={<Preloader/>}>
-                            <Services/>
-                            <DownLoader/>
-                        </React.Suspense>
-                    </Contexts.LoaderContext.Provider>
+                    <React.Suspense fallback={<Preloader/>}>
+                        <Services/>
+                    </React.Suspense>
                 </Route>
                 <Route exact path="/contact us">
-                    <Contexts.LoaderContext.Provider value={contextData}>
-                        <React.Suspense fallback={<Preloader/>}>
-                            <Contacts/>
-                            <DownLoader/>
-                        </React.Suspense>
-                    </Contexts.LoaderContext.Provider>
+                    <React.Suspense fallback={<Preloader/>}>
+                        <Contacts/>
+                    </React.Suspense>
                 </Route>
                 <Route exact path="/blog">
-                    <Contexts.LoaderContext.Provider value={contextData}>
-                        <React.Suspense fallback={<Preloader/>}>
-                            <Blog/>
-                            <DownLoader/>
-                        </React.Suspense>
-                    </Contexts.LoaderContext.Provider>
+                    <React.Suspense fallback={<Preloader/>}>
+                        <Blog/>
+                        {nowWidthWindow === "mobileScreen" ? <MobileSwitcher/> : null}
+                    </React.Suspense>
                 </Route>
                 <Route exact path="/">
                     <Redirect from="/" to="/Home"/>
                 </Route>
             </Switch>
+            <DownLoader />
+            </Contexts.LoaderContext.Provider>
             </Contexts.MediaContext.Provider>
         </Router>
     )
@@ -128,25 +116,18 @@ function GlobalLoad() {
     const {nowWidthWindow, setNowWidthWindow} = useContext(Contexts.MediaContext);
     const location = useLocation();
 
-    const loadFunction = () => {
-        /* Для установки значения слайдера мобильной версии портфолио */
-        globalThis.mobilePortfolioSlider = document.documentElement.clientWidth;
-
-        /* Для установки значений width и height для мобильной версии портфолио */
-        globalThis.mobilePortfolioSliderWidth = globalThis.mobilePortfolioSlider;
-    };
-
     const fullLoadFunction = () => {
-        const windowWidth = document.documentElement.clientWidth;
         const root = document.getElementById("root") as HTMLDivElement;
 
-        Functions.changeStyleElem(root, {
-            overflowX: "hidden"
-        });
+        if (!/blog/i.test(location.pathname) && !/blog/i.test(location.hash)) {
+            Functions.changeStyleElem(root, {
+                overflowX: "hidden"
+            });
+        }
 
-        const header = document.querySelector("header") ?? null,
-              main = document.querySelector("main") ?? null,
-              footer = document.querySelector("footer") ?? null;
+        const header = document.querySelector("header") as HTMLElement,
+              main = document.querySelector("main") as HTMLElement,
+              footer = document.querySelector("footer") as HTMLElement;
             
             Functions.appearElem(header, document.documentElement.scrollTop >= document.documentElement.clientHeight / 2 ? 900 : 100);
             Functions.appearElem(main, 500);
@@ -155,22 +136,8 @@ function GlobalLoad() {
             Functions.setValueContextWindow(setNowWidthWindow, 0);
             Functions.downloaderBottomStart();
 
-        setTimeout(() => {
-            const categories = (document.querySelector(".main_ourPortfolio__main") ?? null) as Types.HTMLDivElements;
-            const theDreamTeam_down__slider = (document.querySelector(".theDreamTeam_down__slider") ?? null) as Types.HTMLDivElements;
-
-            if (categories) {
-
-                if (windowWidth <= 500) {
-                    Functions.changeStyleElem(categories, {
-                        display: "none"
-                    });
-                } else {
-                    Functions.changeStyleElem(categories, {
-                        display: "flex"
-                    });
-                }
-            };
+            const theDreamTeam_down__slider = (document.querySelector(".theDreamTeam_down__slider") ?? null) as HTMLDivElement;
+            const main_conteiner__info = (document.querySelector(".main_conteiner__info") ?? null) as HTMLDivElement;
 
             if (theDreamTeam_down__slider) {
                 if (nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet") {
@@ -180,26 +147,22 @@ function GlobalLoad() {
                 }
             }
 
-            if (globalThis.animation1) {
-                globalThis.animation1.cancel();
-            };
-
-            if (globalThis.animation2) {
-                globalThis.animation2.cancel();
-            };
-
-            Functions.changeStyleElem(root, {
-                overflowX: location.pathname === "/blog" ? undefined : "auto"
-            });
-        }, 100);
+            if (!/blog/i.test(location.pathname) && !/blog/i.test(location.hash)) {
+                Functions.changeStyleElem(root, {
+                    overflowX: "auto"
+                });
+            } else {
+                Functions.changeStyleElem(main_conteiner__info, {
+                    height: document.documentElement.clientHeight - 35 + "px",
+                    maxHeight: document.documentElement.clientHeight - 35 + "px"
+                });
+            }
     };
 
     useEffect(() => {
-        window.addEventListener("DOMContentLoaded", loadFunction);
         window.addEventListener("load", fullLoadFunction);
 
         return () => {
-            window.removeEventListener("DOMContentLoaded", loadFunction);
             window.removeEventListener("load", fullLoadFunction);
         }
     });
@@ -257,4 +220,4 @@ function GlobalLoad() {
     return null;
 }
 
-ReactDom.render(<App/>, root);
+ReactDom.hydrate(<App/>, root);

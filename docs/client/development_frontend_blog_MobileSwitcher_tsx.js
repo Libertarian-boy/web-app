@@ -1,0 +1,33 @@
+/*
+ * ATTENTION: The "eval" devtool has been used (maybe by default in mode: "development").
+ * This devtool is neither made for production nor for readable output files.
+ * It uses "eval()" calls to create a separate source file in the browser devtools.
+ * If you are trying to read the output file, select a different devtool (https://webpack.js.org/configuration/devtool/)
+ * or disable the default devtool with "devtool: false".
+ * If you are looking for production-ready output files, see mode: "production" (https://webpack.js.org/configuration/mode/).
+ */
+(self["webpackChunkweb_app"] = self["webpackChunkweb_app"] || []).push([["development_frontend_blog_MobileSwitcher_tsx"],{
+
+/***/ "./development/frontend/blog/MobileSwitcher.tsx":
+/*!******************************************************!*\
+  !*** ./development/frontend/blog/MobileSwitcher.tsx ***!
+  \******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (/* binding */ MobileSwitcher)\n/* harmony export */ });\n/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ \"./node_modules/react/index.js\");\n/* harmony import */ var _globalThings_functions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../globalThings/functions */ \"./development/frontend/globalThings/functions.tsx\");\n/* harmony import */ var _reacticons_ionicons__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @reacticons/ionicons */ \"./node_modules/@reacticons/ionicons/lib/components/IonIcon.js\");\n/* harmony import */ var _style__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./style */ \"./development/frontend/blog/style.ts\");\n\n\n\n\nfunction MobileSwitcher() {\n  var _a = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(\"blogs\"),\n      nowVisualBlock = _a[0],\n      setNowVisualBlock = _a[1];\n\n  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {\n    var blogs = document.querySelector(\".main_conteiner__blogs\");\n    var info = document.querySelector(\".main_conteiner__info\");\n    var main_conteiner = document.querySelector(\".main_conteiner\");\n\n    if (nowVisualBlock === \"info\") {\n      (0,_globalThings_functions__WEBPACK_IMPORTED_MODULE_1__.changeStyleElem)(blogs, {\n        transform: \"translateX(-110%)\"\n      });\n      (0,_globalThings_functions__WEBPACK_IMPORTED_MODULE_1__.changeStyleElem)(info, {\n        transform: \"translateX(-100%)\"\n      });\n      (0,_globalThings_functions__WEBPACK_IMPORTED_MODULE_1__.changeStyleElem)(main_conteiner, {\n        maxHeight: info.offsetHeight + \"px\",\n        height: info.offsetHeight + \"px\"\n      });\n    } else {\n      (0,_globalThings_functions__WEBPACK_IMPORTED_MODULE_1__.changeStyleElem)(blogs, {\n        transform: \"translateX(0)\"\n      });\n      (0,_globalThings_functions__WEBPACK_IMPORTED_MODULE_1__.changeStyleElem)(info, {\n        transform: \"translateX(0)\"\n      });\n      (0,_globalThings_functions__WEBPACK_IMPORTED_MODULE_1__.changeStyleElem)(main_conteiner, {\n        maxHeight: \"none\",\n        height: \"auto\"\n      });\n    }\n\n    return function () {\n      (0,_globalThings_functions__WEBPACK_IMPORTED_MODULE_1__.changeStyleElem)(main_conteiner, {\n        maxHeight: \"none\",\n        height: \"auto\"\n      });\n    };\n  }, [nowVisualBlock]);\n  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.default.createElement(react__WEBPACK_IMPORTED_MODULE_0__.default.Fragment, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.default.createElement(MobileSwitcherToBlogs, {\n    nowVisualBlock: nowVisualBlock,\n    setNowVisualBlock: setNowVisualBlock\n  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.default.createElement(MobileSwitcherToInfo, {\n    nowVisualBlock: nowVisualBlock,\n    setNowVisualBlock: setNowVisualBlock\n  }));\n}\n\nfunction MobileSwitcherToBlogs(_a) {\n  var setNowVisualBlock = _a.setNowVisualBlock,\n      nowVisualBlock = _a.nowVisualBlock;\n  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.default.createElement(\"div\", {\n    className: \"switcherToBlogs\",\n    style: _style__WEBPACK_IMPORTED_MODULE_3__.switcherToBlogs\n  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.default.createElement(\"div\", {\n    className: \"switcherToBlogs_circle\",\n    style: _style__WEBPACK_IMPORTED_MODULE_3__.switcherToBlogsAndInfo_circle\n  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.default.createElement(_reacticons_ionicons__WEBPACK_IMPORTED_MODULE_2__.default, {\n    name: nowVisualBlock === \"blogs\" ? \"list\" : \"arrow-back\",\n    style: _style__WEBPACK_IMPORTED_MODULE_3__.switcherToBlogsAndInfoIcon,\n    className: \"switcherToBlogsIcon\",\n    onClick: function onClick() {\n      return setNowVisualBlock(\"blogs\");\n    }\n  })));\n}\n\nfunction MobileSwitcherToInfo(_a) {\n  var setNowVisualBlock = _a.setNowVisualBlock,\n      nowVisualBlock = _a.nowVisualBlock;\n  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.default.createElement(\"div\", {\n    className: \"switcherToInfo\",\n    style: _style__WEBPACK_IMPORTED_MODULE_3__.switcherToInfo\n  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.default.createElement(\"div\", {\n    className: \"switcherToInfo_circle\",\n    style: _style__WEBPACK_IMPORTED_MODULE_3__.switcherToBlogsAndInfo_circle\n  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.default.createElement(_reacticons_ionicons__WEBPACK_IMPORTED_MODULE_2__.default, {\n    name: nowVisualBlock === \"info\" ? \"information\" : \"arrow-forward\",\n    style: _style__WEBPACK_IMPORTED_MODULE_3__.switcherToBlogsAndInfoIcon,\n    className: \"switcherToInfoIcon\",\n    onClick: function onClick() {\n      return setNowVisualBlock(\"info\");\n    }\n  })));\n}\n\n//# sourceURL=webpack://web-app/./development/frontend/blog/MobileSwitcher.tsx?");
+
+/***/ }),
+
+/***/ "./node_modules/@reacticons/ionicons/lib/components/IonIcon.js":
+/*!*********************************************************************!*\
+  !*** ./node_modules/@reacticons/ionicons/lib/components/IonIcon.js ***!
+  \*********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n\n\n//# sourceURL=webpack://web-app/./node_modules/@reacticons/ionicons/lib/components/IonIcon.js?");
+
+/***/ })
+
+}]);

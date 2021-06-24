@@ -1,16 +1,10 @@
-import React, {useContext} from "react";
+import React, {PointerEventHandler, useContext} from "react";
 import {Link} from "react-router-dom";
+import IonIcon from "@reacticons/ionicons";
 
 import * as GlobalStyles from "./GlobalStyles";
 import * as Contexts from "./context";
 import * as Functions from "./functions";
-
-import facebook from "./images/facebook.png";
-import twitter from "./images/twitter.png";
-import youtube from "./images/youtube.png";
-import inImg from "./images/in.png";
-import pin from "./images/pin.png";
-import instagram from "./images/instagram.png";
 
 export default function Footer() {
 
@@ -103,7 +97,57 @@ export function FooterTextList({
 
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
 
-    const list = [facebook, twitter, youtube, inImg, pin, instagram];
+    const enterOnLogo: PointerEventHandler<HTMLDivElement> = (e) => {
+        const current = e.currentTarget;
+        const classNameOfCurrent = current.className;
+
+        switch(classNameOfCurrent) {
+            case "facebook":
+                Functions.changeStyleElem(current, {
+                    color: "#1d21de"
+                });
+                break;
+            case "twitter":
+                Functions.changeStyleElem(current, {
+                    color: "#7af8ff"
+                });
+                break;
+            case "youtube":
+                Functions.changeStyleElem(current, {
+                    color: "#de1d3b"
+                })
+                break;
+            case "linkedin":
+                Functions.changeStyleElem(current, {
+                    color: "#261dde"
+                })
+                break;
+            case "pinterest":
+                Functions.changeStyleElem(current, {
+                    color: "#de1d48"
+                })
+                break;
+            case "instagram":
+                Functions.changeStyleElem(current, {
+                    color: "#de1d8c"
+                })
+                break;
+        }
+    }
+
+    const leaveFromLogo: PointerEventHandler<HTMLDivElement> = (e) => {
+        const current = e.currentTarget;
+        Functions.changeStyleElem(current, {
+            color: "#999999"
+        });
+    }
+
+    const list = [ <IonIcon name="logo-facebook" className="facebook" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />,
+    <IonIcon name="logo-twitter" className="twitter" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />,
+    <IonIcon name="logo-youtube" className="youtube" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />,
+    <IonIcon name="logo-linkedin" className="linkedin" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />,
+    <IonIcon name="logo-pinterest" className="pinterest" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />,
+    <IonIcon name="logo-instagram" className="instagram" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} /> ];
 
     const listStyle = Object.assign(
         Functions.cloneObject(GlobalStyles.footerTextUl),
@@ -123,7 +167,7 @@ export function FooterTextList({
                     <li key={index} style={{
                         cursor: "pointer"
                     }}>
-                        <Functions.Img src={item} alt={index}/>
+                        {item}
                     </li>
                 )
             })}

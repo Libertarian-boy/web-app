@@ -1,25 +1,17 @@
-import React, {useRef, useEffect, useContext} from "react";
+import React, {useRef, useEffect} from "react";
 
 import * as GlobalStyles from "./GlobalStyles";
-import {cloneObject} from "./functions";
-import {MediaContext} from "./context";
 
 export default function Preloader() {
 
     const preloaderRef = useRef<HTMLDivElement>(null);
 
-    const {nowWidthWindow} = useContext(MediaContext);
-
     useEffect(() => {
         const preloaderElem = preloaderRef.current;
         if (preloaderElem) {
             const preloaderChildren = preloaderElem.children as HTMLCollectionOf<HTMLElement>;
-
-            let loadingProcess = setTimeout(function process() {
-                let time = 0;
-
-                Array.from(preloaderChildren).forEach( item => {
-
+            Array.from(preloaderChildren).forEach( (item, index) => {
+                setTimeout(() => {
                     item.animate([
                         {
                             transform: "translateY(0)"
@@ -40,18 +32,12 @@ export default function Preloader() {
                         duration: 1000,
                         easing: "linear",
                         fill: "forwards",
-                        delay: time * 250
-                    })
-
-                    time++;
-                });
-
-                if (document.readyState === "complete") {
-                    clearTimeout(loadingProcess);
-                } else {
-                    loadingProcess = setTimeout(process, 3500);
-                }
-            }, 0);
+                        delay: 500,
+                        direction: "alternate",
+                        iterations: Infinity
+                    });
+                }, index * 200);
+            });
         }
     });
 
@@ -62,36 +48,11 @@ export default function Preloader() {
             <div className="preloader_conteiner" style={
                 GlobalStyles.preloaderConteiner
             } ref={preloaderRef}>
-                <div className="preloader_conteiner__circles" style={
-                    Object.assign(
-                        cloneObject(GlobalStyles.preloaderConteinerCircles),
-                        nowWidthWindow === "mobileScreen" ? GlobalStyles.preloaderConteinerCirclesMobile : {}
-                    )
-                }></div>
-                <div className="preloader_conteiner__circles" style={
-                    Object.assign(
-                        cloneObject(GlobalStyles.preloaderConteinerCircles),
-                        nowWidthWindow === "mobileScreen" ? GlobalStyles.preloaderConteinerCirclesMobile : {}
-                    )
-                }></div>
-                <div className="preloader_conteiner__circles" style={
-                    Object.assign(
-                        cloneObject(GlobalStyles.preloaderConteinerCircles),
-                        nowWidthWindow === "mobileScreen" ? GlobalStyles.preloaderConteinerCirclesMobile : {}
-                    )
-                }></div>
-                <div className="preloader_conteiner__circles" style={
-                    Object.assign(
-                        cloneObject(GlobalStyles.preloaderConteinerCircles),
-                        nowWidthWindow === "mobileScreen" ? GlobalStyles.preloaderConteinerCirclesMobile : {}
-                    )
-                }></div>
-                <div className="preloader_conteiner__circles" style={
-                    Object.assign(
-                        cloneObject(GlobalStyles.preloaderConteinerCircles),
-                        nowWidthWindow === "mobileScreen" ? GlobalStyles.preloaderConteinerCirclesMobile : {}
-                    )
-                }></div>
+                <div className="preloader_conteiner__circles" style={GlobalStyles.preloaderConteinerCircles}></div>
+                <div className="preloader_conteiner__circles" style={GlobalStyles.preloaderConteinerCircles}></div>
+                <div className="preloader_conteiner__circles" style={GlobalStyles.preloaderConteinerCircles}></div>
+                <div className="preloader_conteiner__circles" style={GlobalStyles.preloaderConteinerCircles}></div>
+                <div className="preloader_conteiner__circles" style={GlobalStyles.preloaderConteinerCircles}></div>
             </div>
         </div>
     )

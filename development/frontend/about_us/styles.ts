@@ -177,7 +177,8 @@ export const item_backward = {
     justifyContent: "center",
     zIndex: 1,
     trasnform: "rotateY(180deg)",
-    transition: ".35s linear"
+    transition: ".35s linear",
+    cursor: "pointer"
 };
 
 export const h5 = {

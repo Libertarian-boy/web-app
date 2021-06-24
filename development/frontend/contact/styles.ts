@@ -174,7 +174,7 @@ export const inputOfForm_Mobile = {
     width: "96.216%"
 };
 
-export const main_conteiner__contactInfo_Mobile = {
+export const main_conteiner__contactInfo_Mobile: CSSProperties = {
     width: "85%",
     alignItems: "center"
 };
@@ -217,8 +217,9 @@ export const inputOfFormLong_Tablet = {
     width: "88.3%"
 };
 
-export const main_conteiner__contactInfo_Tablet = {
-    width: "93.5%"
+export const main_conteiner__contactInfo_Tablet: CSSProperties = {
+    width: "93.5%",
+    alignItems: "center"
 };
 
 /* Стили для мониторов средней ширины */

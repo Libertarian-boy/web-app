@@ -1,6 +1,4 @@
-import type * as Types from "./types";
-
-import React, {CSSProperties, useContext} from "react";
+import React, {CSSProperties, useContext, forwardRef, Dispatch, SetStateAction, PointerEventHandler} from "react";
 import {titleStyle, titleStyleH2, titleStyleH2Block, titleStyleP} from "../globalThings/GlobalStyles";
 import {LoaderContext} from "./context";
 
@@ -12,16 +10,15 @@ export const cloneObject = (obj: object) => {
     return cloneObj;
 };
 
-export function changeStyleElem<Type extends HTMLElement | HTMLUListElement | HTMLDivElement | HTMLParagraphElement>(event: Type, style: CSSProperties) {
-    if (!event) return;
-    const target = event;
+export function changeStyleElem<Type extends HTMLElement>(elem: Type, style: CSSProperties) {
+    if (!elem) return;
 
-    for (let key in style) {
-        target.style[key] = style[key];
-    };
+    for (let [prop, value] of Object.entries(style)) {
+        elem.style[prop] = value;
+    }
 };
 
-export const createTagGoogleFonts = (href) => {
+export const createTagGoogleFonts = (href: string) => {
     const head = document.querySelector("head"), link = document.createElement("link");
     link.setAttribute("rel", "stylesheet");
     link.setAttribute("type", "text/css");
@@ -30,7 +27,7 @@ export const createTagGoogleFonts = (href) => {
     head!.appendChild(link);
 };
 
-export const createTagLinkInHead = (relAttr, typeAttr, url) => {
+export const createTagLinkInHead = (relAttr: string, typeAttr: string, url: string) => {
     const head = document.querySelector("head"), link = document.createElement("link");
     link.setAttribute("rel", relAttr);
     link.setAttribute("type", typeAttr);
@@ -39,12 +36,12 @@ export const createTagLinkInHead = (relAttr, typeAttr, url) => {
     head!.appendChild(link);
 };
 
-export const checkKeysOfObject = (object, validator) => {
+export const checkKeysOfObject = <ObjectType extends Object, ValidatorType extends Object>(object: ObjectType, validator: ValidatorType) => {
     const validatorKeys = Object.keys(validator);
 
     for (let key of validatorKeys) {
         if (!(key in object)) {
-            delete validator.key;
+            delete validator["key"];
         }
     }
 
@@ -53,7 +50,7 @@ export const checkKeysOfObject = (object, validator) => {
 
 /* Специальные функции для item-ов в category */
 
-export const hideElem = (elem) => {
+export const hideElem = (elem: HTMLElement) => {
 
     changeStyleElem(elem, {
         height: 0,
@@ -61,7 +58,7 @@ export const hideElem = (elem) => {
     });
 };
 
-export const showElem = (elem: HTMLElement, index: number) => {
+/* export const showElem = (elem: HTMLElement, index: number) => {
 
     if (globalThis.wasWrited === false) {
         globalThis.elemHeight[index] = elem.clientHeight;
@@ -78,11 +75,11 @@ export const showElem = (elem: HTMLElement, index: number) => {
             globalThis.wasWrited = true;
         }
     }
-};
+}; */
 
 /* Функция для установления контекста ширины окна */
 
-export const setValueContextWindow = (setNowWidthWindow, timeout) => {
+export const setValueContextWindow = (setNowWidthWindow: Dispatch<SetStateAction<"" | "mobileScreen" | "tablet" | "computerNormalScreen" | "computerLargeScreen">>, timeout: number) => {
     setTimeout(() => {
         const windowWidth = document.documentElement.clientWidth;
         if (windowWidth > 1179) {
@@ -99,7 +96,7 @@ export const setValueContextWindow = (setNowWidthWindow, timeout) => {
 
 /* -------- */
 
-export const appearElem = (elem, timeOut) => {
+export const appearElem = (elem: HTMLElement, timeOut: number) => {
     if (typeof elem == null) return;
     setTimeout(changeStyleElem, timeOut, elem, {
         transition: "0.35s ease-in",
@@ -109,7 +106,7 @@ export const appearElem = (elem, timeOut) => {
 };
 
 export const downloaderBottomStart = () => {
-    const downloader = (document.getElementById("downloader") ?? null) as Types.HTMLDivElements;
+    const downloader = (document.getElementById("downloader") ?? null) as HTMLDivElement;
     if (downloader) {
         changeStyleElem(downloader, {
             bottom: `-${
@@ -138,20 +135,23 @@ export class CreateUrlRequest {
     public body?: string | JSON | {} | undefined;
     public method?: string | undefined;
     public keepalive?: boolean | undefined;
-    public headers?: any | undefined
+    public headers?: any | undefined;
+    public signal?: AbortSignal | undefined;
 
     constructor(
         url = "",
         options = {
-            body: "",
+            body: undefined,
             method: "GET",
             keepalive: false,
-            headers: {}
+            headers: {},
+            signal: undefined
         } as {
-            body?: string | JSON | {};
+            body?: string | JSON | {} | undefined;
             method?: string;
-            keepalive?: boolean | undefined
-            headers?: any
+            keepalive?: boolean | undefined;
+            headers?: any;
+            signal?: AbortSignal | undefined;
         }
     ) {
         this.url = url;
@@ -159,14 +159,16 @@ export class CreateUrlRequest {
         this.method = options.method;
         this.keepalive = options.keepalive;
         this.headers = options.headers;
+        this.signal = options.signal;
     }
 
     public async toFetch() {
         const response = await fetch(this.url, {
-            body: this?.body ? this.body : undefined,
-            method: this?.method ? this.method : "GET",
-            keepalive: this?.keepalive ? this.keepalive : false,
-            headers: this?.headers ? this.headers : {}
+            body: this?.body ?? undefined,
+            method: this?.method ?? "GET",
+            keepalive: this?.keepalive ?? false,
+            headers: this?.headers ?? {},
+            signal: this?.signal ?? undefined
         });
         this.response = response;
         if (this.response!.ok) this.ok = true;
@@ -193,26 +195,34 @@ export class CreateUrlRequest {
     }
 }
 
-export function Img(props) {
+export const Img = forwardRef(function Image (props: {
+    category?: any;
+    order?: any;
+    src: any;
+    alt?: any;
+    className?: any;
+    isCanBeDownload?: boolean;
+    style?: CSSProperties;
+}, ref?: React.ForwardedRef<HTMLImageElement>) {
 
     const {setData} = useContext(LoaderContext);
 
-    const downloadImage = (e: { currentTarget: any; }) => {
-        const image = e.currentTarget, src = image.getAttribute("src"), alt = image.getAttribute("alt"),
+    const downloadImage: PointerEventHandler<HTMLImageElement> = (e) => {
+        const image = e.currentTarget, src = image.getAttribute("src") as any, alt = image.getAttribute("alt"),
         type = image.tagName.toLowerCase() === "input" ? "file" : image.tagName.toLowerCase(), ext = src.match(/(?:\/)\w*(?:;)/i)[0].match(/\w+/)[0],
         size = `${image.clientHeight}:${image.clientWidth}`;
         const data = Object.create(null, {
             name: {
-                value: alt
+                value: alt ?? "image"
             },
             type: {
-                value: type
+                value: type ?? "not known"
             },
             ext: {
-                value: ext
+                value: ext ?? "alernative"
             },
             size: {
-                value: size
+                value: size ?? "not known"
             },
             up: {
                 value: true
@@ -226,19 +236,16 @@ export function Img(props) {
     };
 
     return(
-        <img data-category={props.category} data-order={props.order} src={props.src} alt={props.alt} className={props.className} style={
+        <img ref={ref as React.ForwardedRef<HTMLImageElement>} src={props.src as string} alt={props.alt} className={props.className} style={
             Object.assign({
                 cursor: props.isCanBeDownload ? "pointer" : "auto"
             },
                 typeof props.style === "object" ? props.style : {}
             )
         }
-        onClick={
-            props.isCanBeDownload ? downloadImage :
-            props.clickFunc ? props.clickFunc : undefined
-        }/>
+        onClick={props.isCanBeDownload ? downloadImage : () => undefined}/>
     )
-}
+});
 
 export function TitleText({
     id = "",

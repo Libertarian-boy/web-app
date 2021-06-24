@@ -59,15 +59,7 @@ export function OrientationChange() {
 
     const orientationChangeFunction = () => {
         setTimeout(() => {
-            Functions.setValueContextWindow(setNowWidthWindow, 30);
-
-            if (globalThis.animation1) {
-                globalThis.animation1.cancel();
-            };
-
-            if (globalThis.animation2) {
-                globalThis.animation2.cancel();
-            };
+            Functions.setValueContextWindow(setNowWidthWindow, 0);
         }, 15);
     };
 
@@ -85,7 +77,7 @@ export function OrientationChange() {
 export function Resize() {
     const {nowWidthWindow, setNowWidthWindow} = useContext(Contexts.MediaContext);
 
-    const resizeFunction = (startWindowWidth) => {
+    const resizeFunction = (startWindowWidth: number) => {
         setTimeout(() => {
             if (startWindowWidth !== document.documentElement.clientWidth) {
                 Functions.setValueContextWindow(setNowWidthWindow, 0);
@@ -102,14 +94,6 @@ export function Resize() {
                             maxWidth: "551px"
                         });
                     }
-                };
-
-                if (globalThis.animation1) {
-                    globalThis.animation1.cancel();
-                };
-    
-                if (globalThis.animation2) {
-                    globalThis.animation2.cancel();
                 };
             }
         }, 15);
@@ -128,17 +112,6 @@ export function Resize() {
         };
     });
 
-
-    return null;
-}
-
-export function LetGlobalThis() {
-
-    useEffect(() => {
-        /* Для установления глобальных анимациий, с целью их отмены */
-
-        globalThis.animation1 = null, globalThis.animation2 = null;
-    });
 
     return null;
 }

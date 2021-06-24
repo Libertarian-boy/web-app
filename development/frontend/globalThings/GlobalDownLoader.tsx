@@ -1,5 +1,6 @@
-import React, {useContext, useEffect, useRef} from "react";
+import React, {FocusEventHandler, PointerEventHandler, useContext, useEffect, useRef} from "react";
 import {LoaderContext, MediaContext} from "./context";
+import {useLocation} from "react-router-dom";
 
 import * as Functions from "./functions";
 import * as GlobalStyles from "./GlobalStyles";
@@ -7,8 +8,13 @@ import * as GlobalStyles from "./GlobalStyles";
 export default function DownLoader() {
 
     const downloaderRef = useRef<HTMLDivElement>(null);
-    const {data} = useContext(LoaderContext);
+    const {data, setData} = useContext(LoaderContext);
     const {nowWidthWindow} = useContext(MediaContext);
+    const location = useLocation();
+
+    useLocation(() => {
+        setData(null);
+    }, [location]);
 
     useEffect(() => {
         if (data) {
@@ -94,7 +100,9 @@ function Button() {
     const {nowWidthWindow} = useContext(MediaContext);
     const {data} = useContext(LoaderContext);
 
-    const enter = (e: { currentTarget: any; }) => {
+    type HandlerType = PointerEventHandler<HTMLButtonElement> & FocusEventHandler<HTMLButtonElement>;
+
+    const enter: HandlerType = (e) => {
         const elem = e.currentTarget;
         Functions.changeStyleElem(elem, {
             backgroundColor: "#ffffff",
@@ -102,7 +110,7 @@ function Button() {
         });
     };
 
-    const out = (e: { currentTarget: any; }) => {
+    const out: HandlerType = (e) => {
         const elem = e.currentTarget;
         Functions.changeStyleElem(elem, {
             backgroundColor: "#7beec7",
@@ -126,8 +134,10 @@ function Button() {
                 nowWidthWindow === "tablet" ? GlobalStyles.downloader_buttonTablet : {}
             )
         }
-        onPointerEnter={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? undefined : enter} onPointerLeave={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? undefined : out}
-        onFocus={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? enter : undefined} onBlur={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? out : undefined}
+        onPointerEnter={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? () => undefined : enter}
+        onPointerLeave={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? () => undefined : out}
+        onFocus={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? enter : () => undefined}
+        onBlur={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? out : () => undefined}
         onSelect={() => false} onClick={click}>
             Download
         </button>

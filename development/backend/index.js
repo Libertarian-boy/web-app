@@ -1,53 +1,46 @@
-const express = require("express");
-const chalk = require("chalk");
-const webpack = require("webpack");
-/* const fs = require("fs");
-const path = require("path"); */
-const webpackDevMiddleware = require('webpack-dev-middleware');
-const webpackHotMiddleware = require('webpack-hot-middleware');
+import express from "express";
+import { bgWhite } from "chalk";
+import { MongoClient } from "mongodb";
 
-const contact = require("./routers/contacts/contact");
-const blog = require("./routers/blog/blog");
-
-const config = require("./webpack.config");
-const compiler = webpack(config); /* Компилятор */
+import { routerContact } from "./routers/contacts/contact";
+import { blogRouter } from "./routers/blog/blog";
+import {basicRouter} from "./routers/basic_route/basic_route";
 
 const app = express();
-
-app.use(
-    webpackDevMiddleware(compiler, {
-        publicPath: config.output.publicPath
-    })
-);
-
-app.use(
-    webpackHotMiddleware(compiler) /* Горячая замена модулей */
-);
-
-/* app.get("/", (_req, res) => {
-    const indexHtml = path.resolve("../frontend/index.html");
-    fs.readFile(indexHtml, (err, _data) => {
-        if (err) {
-            return res.status(500).send("Error");
-        }
-        const reactHtml = ReactDOMServer.renderToNodeStream(App);
-        reactHtml.pipe(res);
-
-        reactHtml.on("close", () => {
-            res.end();
-        });
-    });
-}); */
-
 app.use(express.static("../frontend"));
 
-app.use("/contact%20us", contact.routerContact);
-app.use("/blog", blog.blogRouter);
+app.use(basicRouter);
+app.use("/contact%20us", routerContact);
+app.use("/blog", blogRouter);
 
-app.listen(3000, () => {
+let server, mainMongoClientUrl = "mongodb://localhost:27017/";
+const mongoClient = new MongoClient(mainMongoClientUrl, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
+
+mongoClient.connect((error, client) => {
+    if (error) {
+        console.error(error);
+        return;
+    }
+    server = app.listen(3000, () => {
+        console.log(
+            bgWhite.green(
+                "Server is running"
+            )
+        );
+        let webAppDb = client.db("web-app");
+        app.locals.webAppDb = webAppDb;
+    });
+});
+
+process.on("SIGTERM", () => {
     console.log(
-        chalk.bgWhite.green(
-            "Server is running"
+        bgWhite.green(
+            "Server is closing"
         )
     );
+    server.close();
+    mongoClient.close();
 });

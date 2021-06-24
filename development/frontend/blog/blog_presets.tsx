@@ -41,14 +41,23 @@ export function OrientationChange() {
     const {nowWidthWindow, setNowWidthWindow} = useContext(Contexts.MediaContext);
 
     useEffect(() => {
-
         Functions.downloaderBottomStart();
-        
+        if (nowWidthWindow !== "mobileScreen") {
+            const main_conteiner__blogs = document.querySelector(".main_conteiner__blogs") as HTMLDivElement;
+            const main_conteiner__info = document.querySelector(".main_conteiner__info") as HTMLDivElement;
+            main_conteiner__blogs.style.transform = "translateX(0)";
+            main_conteiner__info.style.transform = "translateX(0)"
+        }
     }, [nowWidthWindow]);
 
     const orientationChangeFunction = () => {
         setTimeout(() => {
-            Functions.setValueContextWindow(setNowWidthWindow, 30);
+            Functions.setValueContextWindow(setNowWidthWindow, 0);
+            const main_conteiner__info = document.querySelector(".main_conteiner__info") as HTMLDivElement;
+            Functions.changeStyleElem(main_conteiner__info, {
+                height: document.documentElement.clientHeight - 35 + "px",
+                maxHeight: document.documentElement.clientHeight - 35 + "px"
+            });
         }, 15);
     };
 
@@ -64,20 +73,36 @@ export function OrientationChange() {
 };
 
 export function Resize() {
-    const {setNowWidthWindow} = useContext(Contexts.MediaContext);
+    const {nowWidthWindow, setNowWidthWindow} = useContext(Contexts.MediaContext);
 
-    const resizeFunction = (startWindowWidth: number) => {
+    useEffect(() => {
+        if (nowWidthWindow !== "mobileScreen") {
+            const main_conteiner__blogs = document.querySelector(".main_conteiner__blogs") as HTMLDivElement;
+            const main_conteiner__info = document.querySelector(".main_conteiner__info") as HTMLDivElement;
+            main_conteiner__blogs.style.transform = "translateX(0)";
+            main_conteiner__info.style.transform = "translateX(0)";
+        }
+    }, [nowWidthWindow]);
+
+    const resizeFunction = (startWindowWidth: number, startWindowHeight: number) => {
         setTimeout(() => {
             if (startWindowWidth !== document.documentElement.clientWidth) {
                 Functions.setValueContextWindow(setNowWidthWindow, 0);
-                Functions.downloaderBottomStart();
             }
+            if (startWindowHeight !== document.documentElement.clientHeight) {
+                const main_conteiner__info = document.querySelector(".main_conteiner__info") as HTMLDivElement;
+                Functions.changeStyleElem(main_conteiner__info, {
+                    height: document.documentElement.clientHeight - 35 + "px",
+                    maxHeight: document.documentElement.clientHeight - 35 + "px"
+                });
+            }
+            Functions.downloaderBottomStart();
         }, 15);
     };
 
     const callResizeFunction = () => {
-        const startWindowWidth = document.documentElement.clientWidth;
-        resizeFunction.call(null, startWindowWidth);
+        const startWindowWidth = document.documentElement.clientWidth, startWindowHeight = document.documentElement.clientHeight;
+        resizeFunction.call(null, startWindowWidth, startWindowHeight);
     };
 
     useEffect(() => {
@@ -88,11 +113,6 @@ export function Resize() {
         };
     });
 
-
-    return null;
-}
-
-export function LetGlobalThis() {
 
     return null;
 }

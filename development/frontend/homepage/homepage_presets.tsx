@@ -40,39 +40,18 @@ export function BodyAndRootStyles() {
 }
 
 export function OrientationChange() {
-    const {setNowWidthWindow} = useContext(Contexts.MediaContext);
+    const {nowWidthWindow, setNowWidthWindow} = useContext(Contexts.MediaContext);
 
     const orientationchangeFunction = () => {
         setTimeout(() => {
-            const windowWidth = document.documentElement.clientWidth;
-            const header = document.querySelector("header") ?? null, headerForward = (document.querySelector(".header_forward") ?? null) as HTMLElement,
-            categories = (document.querySelector(".main_ourPortfolio__main") ?? null) as HTMLElement;
+            const header = document.querySelector("header") ?? null, headerForward = (document.querySelector(".header_forward") ?? null) as HTMLElement;
+            Functions.setValueContextWindow(setNowWidthWindow, 0);
 
-            Functions.setValueContextWindow(setNowWidthWindow, 30);
-
-            if (windowWidth <= 800 && header && headerForward) {
+            if (nowWidthWindow === "tablet" && header && headerForward) {
                 header.style.height = "auto"
                 headerForward.style.height = "auto";
             }
-
-            if (windowWidth <= 500 && categories) {
-                categories.style.display = "none";
-            } else if (categories) {
-                categories.style.display = "flex";
-            }
-
-            /* Установка глобальных значений при изменении размера экрана */
-
-            globalThis.wasPush = false;
-
-            /* Для установки значения слайдера мобильной версии портфолио */
-
-            globalThis.mobilePortfolioSlider = document.documentElement.clientWidth;
-
-            /* Для установки значений width и height для мобильной версии портфолио */
-
-            globalThis.mobilePortfolioSliderWidth = globalThis.mobilePortfolioSlider;
-        }, 15);
+        }, 10);
     };
 
     useEffect(() => {
@@ -87,41 +66,17 @@ export function OrientationChange() {
 }
 
 export function Resize() {
-    const {setNowWidthWindow} = useContext(Contexts.MediaContext);
+    const {nowWidthWindow, setNowWidthWindow} = useContext(Contexts.MediaContext);
 
-    const resizeFunction = (startWindowWidth) => {
+    const resizeFunction = (startWindowWidth: number) => {
         setTimeout(() => {
             if (startWindowWidth !== document.documentElement.clientWidth) {
-                const header = document.querySelector("header"), headerForward = document.querySelector(".header_forward") as HTMLElement,
-                categories = document.querySelector(".main_ourPortfolio__main") as HTMLElement;
-                
+                const header = document.querySelector("header"), headerForward = document.querySelector(".header_forward") as HTMLElement;
                 Functions.setValueContextWindow(setNowWidthWindow, 0);
-                /* Что нужно делать при изменении размера экрана */
-        
-                const windowWidth = document.documentElement.clientWidth;
-    
-                if (windowWidth <= 800 && header && headerForward) {
+                if (nowWidthWindow === "tablet" && header && headerForward) {
                     header.style.height = "auto";
                     headerForward.style.height = "auto";
                 }
-    
-                if (windowWidth <= 500) {
-                    categories.style.display = "none";
-                } else {
-                    categories.style.display = "flex";
-                }
-    
-                /* Установка глобальных значений при изменении размера экрана */
-    
-                globalThis.wasPush = false;
-    
-                /* Для установки значения слайдера мобильной версии портфолио */
-    
-                globalThis.mobilePortfolioSlider = document.documentElement.clientWidth;
-    
-                /* Для установки значений width и height для мобильной версии портфолио */
-    
-                globalThis.mobilePortfolioSliderWidth = globalThis.mobilePortfolioSlider;
             }
         }, 50);
     };
@@ -138,22 +93,6 @@ export function Resize() {
             window.removeEventListener("resize", callResizeFunction);
         }
     });
-
-    return null;
-}
-
-export function LetGlobalThis() {
-
-    useEffect(() => {
-        /* Для востановления прежних размеров при функции showElem */
-        globalThis.elemHeight = [], globalThis.elemWidth = [], globalThis.wasWrited = false;
-
-        /* Для установки data-order элементов Category */
-        globalThis.order = 1, globalThis.wasFirstLine = false;
-
-        /* Для фиксирования размеров отдельных блоков */
-        globalThis.onceElemHeight = [], globalThis.onceElemWidth = [], globalThis.onceElemMargin = [], globalThis.wasPush = false;
-    }, []);
 
     return null;
 }

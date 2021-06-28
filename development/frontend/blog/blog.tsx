@@ -1,5 +1,11 @@
 import React, {useEffect, useRef, useState, useContext, KeyboardEvent, CSSProperties, useReducer, PointerEvent, Reducer, Dispatch, SetStateAction, MouseEventHandler, PointerEventHandler, FocusEventHandler} from "react";
-import IonIcon from "@reacticons/ionicons";
+import {
+    IoSearch,
+    IoChatboxEllipses,
+    IoHeart,
+    IoArrowForwardCircle,
+    IoArrowForward
+} from "react-icons/io5";
 
 import * as BlogPresets from "./blog_presets";
 import * as Styles from "./style";
@@ -175,7 +181,7 @@ function SearchInput() {
         });
     }, []);
 
-    async function keyDown(e: KeyboardEvent<HTMLInputElement> | PointerEvent<HTMLElement>, otherArg?: string) {
+    async function keyDown(e: KeyboardEvent<HTMLInputElement> | PointerEvent<SVGAElement>, otherArg?: string) {
         
         const input = inputRef.current as HTMLInputElement;
         let event = e as React.KeyboardEvent<HTMLInputElement>;
@@ -248,7 +254,7 @@ function SearchInput() {
                         Styles.inputSearch
                     )
                 } onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => keyDown(e)} ref={inputRef}/>
-                <IonIcon name="search" style={
+                <IoSearch name="search" style={
                     Object.assign(
                         Functions.cloneObject(
                             Styles.searchIcon
@@ -256,7 +262,7 @@ function SearchInput() {
                         nowWidthWindow === "tablet" || nowWidthWindow === "mobileScreen" ? Styles.searchIconMobileAndTablet : {}
                     )
                 } onPointerDown={
-                    (e: PointerEvent<HTMLElement>) => keyDown(e, "click")
+                    (e: PointerEvent<SVGAElement>) => keyDown(e, "click")
                 } />
                 <div className="pushIntoInput" style={Styles.pushIntoInput} ref={divRef} onClick={setValueOfInput} >
                     <div className="pushIntoInput_field" style={Styles.pushIntoInput_field}>HTML</div>
@@ -934,7 +940,7 @@ function BlogInfo(
                     Styles.blog_info__comment
                 )
             }>
-                <IonIcon name="chatbox-ellipses" style={Styles.iconOfComment} />
+                <IoChatboxEllipses name="chatbox-ellipses" style={Styles.iconOfComment} />
                 {postData.countOfComments}
             </div>
             <div className="blog_info__likes" onClick={() => setStateOfLike(id)} style={
@@ -942,7 +948,7 @@ function BlogInfo(
                     Styles.blog_info__likes
                 )
             }>
-                <IonIcon name="heart" style={
+                <IoHeart name="heart" style={
                     Object.assign(
                         {},
                         Styles.heartIcon,
@@ -1072,7 +1078,7 @@ function CommentEnterOfPost(
             <textarea ref={commentRef} className="enterComment" name="comment" autoComplete="off" placeholder="Enter your comment..."
             onFocus={focus}
             style={Styles.commentOfPost} />
-            <IonIcon name="arrow-forward-circle" className="arrow_submit" style={Styles.arrow_submit} onPointerDown={submit} />
+            <IoArrowForwardCircle name="arrow-forward-circle" className="arrow_submit" style={Styles.arrow_submit} onPointerDown={submit} />
         </div>
     )
 }
@@ -1240,7 +1246,7 @@ function ShowMoreCommentsButton({setNowComments, countOfComments, nowComments, s
     )
 }
 
-function TitleOfPost({postData}) {
+function TitleOfPost({postData}: {postData: TypesOfBlog.InitalPostDataInterface}) {
     const {nowWidthWindow} = useContext(MediaContext);
 
     return(
@@ -1257,7 +1263,7 @@ function TitleOfPost({postData}) {
     )
 }
 
-function Description({postData, descriptionIsOpen}) {
+function Description({postData, descriptionIsOpen}: {postData: TypesOfBlog.InitalPostDataInterface, descriptionIsOpen: null | boolean}) {
     const {nowWidthWindow} = useContext(MediaContext);
     const descriptionOfPostRef = useRef<HTMLParagraphElement | null>(null);
 
@@ -1320,7 +1326,8 @@ function Description({postData, descriptionIsOpen}) {
     )
 }
 
-function ReadDescription({descriptionIsOpen, setDescriptionIsOpen}) {
+function ReadDescription({descriptionIsOpen, setDescriptionIsOpen}:
+    {descriptionIsOpen: null | boolean; setDescriptionIsOpen: Dispatch<SetStateAction<null | boolean>>}) {
     const {nowWidthWindow} = useContext(MediaContext);
 
     const pointerEnter: PointerEventHandler<HTMLDivElement> & MouseEventHandler<HTMLDivElement> = (e: PointerEvent<HTMLDivElement>) => {
@@ -1370,7 +1377,7 @@ function ReadDescription({descriptionIsOpen, setDescriptionIsOpen}) {
             {
                 descriptionIsOpen ? "hide text" : "continue reading"
             }
-            <IonIcon name="arrow-forward" className="icon-element" style={Styles.arrowIcon} />
+            <IoArrowForward name="arrow-forward" className="icon-element" style={Styles.arrowIcon} />
         </div>
     )
 }

@@ -501,7 +501,7 @@ export const MobileNavVersionLiStyle = {
     opacity: "0"
 };
 
-export const MobileNavVersionLiNavLinkStyle = {
+export const MobileNavVersionLiNavLinkStyle: CSSProperties = {
     color: '#60606e',
     fontFamily: 'Montserrat, sans-serif',
     fontSize: 18,
@@ -514,7 +514,7 @@ export const MobileNavVersionLiNavLinkStyle = {
     textDecoration: "none"
 };
 
-export const MobileNavVersionLiNavLinkActiveStyle = {
+export const MobileNavVersionLiNavLinkActiveStyle: CSSProperties = {
     color: '#7beec7',
     fontFamily: 'Montserrat, sans-serif',
     fontSize: 18,

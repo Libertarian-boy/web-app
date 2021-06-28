@@ -1,13 +1,27 @@
 import express from "express";
+import path from "path";
 import { bgWhite } from "chalk";
 import { MongoClient } from "mongodb";
+import "regenerator-runtime/runtime";
 
 import { routerContact } from "./routers/contacts/contact";
 import { blogRouter } from "./routers/blog/blog";
-import {basicRouter} from "./routers/basic_route/basic_route";
+import { basicRouter } from "./routers/basic_route/basic_route";
 
 const app = express();
-app.use(express.static("../frontend"));
+
+app.all(/\//, (req, _, next) => {
+    console.log(req.url);
+    next();
+});
+
+app.use(
+    express.static(path.resolve(__dirname, "../frontend")),
+    (_req, _res, next) => {
+        console.log(path.resolve(__dirname, "../frontend"));
+        next();
+    }
+);
 
 app.use(basicRouter);
 app.use("/contact%20us", routerContact);

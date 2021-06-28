@@ -1,41 +1,28 @@
 const path = require('path');
-const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 const nodeExternals = require("webpack-node-externals");
+const {CleanWebpackPlugin} = require("clean-webpack-plugin");
 
 const clientConfig = 
     {
-        mode: "development",
-        name: "client",
+        name: "frontend",
+        mode: "production",
         target: "web",
         entry: {
-            app: path.resolve(__dirname, "development/frontend/index.tsx")
-        },
-        resolve: {
-            extensions: ['.ts', '.tsx', '.js'],
-            fallback: {
-              "fs": false,
-              "tls": false,
-              "net": false,
-              "path": require.resolve("path"),
-              "zlib": require.resolve('zlib'),
-              "http": false,
-              "https": false,
-              "stream": false,
-              "crypto": false,
-              "crypto-browserify": require.resolve('crypto-browserify'),
-              "worker_threads": false,
-              "child_process": false
-            }  
+            index: "./development/frontend/index.tsx"
         },
         output: {
-            path: path.resolve(__dirname, "docs/client"),
-            filename: '[name].js'
+            path: path.resolve(__dirname, "docs/frontend"),
+            filename: '[name].js',
+            publicPath: path.resolve(__dirname, "docs/frontend")
+        },
+        resolve: {
+            extensions: ['.ts', '.tsx', '.js']
         },
         module: {
             rules: [
                 {
-                    test: /\.(ts|js)x?$/,
+                    test: /\.tsx?$/,
                     use: ["babel-loader", "ts-loader"],
                     exclude: /[\//]node_modules[\//]/
                 },
@@ -56,7 +43,7 @@ const clientConfig =
             splitChunks: {
                 cacheGroups: {
                     vendors: {
-                        test: /[\\/]node_modules[\\/](react|react-dom|react-router-dom|react-router)/,
+                        test: /[\\/]node_modules[\\/]/,
                         name: "vendors",
                         filename: "[name].bundle.js",
                         chunks: "all"
@@ -64,38 +51,78 @@ const clientConfig =
                 }
             }
         },
+        performance: {
+            hints: false,
+            maxEntrypointSize: 512000,
+            maxAssetSize: 512000
+        },
         plugins: [
-            new CleanWebpackPlugin(),
-            new NodePolyfillPlugin()
+            new NodePolyfillPlugin(),
+            new CleanWebpackPlugin()
         ]
 };
 
 const serverConfig =
 {
-    mode: "development",
+    name: "backend",
+    mode: "production",
     entry: {
-        server: path.resolve(__dirname, "development/backend/index.js"),
+        server: "./development/backend/index.js",
+    },
+    output: {
+        path: path.resolve(__dirname, "docs/backend"),
+        filename: "[name].js",
+        publicPath: "/"
+    },
+    resolve: {
+        extensions: ['.ts', '.tsx', '.js']
     },
     module: {
         rules: [
             {
-                test: /\.m?js$/,
-                exclude: /[\//]node_modules[\//]/,
-                use: {
-                    loader: "babel-loader"
-                },
-              }
-        ],
+                test: /\.tsx?$/,
+                use: ["babel-loader", "ts-loader"],
+                exclude: /[\//]node_modules[\//]/
+            },
+            {
+                test: /\.m?jsx?$/,
+                use: "babel-loader",
+                exclude: /[\//]node_modules[\//]/
+            },
+            {
+                test: /\.(jpg|png|gif|svg)$/i,
+                use: "url-loader",
+                exclude: /[\//]node_modules[\//]/
+            }
+        ]
     },
-    output: {
-        path: path.resolve(__dirname, "docs/server"),
-        filename: "[name].js",
+    optimization: {
+        runtimeChunk: 'single',
+        splitChunks: {
+            cacheGroups: {
+                vendors: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: "vendors",
+                    filename: "[name].bundle.js",
+                    chunks: "all"
+                }
+            }
+        }
     },
     target: "node",
     node: {
         __dirname: false,
     },
-    externals: [nodeExternals()]
+    externals: [nodeExternals()],
+    performance: {
+        hints: false,
+        maxEntrypointSize: 512000,
+        maxAssetSize: 512000
+    },
+    plugins: [
+        new NodePolyfillPlugin(),
+        new CleanWebpackPlugin()
+    ]
 };
 
 module.exports = [serverConfig, clientConfig];

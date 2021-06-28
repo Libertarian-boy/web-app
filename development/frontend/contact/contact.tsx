@@ -311,20 +311,20 @@ function Form({
         });
 
         if (canSubmit) {
-            let dataOfUser = {};
+            let dataOfUser: {name?: string | null} = {};
             Array.from(elementsOfForm).forEach(item => {
-                const name = item.getAttribute("name"), value = item.value;
+                const name = item.getAttribute("name"), value = item.value as string;
 
                 if (name) {
-                    dataOfUser[name] = value.length === 0 ? null : value.toLowerCase();
+                    dataOfUser.name = value.length === 0 ? null : value.toLowerCase();
                 }
             });
-            dataOfUser = JSON.stringify(dataOfUser);
+            let dataOfUserString = JSON.stringify(dataOfUser);
 
             try {
                 const response = await fetch("/contact us/server", {
                     method: "POST",
-                    body: dataOfUser,
+                    body: dataOfUserString,
                     keepalive: true,
                     headers: {
                         "Content-Type": "application/json; charset=utf-8"

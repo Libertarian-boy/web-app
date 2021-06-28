@@ -455,7 +455,7 @@ function TheDreamTeamMainItem(props: { tabIndex: number | undefined; down: any; 
         } ref={itemRef}
         onPointerEnter={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? () => undefined : enter}
         onPointerLeave={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? () => undefined : leave}
-        tabIndex={props.tabIndex}
+        tabIndex={props.tabIndex as number}
         onFocus={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? enter : () => undefined}
         onBlur={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? leave : () => undefined}
         onClick={

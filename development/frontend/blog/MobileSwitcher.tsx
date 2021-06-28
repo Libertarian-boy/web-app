@@ -1,6 +1,11 @@
 import React, {Dispatch, SetStateAction, useState, useEffect} from "react";
 import {changeStyleElem} from "../globalThings/functions";
-import IonIcon from "@reacticons/ionicons";
+import {
+    IoList,
+    IoArrowBack,
+    IoInformation,
+    IoArrowForward
+} from "react-icons/io5";
 import * as Styles from "./style";
 
 type MobileSwitcherType = "blogs" | "info"
@@ -57,8 +62,11 @@ function MobileSwitcherToBlogs({setNowVisualBlock, nowVisualBlock}: {setNowVisua
     return(
         <div className="switcherToBlogs" style={Styles.switcherToBlogs} >
             <div className="switcherToBlogs_circle" style={Styles.switcherToBlogsAndInfo_circle}>
-                <IonIcon name={nowVisualBlock === "blogs" ? "list" : "arrow-back"} style={Styles.switcherToBlogsAndInfoIcon} className="switcherToBlogsIcon"
-                onClick={() => setNowVisualBlock("blogs")} />
+                {
+                    nowVisualBlock === "blogs" ?
+                    <IoList name="list" style={Styles.switcherToBlogsAndInfoIcon} className="switcherToBlogsIcon" onClick={() => setNowVisualBlock("blogs")} /> :
+                    <IoArrowBack name="arrow-back" style={Styles.switcherToBlogsAndInfoIcon} className="switcherToBlogsIcon" onClick={() => setNowVisualBlock("blogs")} />
+                }
             </div>
         </div>
     )
@@ -68,8 +76,11 @@ function MobileSwitcherToInfo({setNowVisualBlock, nowVisualBlock}: {setNowVisual
     return(
         <div className="switcherToInfo" style={Styles.switcherToInfo}>
             <div className="switcherToInfo_circle" style={Styles.switcherToBlogsAndInfo_circle}>
-                <IonIcon name={nowVisualBlock === "info" ? "information" : "arrow-forward"} style={Styles.switcherToBlogsAndInfoIcon} className="switcherToInfoIcon"
-                onClick={() => setNowVisualBlock("info")}/>
+                {
+                    nowVisualBlock === "info" ?
+                    <IoInformation name="information" style={Styles.switcherToBlogsAndInfoIcon} className="switcherToInfoIcon" onClick={() => setNowVisualBlock("info")} /> :
+                    <IoArrowForward name="arrow-forward" style={Styles.switcherToBlogsAndInfoIcon} className="switcherToInfoIcon" onClick={() => setNowVisualBlock("info")} />
+                }
             </div>
         </div>
     )

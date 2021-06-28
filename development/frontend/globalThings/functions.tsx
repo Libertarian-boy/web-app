@@ -10,11 +10,12 @@ export const cloneObject = (obj: object) => {
     return cloneObj;
 };
 
-export function changeStyleElem<Type extends HTMLElement>(elem: Type, style: CSSProperties) {
+export function changeStyleElem<Type extends HTMLElement | SVGAElement>(elem: Type, style: CSSProperties) {
     if (!elem) return;
+    const entriesOfStyle = Object.entries(style);
 
-    for (let [prop, value] of Object.entries(style)) {
-        elem.style[prop] = value;
+    for (let [prop, value] of entriesOfStyle) {
+        elem.style[prop as "textAlign"] = value;
     }
 };
 
@@ -39,45 +40,14 @@ export const createTagLinkInHead = (relAttr: string, typeAttr: string, url: stri
 export const checkKeysOfObject = <ObjectType extends Object, ValidatorType extends Object>(object: ObjectType, validator: ValidatorType) => {
     const validatorKeys = Object.keys(validator);
 
-    for (let key of validatorKeys) {
-        if (!(key in object)) {
-            delete validator["key"];
+    for (let i = 0; i < validatorKeys.length; i++) {
+        if ( !(validatorKeys[i] in object) ) {
+            delete validatorKeys[i];
         }
     }
 
     return validator;
 };
-
-/* Специальные функции для item-ов в category */
-
-export const hideElem = (elem: HTMLElement) => {
-
-    changeStyleElem(elem, {
-        height: 0,
-        width: 0
-    });
-};
-
-/* export const showElem = (elem: HTMLElement, index: number) => {
-
-    if (globalThis.wasWrited === false) {
-        globalThis.elemHeight[index] = elem.clientHeight;
-        globalThis.elemWidth[index] = elem.clientWidth;
-    }
-
-    changeStyleElem(elem, {
-        height: globalThis.elemHeight[index] + "px",
-        width: globalThis.elemWidth[index] + "px",
-    });
-
-    if (elem.parentElement) {
-        if (elem.parentElement.children.length - index === 1) {
-            globalThis.wasWrited = true;
-        }
-    }
-}; */
-
-/* Функция для установления контекста ширины окна */
 
 export const setValueContextWindow = (setNowWidthWindow: Dispatch<SetStateAction<"" | "mobileScreen" | "tablet" | "computerNormalScreen" | "computerLargeScreen">>, timeout: number) => {
     setTimeout(() => {
@@ -93,8 +63,6 @@ export const setValueContextWindow = (setNowWidthWindow: Dispatch<SetStateAction
         }
     }, timeout);
 }
-
-/* -------- */
 
 export const appearElem = (elem: HTMLElement, timeOut: number) => {
     if (typeof elem == null) return;

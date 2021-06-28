@@ -12,10 +12,6 @@ export default function DownLoader() {
     const {nowWidthWindow} = useContext(MediaContext);
     const location = useLocation();
 
-    useLocation(() => {
-        setData(null);
-    }, [location]);
-
     useEffect(() => {
         if (data) {
             const dataUp = data.up;

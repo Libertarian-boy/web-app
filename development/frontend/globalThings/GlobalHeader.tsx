@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef, useContext} from "react";
+import React, {useState, useEffect, useRef, useContext, MouseEventHandler} from "react";
 import * as Contexts from "./context";
 import * as GlobalStyles from "./GlobalStyles";
 import * as Functions from "./functions";
@@ -322,7 +322,7 @@ export function MobileAndTabletNavVersion(props: { wasClick: boolean; }) {
                                 GlobalStyles.MobileNavVersionLiNavLinkActiveStyle
                             }
                             onClick={
-                                (e: MouseEvent) => {
+                                (e) => {
                                     props.wasClick ? undefined : e.preventDefault();
                                 }
                             }>

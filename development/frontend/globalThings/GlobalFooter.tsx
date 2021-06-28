@@ -1,6 +1,13 @@
-import React, {PointerEventHandler, useContext} from "react";
+import React, {PointerEventHandler, useContext, useEffect} from "react";
 import {Link} from "react-router-dom";
-import IonIcon from "@reacticons/ionicons";
+import {
+    IoLogoFacebook,
+    IoLogoTwitter,
+    IoLogoYoutube,
+    IoLogoLinkedin,
+    IoLogoPinterest,
+    IoLogoInstagram
+} from "react-icons/io5";
 
 import * as GlobalStyles from "./GlobalStyles";
 import * as Contexts from "./context";
@@ -97,8 +104,8 @@ export function FooterTextList({
 
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
 
-    const enterOnLogo: PointerEventHandler<HTMLDivElement> = (e) => {
-        const current = e.currentTarget;
+    const enterOnLogo: PointerEventHandler<SVGAElement> = (e) => {
+        const current = e.currentTarget as SVGAElement;
         const classNameOfCurrent = current.className;
 
         switch(classNameOfCurrent) {
@@ -135,19 +142,21 @@ export function FooterTextList({
         }
     }
 
-    const leaveFromLogo: PointerEventHandler<HTMLDivElement> = (e) => {
-        const current = e.currentTarget;
+    const leaveFromLogo: PointerEventHandler<SVGAElement> = (e) => {
+        const current = e.currentTarget as SVGAElement;
         Functions.changeStyleElem(current, {
             color: "#999999"
         });
     }
 
-    const list = [ <IonIcon name="logo-facebook" className="facebook" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />,
-    <IonIcon name="logo-twitter" className="twitter" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />,
-    <IonIcon name="logo-youtube" className="youtube" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />,
-    <IonIcon name="logo-linkedin" className="linkedin" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />,
-    <IonIcon name="logo-pinterest" className="pinterest" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />,
-    <IonIcon name="logo-instagram" className="instagram" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} /> ];
+    const list = [
+    <IoLogoFacebook name="logo-facebook" className="footer_logo facebook" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />,
+    <IoLogoTwitter name="logo-twitter" className="footer_logo twitter" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />,
+    <IoLogoYoutube name="logo-youtube" className="footer_logo youtube" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />,
+    <IoLogoLinkedin name="logo-linkedin" className="footer_logo linkedin" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />,
+    <IoLogoPinterest name="logo-pinterest" className="footer_logo pinterest" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />,
+    <IoLogoInstagram name="logo-instagram" className="footer_logo instagram" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />
+    ];
 
     const listStyle = Object.assign(
         Functions.cloneObject(GlobalStyles.footerTextUl),

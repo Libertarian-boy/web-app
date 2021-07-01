@@ -106,9 +106,9 @@ export function FooterTextList({
 
     const enterOnLogo: PointerEventHandler<SVGAElement> = (e) => {
         const current = e.currentTarget as SVGAElement;
-        const classNameOfCurrent = current.className;
+        const dataNameOfCurrent = current.dataset.name;
 
-        switch(classNameOfCurrent) {
+        switch(dataNameOfCurrent) {
             case "facebook":
                 Functions.changeStyleElem(current, {
                     color: "#1d21de"
@@ -150,12 +150,12 @@ export function FooterTextList({
     }
 
     const list = [
-    <IoLogoFacebook name="logo-facebook" className="footer_logo facebook" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />,
-    <IoLogoTwitter name="logo-twitter" className="footer_logo twitter" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />,
-    <IoLogoYoutube name="logo-youtube" className="footer_logo youtube" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />,
-    <IoLogoLinkedin name="logo-linkedin" className="footer_logo linkedin" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />,
-    <IoLogoPinterest name="logo-pinterest" className="footer_logo pinterest" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />,
-    <IoLogoInstagram name="logo-instagram" className="footer_logo instagram" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />
+    <IoLogoFacebook name="logo-facebook" data-name="facebook" className="facebook" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />,
+    <IoLogoTwitter name="logo-twitter" data-name="twitter" className="twitter" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />,
+    <IoLogoYoutube name="logo-youtube" data-name="youtube" className="youtube" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />,
+    <IoLogoLinkedin name="logo-linkedin" data-name="linkedin" className="linkedin" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />,
+    <IoLogoPinterest name="logo-pinterest" data-name="pinterest" className="pinterest" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />,
+    <IoLogoInstagram name="logo-instagram" data-name="instagram" className="instagram" style={GlobalStyles.logoStyle} onPointerEnter={enterOnLogo} onPointerLeave={leaveFromLogo} />
     ];
 
     const listStyle = Object.assign(

@@ -10,6 +10,7 @@ import { blogRouter } from "./routers/blog/blog";
 import { basicRouter } from "./routers/basic_route/basic_route";
 
 const app = express();
+const port = process.env.PORT | 3000;
 
 app.use(
     express.static(path.resolve(__dirname, "../frontend"))
@@ -33,7 +34,7 @@ Loadable.preloadAll()
                     console.error(error);
                     return;
                 }
-                server = app.listen(3000, () => {
+                server = app.listen(port, () => {
                     console.log(
                         bgWhite.green(
                             "Server is running"

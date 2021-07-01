@@ -3,30 +3,29 @@ import { renderToNodeStream } from "react-dom/server";
 import App from "../../../frontend/app.tsx"
 import React from "react";
 import Loadable from "react-loadable";
-/* import {StaticRouter} from "react-router-dom"; */
+import {StaticRouter} from "react-router-dom";
 import {getBundles} from "react-loadable-ssr-addon";
 import manifest from "../../../../docs/frontend/assets-manifest.json";
 export const basicRouter = Router();
 
-const stringForRegExp = "/(web-app)?/?(home|blog|about%20us|services)?(#\\w*|/)?$";
+const stringForRegExp = "/(web-app)?/?(home|blog|about%20us|services|contact%20us)?(#\\w*|/)?$";
 const regExpPath = new RegExp(stringForRegExp, "is");
 
 basicRouter.get(regExpPath, (_req, res) => {
     const modules = new Set();
-    /* const context = {
+    const context = {
         url: undefined
-    }; */
-
-    /* <StaticRouter basename="/web-app" locaion={req.url} context={context} >
-        <App />
-    </StaticRouter> */
+    };
 
     const appStream = renderToNodeStream(
-        <Loadable.Capture report={moduleName => modules.add(moduleName)}>
-            <App/>
-        </Loadable.Capture>
+        <StaticRouter basename="/web-app" context={context}>
+            <Loadable.Capture report={moduleName => modules.add(moduleName)}>
+                <App/>
+            </Loadable.Capture>
+        </StaticRouter>
     );
     const bundles = getBundles(manifest, [...manifest.entrypoints, ...Array.from(modules)]);
+    const scripts = bundles.js || [];
     const startHTML = `
         <!DOCTYPE html>
         <html lang="en">
@@ -49,7 +48,6 @@ basicRouter.get(regExpPath, (_req, res) => {
         </body>
         </html>
     `;
-    const scripts = bundles.js || [];
 
     if (context.url) {
         res.redirect(301, context.url);

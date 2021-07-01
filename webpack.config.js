@@ -16,8 +16,7 @@ const clientConfig =
             path: path.resolve(__dirname, "docs/frontend"),
             publicPath: "/docs/",
             filename: '[name].js',
-            chunkFilename: "[name].chunk.js",
-            publicPath: path.resolve(__dirname, "docs/frontend")
+            chunkFilename: "[name].chunk.js"
         },
         resolve: {
             extensions: ['.json', '.ts', '.tsx', '.js']
@@ -48,6 +47,12 @@ const clientConfig =
                     vendors: {
                         test: /[\\/]node_modules[\\/]/,
                         name: "vendors",
+                        filename: "[name].bundle.js",
+                        chunks: "all"
+                    },
+                    chunks: {
+                        test: /[\\/]development[\\/]/,
+                        name: "chunks",
                         filename: "[name].bundle.js",
                         chunks: "all"
                     }
@@ -110,6 +115,12 @@ const serverConfig =
                 vendors: {
                     test: /[\\/]node_modules[\\/]/,
                     name: "vendors",
+                    filename: "[name].bundle.js",
+                    chunks: "all"
+                },
+                chunks: {
+                    test: /[\\/]development[\\/]/,
+                    name: "chunks",
                     filename: "[name].bundle.js",
                     chunks: "all"
                 }

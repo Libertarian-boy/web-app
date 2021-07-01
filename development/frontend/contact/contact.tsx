@@ -311,37 +311,42 @@ function Form({
         });
 
         if (canSubmit) {
-            let dataOfUser: {name?: string | null} = {};
-            Array.from(elementsOfForm).forEach(item => {
-                const name = item.getAttribute("name"), value = item.value as string;
+            interface DataOfUserinterface {
+                name: string;
+                email: string;
+                message: string;
+                object: string;
+            }
 
-                if (name) {
-                    dataOfUser.name = value.length === 0 ? null : value.toLowerCase();
+            let dataOfUser: DataOfUserinterface = {
+                name: "",
+                email: "",
+                message: "",
+                object: ""
+            };
+            Array.from(elementsOfForm).forEach(item => {
+                const nameProp = item.getAttribute("name") as "name" | "email" | "object" | "message", value = item.value;
+
+                if (nameProp && value) {
+                    dataOfUser[nameProp] = value.toLowerCase();
                 }
             });
-            let dataOfUserString = JSON.stringify(dataOfUser);
-
-            try {
-                const response = await fetch("/contact us/server", {
-                    method: "POST",
-                    body: dataOfUserString,
-                    keepalive: true,
-                    headers: {
-                        "Content-Type": "application/json; charset=utf-8"
-                    }
-                });
-        
-                if (response.ok) {
-                    const jsonData = await response.json();
-                    setData(jsonData);
-                } else {
-                    console.error("Error: Something went wrong!");
+            let dataOfUserJSON = JSON.stringify(dataOfUser);
+            const request = new Functions.CreateUrlRequest("/contact us/server", {
+                method: "POST",
+                body: dataOfUserJSON,
+                keepalive: true,
+                headers: {
+                    "Content-Type": "application/json; charset=utf-8"
                 }
-            } catch (error) {
-                let errorMessage = error as Error;
-                console.log(
-                    errorMessage.message
-                );
+            });
+            const response = await request.toFetch();
+            if (response.ok) {
+                const result = await response.toMethod("json");
+                setData(result);
+            } else {
+                const errorMessaage = await response.toMethod("text");
+                console.error(errorMessaage);
             }
         }
     }

@@ -1,7 +1,4 @@
-import chalk from "chalk";
 import { text, Router, json } from "express";
-import { readFile } from "fs";
-import { resolve, extname } from "path";
 
 const textParser = text();
 export const blogRouter = Router();

@@ -1,4 +1,4 @@
-import React, {CSSProperties, useContext, forwardRef, Dispatch, SetStateAction, PointerEventHandler} from "react";
+import React, {CSSProperties, useContext, useEffect, useState, forwardRef, ReactElement, Dispatch, SetStateAction, PointerEventHandler} from "react";
 import {titleStyle, titleStyleH2, titleStyleH2Block, titleStyleP} from "../globalThings/GlobalStyles";
 import {LoaderContext} from "./context";
 
@@ -143,7 +143,7 @@ export class CreateUrlRequest {
         return this;
     }
 
-    public async toMethod(method: string) {
+    public async toMethod(method: "json" | "text" | "blob" | "formData") {
         if (this.response) {
             switch(method) {
                 case "json":

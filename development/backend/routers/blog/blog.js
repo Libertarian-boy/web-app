@@ -1,3 +1,4 @@
+import chalk from "chalk";
 import { text, Router, json } from "express";
 import { readFile } from "fs";
 import { resolve, extname } from "path";
@@ -44,31 +45,24 @@ blogRouter.route("/server/search")
 blogRouter.route("/server/posts")
     .get(async (req, res) => {
         const idOfPost = +req.query.idOfPost;
-        const pathToImage = resolve(
-            `././images/${
-                idOfPost % 3 === 0 ? "mount" :
-                idOfPost % 2 === 0 ? "mount_smoke" : "mount_snow"
-            }.png`
-        );
 
-        readFile(pathToImage, {
-            encoding: "base64"
-        }, (err, data) => {
-            if (err) {
-                res.status(404).json({
-                    status: "Error",
-                    code: 404
-                });
-                return;
-            }
-            const ext = extname("image.png");
+        const objImgOfPost = await import(`../../images/${
+            idOfPost % 3 === 0 ? "mount" :
+            idOfPost % 2 === 0 ? "mount_smoke" : "mount_snow"
+        }.png`);
+        const urlOfImg = objImgOfPost.default;
+        if (!urlOfImg) {
+            res.status(500).send("Something is wrong on the server!");
+            return;
+        }
+        if (typeof urlOfImg === "string") {
             res.type("json");
             res.status(200).json({
-                src: `data:image/${ext.split(".").pop()};base64,${data}`,
+                src: urlOfImg,
                 title: "Magna mollis ultricies",
                 date: "3th oct 2012"
             });
-        });
+        }
     });
 
 blogRouter.route("/server/postsOfBlog")
@@ -81,23 +75,21 @@ blogRouter.route("/server/postsOfBlog")
             });
             switch(action) {
                 case "getPost":
-                    const pathToImage = resolve("././images/blog_image.png");
-                    const ext = extname("blog_image.png");
+                    const objImgOfPost = await import("../../images/blog_image.png");
+                    const urlOfImg = objImgOfPost.default;
                     if (documentOfBlog) {
+                        res.type("json");
                         res.status(200).json(documentOfBlog);
+                        return;
                     } else {
-                        readFile(pathToImage, {
-                            encoding: "base64"
-                        }, async (err, data) => {
-                            if (err) {
-                                res.status(500).json({
-                                    status: "Error",
-                                    message: "Image not found"
-                                });
-                            }
+                        if (!urlOfImg) {
+                            res.status(500).send("Something is wrong on the server!");
+                            return;
+                        }
+                        if (urlOfImg) {
                             await collectionOfBlogs.insertOne({
                                 _id: idOfPost,
-                                srcOfImg: `data:image/${ext.split(".").pop()};base64,${data}`,
+                                srcOfImg: urlOfImg,
                                 dateOfCreated: "October 13, 2015",
                                 countOfComments: 0,
                                 comments: [],
@@ -109,8 +101,9 @@ blogRouter.route("/server/postsOfBlog")
                             const response = await collectionOfBlogs.findOne({
                                 _id: idOfPost
                             });
+                            res.type("json");
                             res.status(200).json(response);
-                        });
+                        }
                     }
                     break;
                 case "countOfComments":

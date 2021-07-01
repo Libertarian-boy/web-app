@@ -8,9 +8,8 @@ import * as GlobalStyles from "./GlobalStyles";
 export default function DownLoader() {
 
     const downloaderRef = useRef<HTMLDivElement>(null);
-    const {data, setData} = useContext(LoaderContext);
+    const {data} = useContext(LoaderContext);
     const {nowWidthWindow} = useContext(MediaContext);
-    const location = useLocation();
 
     useEffect(() => {
         if (data) {

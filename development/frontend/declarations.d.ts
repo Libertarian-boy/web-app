@@ -3,6 +3,8 @@ declare module "*.png" {
     export default value;
 };
 
+declare module "";
+
 declare function fetch(input: string | URL, init?: {
     body?: any;
     method?: string;

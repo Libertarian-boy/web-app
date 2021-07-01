@@ -2,20 +2,31 @@ import { Router } from "express";
 import { renderToNodeStream } from "react-dom/server";
 import App from "../../../frontend/app.tsx"
 import React from "react";
-import {StaticRouter} from "react-router-dom";
-
+import Loadable from "react-loadable";
+/* import {StaticRouter} from "react-router-dom"; */
+import {getBundles} from "react-loadable-ssr-addon";
+import manifest from "../../../../docs/frontend/assets-manifest.json";
 export const basicRouter = Router();
 
-basicRouter.get(/\//, (req, res) => {
+const stringForRegExp = "/(web-app)?/?(home|blog|about%20us|services)?(#\\w*|/)?$";
+const regExpPath = new RegExp(stringForRegExp, "is");
 
-    const context = {};
+basicRouter.get(regExpPath, (_req, res) => {
+    const modules = new Set();
+    /* const context = {
+        url: undefined
+    }; */
+
+    /* <StaticRouter basename="/web-app" locaion={req.url} context={context} >
+        <App />
+    </StaticRouter> */
 
     const appStream = renderToNodeStream(
-        <StaticRouter basename="/web-app" locaion={req.url} context={context} >
-            <App />
-        </StaticRouter>
+        <Loadable.Capture report={moduleName => modules.add(moduleName)}>
+            <App/>
+        </Loadable.Capture>
     );
-
+    const bundles = getBundles(manifest, [...manifest.entrypoints, ...Array.from(modules)]);
     const startHTML = `
         <!DOCTYPE html>
         <html lang="en">
@@ -24,6 +35,11 @@ basicRouter.get(/\//, (req, res) => {
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta name="google" value="notranslate">
             <title>Loading...</title>
+            ${
+                scripts.map(script => (
+                    `<script defer src="/${script.file}"></script>`
+                )).join("\n")
+            }
         </head>
         <body>
             <div id="root" translate="no">
@@ -33,6 +49,7 @@ basicRouter.get(/\//, (req, res) => {
         </body>
         </html>
     `;
+    const scripts = bundles.js || [];
 
     if (context.url) {
         res.redirect(301, context.url);

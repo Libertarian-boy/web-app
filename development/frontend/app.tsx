@@ -1,4 +1,5 @@
 import React, {useState, useContext, useEffect} from "react";
+import Loadable from "react-loadable";
 import {
     Switch,
     Route,
@@ -10,23 +11,37 @@ import * as Functions from "./globalThings/functions";
 import * as Contexts from "./globalThings/context";
 import {LoaderContextInterfacePartialed} from "./globalThings/types";
 
-/* import Preloader from "./globalThings/preloader"; */
-import DownLoader from "./globalThings/GlobalDownLoader";
+import Preloader from "./globalThings/preloader";
 import favicon from "./favicons/favicon.png";
 
-import HomePage from "./homepage/homepage";
-import AboutUs from "./about_us/about_us";
-import Services from "./services/services";
-import Contacts from "./contact/contact";
-import Blog from "./blog/blog";
-import MobileSwitcher from "./blog/MobileSwitcher";
-
-/* const HomePage = React.lazy(() => import("./homepage/homepage"));
-const AboutUs = React.lazy(() => import("./about_us/about_us"));
-const Services = React.lazy(() => import("./services/services"));
-const Contacts = React.lazy(() => import("./contact/contact"));
-const Blog = React.lazy(() => import("./blog/blog"));
-const MobileSwitcher = React.lazy(() => import("./blog/MobileSwitcher")); */
+const HomePage = Loadable({
+    loader: () => import("./homepage/homepage"),
+    loading: Preloader
+});
+const AboutUs = Loadable({
+    loader: () => import("./about_us/about_us"),
+    loading: Preloader
+});
+const Services = Loadable({
+    loader: () => import("./services/services"),
+    loading : Preloader
+});
+const Contacts = Loadable({
+    loader: () => import("./contact/contact"),
+    loading: Preloader
+});
+const Blog = Loadable({
+    loader: () => import("./blog/blog"),
+    loading: Preloader
+});
+const MobileSwitcher = Loadable({
+    loader: () => import("./blog/MobileSwitcher"),
+    loading: Preloader
+});
+const DownLoader = Loadable({
+    loader: () => import("./globalThings/GlobalDownLoader"),
+    loading: Preloader
+});
 
 /* Функция-компонент для пермещения по якорям */
 function ScrollToHash() {

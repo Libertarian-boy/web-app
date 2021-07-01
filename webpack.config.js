@@ -2,22 +2,25 @@ const path = require('path');
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 const nodeExternals = require("webpack-node-externals");
 const {CleanWebpackPlugin} = require("clean-webpack-plugin");
+const ReactLoadableSSRAddon = require('react-loadable-ssr-addon');
 
 const clientConfig = 
     {
         name: "frontend",
-        mode: "production",
+        mode: "development",
         target: "web",
         entry: {
             index: "./development/frontend/index.tsx"
         },
         output: {
             path: path.resolve(__dirname, "docs/frontend"),
+            publicPath: "/docs/",
             filename: '[name].js',
+            chunkFilename: "[name].chunk.js",
             publicPath: path.resolve(__dirname, "docs/frontend")
         },
         resolve: {
-            extensions: ['.ts', '.tsx', '.js']
+            extensions: ['.json', '.ts', '.tsx', '.js']
         },
         module: {
             rules: [
@@ -58,24 +61,28 @@ const clientConfig =
         },
         plugins: [
             new NodePolyfillPlugin(),
-            new CleanWebpackPlugin()
+            new CleanWebpackPlugin(),
+            new ReactLoadableSSRAddon({
+                filename: "assets-manifest.json"
+            })
         ]
 };
 
 const serverConfig =
 {
     name: "backend",
-    mode: "production",
+    mode: "development",
     entry: {
         server: "./development/backend/index.js",
     },
     output: {
         path: path.resolve(__dirname, "docs/backend"),
         filename: "[name].js",
-        publicPath: "/"
+        chunkFilename: "[name].chunk.js",
+        publicPath: "/docs/"
     },
     resolve: {
-        extensions: ['.ts', '.tsx', '.js']
+        extensions: ['.json', '.ts', '.tsx', '.js']
     },
     module: {
         rules: [
@@ -125,4 +132,4 @@ const serverConfig =
     ]
 };
 
-module.exports = [serverConfig, clientConfig];
+module.exports = [clientConfig, serverConfig];

@@ -504,14 +504,14 @@ function Post({style, idOfPost}: {
             if (result.ok) {
                 return result.toMethod("json");
             } else {
-                throw new Error("Error: request to server is failed!");
+                result.toMethod("text")
+                .then(errorMessage => {
+                    console.error(errorMessage);
+                });
             }
         })
         .then(compleateResult => {
             setdataOfPost(compleateResult);
-        },
-        err => {
-            console.log(err);
         });
     }, []);
 
@@ -812,7 +812,14 @@ function PostOfBlog({idOfPost, style, setAreAllPostsLoaded}: {idOfPost: number |
         });
         request.toFetch()
         .then(response => {
-            return response.toMethod("json");
+            if (response.ok) {
+                return response.toMethod("json");
+            } else {
+                response.toMethod("text")
+                .then(errorMessage => {
+                    console.error(errorMessage);
+                });
+            }
         })
         .then(res => {
             let result = res as Omit<TypesOfBlog.ActionOfPostReduser, "type">;

@@ -7,10 +7,10 @@ const ReactLoadableSSRAddon = require('react-loadable-ssr-addon');
 const clientConfig = 
     {
         name: "frontend",
-        mode: "development",
+        mode: "production",
         target: "web",
         entry: {
-            index: "./development/frontend/index.tsx"
+            app: "./development/frontend/index.tsx"
         },
         output: {
             path: path.resolve(__dirname, "docs/frontend"),
@@ -76,9 +76,9 @@ const clientConfig =
 const serverConfig =
 {
     name: "backend",
-    mode: "development",
+    mode: "production",
     entry: {
-        server: "./development/backend/index.js",
+        index: "./development/backend/index.js",
     },
     output: {
         path: path.resolve(__dirname, "docs/backend"),

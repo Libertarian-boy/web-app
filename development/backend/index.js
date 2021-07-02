@@ -20,7 +20,7 @@ app.use(basicRouter);
 app.use("/contact%20us", routerContact);
 app.use("/blog", blogRouter);
 
-let server, mainMongoClientUrl = "mongodb://localhost:27017/";
+let server, mainMongoClientUrl = "mongodb+srv://Egor:Kuvs220504@cluster0.ll2ml.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
 const mongoClient = new MongoClient(mainMongoClientUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true

@@ -1,67 +1,67 @@
 {
   "entrypoints": [
-    "index"
+    "app"
   ],
   "origins": {
-    "index": [
-      "chunks",
-      "runtime",
-      "vendors",
-      "index"
+    "app": [
+      216,
+      666,
+      962,
+      143
     ],
     "runtime": [
-      "chunks",
-      "index",
-      "vendors",
-      "runtime"
+      143,
+      216,
+      962,
+      666
     ],
     "chunks": [
-      "index",
-      "runtime",
-      "vendors",
-      "chunks"
+      143,
+      216,
+      666,
+      962
     ],
     "vendors": [
-      "chunks",
-      "index",
-      "runtime",
-      "vendors"
+      143,
+      666,
+      962,
+      216
     ]
   },
   "assets": {
-    "index": {
+    "143": {
       "js": [
         {
-          "file": "index.js",
-          "hash": "2bfa50a6c17e5efec609",
-          "publicPath": "/docs/index.js"
+          "file": "app.js",
+          "hash": "e72db19802870ea0d615",
+          "publicPath": "/docs/app.js"
         }
       ]
     },
-    "runtime": {
+    "216": {
+      "js": [
+        {
+          "file": "vendors.bundle.js",
+          "hash": "7f8495cf4cf12c2b1b83",
+          "publicPath": "/docs/vendors.bundle.js"
+        }
+      ]
+    },
+    "666": {
       "js": [
         {
           "file": "runtime.js",
-          "hash": "c3f57f2bf80fc4115c14",
+          "hash": "d361ea1e1747eceeb7d1",
           "publicPath": "/docs/runtime.js"
         }
       ]
     },
-    "chunks": {
+    "962": {
       "js": [
         {
           "file": "chunks.bundle.js",
-          "hash": "e53048606567f5597501",
+          "hash": "9e969cda3042eb237112",
           "publicPath": "/docs/chunks.bundle.js"
-        }
-      ]
-    },
-    "vendors": {
-      "js": [
-        {
-          "file": "vendors.bundle.js",
-          "hash": "8c7d30e862b20a445b77",
-          "publicPath": "/docs/vendors.bundle.js"
         }
       ]
     }

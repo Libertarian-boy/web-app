@@ -6,7 +6,7 @@
   "scripts": {
     "start": "webpack serve",
     "build": "webpack",
-    "dev": "webpack && concurrently \"webpack --watch\" \"nodemon docs/backend/server.js\""
+    "dev": "webpack && concurrently \"webpack --watch\" \"nodemon docs/backend/index.js\""
   },
   "devDependencies": {
     "@types/express": "^4.17.12",

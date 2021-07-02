@@ -1,5 +1,5 @@
 node_modules
-/development
+docs
 .gitignore
 babel
 package*

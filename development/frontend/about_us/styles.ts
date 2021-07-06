@@ -1,3 +1,5 @@
+import { CSSProperties } from "react";
+
 export const main = {
     gridArea: "main",
     display: "flex",
@@ -176,7 +178,7 @@ export const item_backward = {
     alignItems: "center",
     justifyContent: "center",
     zIndex: 1,
-    trasnform: "rotateY(180deg)",
+    trasnform: "rotateY(-180deg)",
     transition: ".35s linear",
     cursor: "pointer"
 };
@@ -200,16 +202,18 @@ export const main_theDreamTeam__grayBlock = {
     justifyContent: "center"
 };
 
-export const grayBlock_p = {
+export const grayBlock_p: CSSProperties = {
     fontFamily: "OpenSans, sans-serif",
     fontSize: "18px",
     maxHeight: "20px",
-    lineHight: "48px",
     fontWeight: 400,
     fontStyle: "italic",
     color: "#60606e",
     overflowY: "hidden",
-    width: "723px"
+    width: "723px",
+    transitionDuration: ".3s",
+    transitionTimingFunction: "ease-out",
+    transitionProperty: "height, max-height"
 };
 
 export const grayBlock_button = {
@@ -303,7 +307,8 @@ export const theDreamTeam_down__buttons = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    width: "92px"
+    width: "92px",
+    minWidth: "92px"
 };
 
 export const down_buttons__buttonActive = {
@@ -458,11 +463,13 @@ export const theDreamTeam_down__buttonsMobileAndTablet = {
     width: "200px"
 };
 
-export const down_buttons__buttonMobileAndTablet = {
+export const down_buttons__buttonMobileAndTablet: CSSProperties = {
     width: "40px",
     height: "20px",
+    minHeight: "20px",
     display: "flex",
     alignItems: "center",
+    alignContent: "center",
     justifyContent: "center",
     fontFamily: "OpenSans, sans-serif",
     fontSize: "14px",
@@ -633,7 +640,8 @@ export const main_theDreamTeam__downNormalScreen = {
 };
 
 export const theDreamTeam_down__iconsNormalScreen = {
-    margin: "35px 0 0 0"
+    margin: "35px 0 0 0",
+    height: "160px"
 };
 
 export const down_icoons__iconNormalScreen = {

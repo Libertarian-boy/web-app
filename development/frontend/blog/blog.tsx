@@ -279,6 +279,17 @@ function Posts() {
 
     const [step, setStep] = useState(1);
 
+    useEffect(() => {
+        const styleTag = document.querySelector("style");
+        if (styleTag) {
+            styleTag.append(`
+                .info_posts__titles::-webkit-scrollbar, .info_posts__titles::-webkit-scrollbar-button, .info_posts__titles::-webkit-scrollbar-thumb {
+                    display: none;
+                } 
+            `);
+        }
+    }, []);
+
     return(
         <div className="conteiner_info__posts" style={
             Object.assign(
@@ -411,15 +422,39 @@ function PostsLine({
 function ConteinerOfPosts({step}: {step: number}) {
 
     const info_posts__bodyRef = useRef<HTMLDivElement>(null);
-    const [scroll, setScroll] = useState<number>(0);
 
     useEffect(() => {
         const info_posts__body = info_posts__bodyRef.current, info_posts__bodyWidth = info_posts__body!.clientWidth;
-        info_posts__body!.scroll({
-            left: info_posts__bodyWidth * (step - 1),
-            behavior: "smooth"
-        });
+        if (info_posts__body && info_posts__bodyWidth) {
+            const collumsChildren = info_posts__body.children as HTMLCollectionOf<HTMLDivElement>;
+            Array.from(collumsChildren).forEach(item => {
+                Functions.changeStyleElem(item, {
+                    transform: `translateX(-${100 * (step - 1)}%)`
+                });
+            });
+        }
     }, [step]);
+
+    return(
+        <div className="info_posts__body scrollConteiner" ref={info_posts__bodyRef} style={
+            Functions.cloneObject(
+                Styles.info_posts__body
+            )
+        }>
+            <PostsColumn idOfPostColumn={"1"} />
+            <PostsColumn idOfPostColumn={"2"} />
+            <PostsColumn idOfPostColumn={"3"} />
+        </div>
+    )
+}
+
+function PostsColumn({idOfPostColumn}: {idOfPostColumn: string;}) {
+    const [countPosts, setCountPosts] = useState<{length: number}>({
+        length: 6
+    });
+    const [scroll, setScroll] = useState<number>(0);
+
+    const postBobyRef = useRef<HTMLDivElement>(null);
 
     function scrollFunc(e: React.UIEvent<HTMLDivElement, UIEvent>) {
         const element = e.currentTarget as HTMLDivElement,
@@ -428,30 +463,10 @@ function ConteinerOfPosts({step}: {step: number}) {
         setScroll(scrollTopElement);
     }
 
-    return(
-        <div className="info_posts__body scrollConteiner" ref={info_posts__bodyRef} onScroll={(e) => scrollFunc(e)} style={
-            Functions.cloneObject(
-                Styles.info_posts__body
-            )
-        }>
-            <PostsColumn idOfPostColumn={"1"} scroll={scroll}/>
-            <PostsColumn idOfPostColumn={"2"} scroll={scroll}/>
-            <PostsColumn idOfPostColumn={"3"} scroll={scroll}/>
-        </div>
-    )
-}
-
-function PostsColumn({idOfPostColumn, scroll}: {idOfPostColumn: string; scroll: number}) {
-    const [countPosts, setCountPosts] = useState<{length: number}>({
-        length: 6
-    });
-
-    const postBobyRef = useRef<HTMLDivElement>(null);
-
     useEffect(() => {
         const postBoby = postBobyRef.current;
         if (postBoby) {
-            if (Math.ceil(postBoby.scrollHeight - scroll) < Math.round(postBoby.clientHeight * 1.5)) {
+            if (Math.ceil(postBoby.scrollHeight - scroll) < Math.round(postBoby.clientHeight * 2)) {
                 setCountPosts({
                     length: countPosts.length + 6
                 });
@@ -460,7 +475,8 @@ function PostsColumn({idOfPostColumn, scroll}: {idOfPostColumn: string; scroll: 
     }, [scroll]);
 
     return(
-        <div className="posts_body__column scrollConteiner" id={idOfPostColumn} ref={postBobyRef} style={
+        <div className="posts_body__column scrollConteiner" id={idOfPostColumn} ref={postBobyRef} onScroll={(e) => scrollFunc(e)}
+        style={
             Functions.cloneObject(
                 Styles.posts_body__column
             )
@@ -649,8 +665,30 @@ function Category({name, count}: {name: string; count: number}) {
 
 function Tags() {
     const {nowWidthWindow} = useContext(MediaContext);
+    const targsRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const tag = targsRef.current as HTMLDivElement;
+        const tags = tag.children as HTMLCollectionOf<HTMLButtonElement>;
+        Functions.changeFlexGapToMargin(tag, {
+            gap: 0
+        });
+        Functions.changeFlexGapToMargin(tags, {
+            margin: "2.5px"
+        });
+
+        return () => {
+            Functions.changeFlexGapToMargin(tag, {
+                gap: "5px"
+            });
+            Functions.changeFlexGapToMargin(tags, {
+                margin: 0
+            });
+        }
+    }, []);
+
     return(
-        <div className="tags" style={
+        <div className="tags" ref={targsRef} style={
             Functions.cloneObject(
                 Styles.tags
             )
@@ -1066,7 +1104,7 @@ function CommentEnterOfPost(
         if (commentIsOpen) {
             Functions.changeStyleElem(textAreaConteiner, {
                 height: `${heightOfTextArea}px`,
-                width: nowWidthWindow === "mobileScreen" ? "calc(90% - 6px)" : "50%",
+                width: nowWidthWindow === "mobileScreen" ? "calc(90% - 6px)" : "calc(100% - 6px)",
                 margin: "15px 0 0 0",
                 boxShadow: "0 0 0 3px #7beec7",
             });

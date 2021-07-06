@@ -41,7 +41,7 @@ export function OrientationChange() {
     const {nowWidthWindow, setNowWidthWindow} = useContext(Contexts.MediaContext);
 
     useEffect(() => {
-        const theDreamTeam_down__slider = (document.querySelector(".theDreamTeam_down__slider") ?? null) as HTMLElement;
+        const theDreamTeam_down__slider = document.querySelector(".theDreamTeam_down__slider") as HTMLElement;
         if (theDreamTeam_down__slider) {
             if (nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet") {
                 Functions.changeStyleElem(theDreamTeam_down__slider, {
@@ -83,7 +83,7 @@ export function Resize() {
                 Functions.setValueContextWindow(setNowWidthWindow, 0);
                 Functions.downloaderBottomStart();
 
-                const theDreamTeam_down__slider = (document.querySelector(".theDreamTeam_down__slider") ?? null) as HTMLElement;
+                const theDreamTeam_down__slider = document.querySelector(".theDreamTeam_down__slider") as HTMLElement;
                 if (theDreamTeam_down__slider) {
                     if (nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet") {
                         Functions.changeStyleElem(theDreamTeam_down__slider, {

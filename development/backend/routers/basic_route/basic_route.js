@@ -16,7 +16,6 @@ basicRouter.get(regExpPath, (_req, res) => {
     const context = {
         url: undefined
     };
-
     const appStream = renderToNodeStream(
         <StaticRouter basename="/web-app" context={context}>
             <Loadable.Capture report={moduleName => modules.add(moduleName)}>

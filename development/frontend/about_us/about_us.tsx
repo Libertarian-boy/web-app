@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef, useContext} from "react";
+import React, {useEffect, useState, useRef, useContext, PointerEventHandler, Dispatch, SetStateAction} from "react";
 
 import * as Functions from "../globalThings/functions";
 import * as Styles from "./styles";
@@ -297,6 +297,7 @@ function TheDreamTeam() {
 function TheDreamTeamMain() {
 
     const [scrollWidth, setScrollWidth] = useState(11);
+    const [numberOfTeamMobile, setNumberOfTeamMobile] = useState<undefined | number>(undefined);
     const teamConteinerRef = useRef(null);
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
 
@@ -349,32 +350,68 @@ function TheDreamTeamMain() {
                 nowWidthWindow === "computerNormalScreen" ? Styles.main_theDreamTeam__mainNormalScreen : {}
             )
         } ref={teamConteinerRef} onScroll={scroll} onPointerUp={pointerUp}>
-            <TheDreamTeamMainItem src={Person_1} person="Person_1" down={false} tabIndex={nowWidthWindow === "mobileScreen" || "tablet" ? 1 : undefined} />
-            <TheDreamTeamMainItem src={Person_2} person="Person_2" down={false} tabIndex={nowWidthWindow === "mobileScreen" || "tablet" ? 2 : undefined} />
-            <TheDreamTeamMainItem src={Person_3} person="Person_3" down={false} tabIndex={nowWidthWindow === "mobileScreen" || "tablet" ? 3 : undefined} />
-            <TheDreamTeamMainItem src={Person_4} person="Person_4" down={false} tabIndex={nowWidthWindow === "mobileScreen" || "tablet" ? 4 : undefined} />
-            <TheDreamTeamMainItem src={Person_5} person="Person_5" down={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" || nowWidthWindow === "computerNormalScreen" ? false : true}
-            tabIndex={nowWidthWindow === "mobileScreen" || "tablet" ? 5 : undefined} />
-            <TheDreamTeamMainItem src={Person_6} person="Person_6" down={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" || nowWidthWindow === "computerNormalScreen" ? false : true}
-            tabIndex={nowWidthWindow === "mobileScreen" || "tablet" ? 6 : undefined} />
-            <TheDreamTeamMainItem src={Person_7} person="Person_7" down={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" || nowWidthWindow === "computerNormalScreen" ? false : true}
-            tabIndex={nowWidthWindow === "mobileScreen" || "tablet" ? 7 : undefined} />
-            <TheDreamTeamMainItem src={Person_8} person="Person_8" down={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" || nowWidthWindow === "computerNormalScreen" ? false : true}
-            tabIndex={nowWidthWindow === "mobileScreen" || "tablet" ? 8 : undefined} />
+            <TheDreamTeamMainItem src={Person_1} person="Person_1" down={false} numberOfTeamMobile={numberOfTeamMobile} 
+            mobileAndTabletOrder={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? 1 : undefined}
+            setNumberOfTeamMobile={setNumberOfTeamMobile} />
+            <TheDreamTeamMainItem src={Person_2} person="Person_2" down={false} numberOfTeamMobile={numberOfTeamMobile} 
+            mobileAndTabletOrder={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? 2 : undefined}
+            setNumberOfTeamMobile={setNumberOfTeamMobile} />
+            <TheDreamTeamMainItem src={Person_3} person="Person_3" down={false} numberOfTeamMobile={numberOfTeamMobile}
+            mobileAndTabletOrder={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? 3 : undefined}
+            setNumberOfTeamMobile={setNumberOfTeamMobile} />
+            <TheDreamTeamMainItem src={Person_4} person="Person_4" down={false} numberOfTeamMobile={numberOfTeamMobile} 
+            mobileAndTabletOrder={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? 4 : undefined}
+            setNumberOfTeamMobile={setNumberOfTeamMobile} />
+            <TheDreamTeamMainItem src={Person_5} person="Person_5" numberOfTeamMobile={numberOfTeamMobile} 
+            mobileAndTabletOrder={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? 5 : undefined}
+            setNumberOfTeamMobile={setNumberOfTeamMobile}
+            down={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" || nowWidthWindow === "computerNormalScreen" ? false : true} />
+            <TheDreamTeamMainItem src={Person_6} person="Person_6" numberOfTeamMobile={numberOfTeamMobile} 
+            mobileAndTabletOrder={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? 6 : undefined}
+            setNumberOfTeamMobile={setNumberOfTeamMobile}
+            down={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" || nowWidthWindow === "computerNormalScreen" ? false : true} />
+            <TheDreamTeamMainItem src={Person_7} person="Person_7" numberOfTeamMobile={numberOfTeamMobile} 
+            mobileAndTabletOrder={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? 7 : undefined}
+            setNumberOfTeamMobile={setNumberOfTeamMobile}
+            down={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" || nowWidthWindow === "computerNormalScreen" ? false : true} />
+            <TheDreamTeamMainItem src={Person_8} person="Person_8" numberOfTeamMobile={numberOfTeamMobile} 
+            mobileAndTabletOrder={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? 8 : undefined}
+            setNumberOfTeamMobile={setNumberOfTeamMobile} 
+            down={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" || nowWidthWindow === "computerNormalScreen" ? false : true} />
         </div>
         <TheDreamTeamMainProgress scrollWidth={`${scrollWidth}`}/>
         </React.Fragment>
     )
 }
 
-function TheDreamTeamMainItem(props: { tabIndex: number | undefined; down: any; src: any; person: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; }) {
-
+function TheDreamTeamMainItem(
+    {down, src, person, mobileAndTabletOrder, numberOfTeamMobile, setNumberOfTeamMobile}:
+    {down: any; src: any; person: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined;
+    mobileAndTabletOrder: number | undefined; numberOfTeamMobile: undefined | number;
+    setNumberOfTeamMobile: Dispatch<SetStateAction<undefined | number>>})
+{
 
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
-
     const itemRef = useRef<HTMLDivElement>(null);
-
     const [wasEnter, setWasEnter] = useState<boolean | null>(null);
+
+    useEffect(() => {
+        const item = itemRef.current as HTMLDivElement;
+        const img = item.children[0] as HTMLElement, backward = item.children[1] as HTMLElement;
+        if ( mobileAndTabletOrder && numberOfTeamMobile ) {
+            if (mobileAndTabletOrder !== numberOfTeamMobile) {
+                setWasEnter(false);
+                Functions.changeStyleElem(img, {
+                    zIndex: 2,
+                    transform: "rotateY(0)"
+                });
+                Functions.changeStyleElem(backward, {
+                    zIndex: 1,
+                    transform: "rotateY(180deg)"
+                });
+            }
+        }
+    }, [mobileAndTabletOrder, numberOfTeamMobile]);
 
     useEffect(() => {
         const item = itemRef.current;
@@ -382,8 +419,8 @@ function TheDreamTeamMainItem(props: { tabIndex: number | undefined; down: any; 
         if (item) {
             const img = item.children[0] as HTMLElement, backward = item.children[1] as HTMLElement;
 
-            if (nowWidthWindow === "mobileScreen") {
-                switch(props.tabIndex) {
+            if (mobileAndTabletOrder && nowWidthWindow === "mobileScreen") {
+                switch(mobileAndTabletOrder) {
                     case 1:
                         Functions.changeStyleElem(item, {
                             margin: 0
@@ -400,49 +437,60 @@ function TheDreamTeamMainItem(props: { tabIndex: number | undefined; down: any; 
                         });
                         break;
                 }
-
             }
 
             if (wasEnter) {
                 Functions.changeStyleElem(img, {
                     zIndex: 1,
-                    transform: "rotateY(-180deg)"
+                    transform: "rotateY(-180deg)",
+                    backfaceVisibility: "hidden"
                 });
                 Functions.changeStyleElem(backward, {
                     zIndex: 2,
-                    transform: "rotateY(0)"
+                    transform: "rotateY(0)",
+                    backfaceVisibility: "visible"
                 });
             } else if (wasEnter === false) {
                 Functions.changeStyleElem(img, {
                     zIndex: 2,
-                    transform: "rotateY(0)"
+                    transform: "rotateY(0)",
+                    backfaceVisibility: "visible"
                 });
                 Functions.changeStyleElem(backward, {
                     zIndex: 1,
-                    transform: "rotateY(180deg)"
+                    transform: "rotateY(-180deg)",
+                    backfaceVisibility: "hidden"
                 });
             }
         }
     });
 
-    const enter = (e: { currentTarget: any; }) => {
-        const elem = e.currentTarget;
-        setWasEnter(wasEnter === null ? true : !wasEnter);
-        Functions.changeStyleElem(elem, {
-            outline: "none"
-        });
+    const enter: PointerEventHandler = () => {
+        if ( nowWidthWindow === "computerLargeScreen" || nowWidthWindow === "computerNormalScreen") {
+            setWasEnter(true);
+        }
     };
 
-    const leave = (e: { currentTarget: any; }) => {
-        const elem = e.currentTarget;
-        setWasEnter(wasEnter === null ? false : !wasEnter);
-        Functions.changeStyleElem(elem, {
-            outline: "none"
-        });
+    const leave: PointerEventHandler<HTMLDivElement> = () => {
+        if ( nowWidthWindow === "computerLargeScreen" || nowWidthWindow === "computerNormalScreen") {
+            setWasEnter(false);
+        }
     };
+
+    const click: PointerEventHandler<HTMLDivElement> = () => {
+       if( nowWidthWindow === "tablet" || nowWidthWindow === "mobileScreen" ) {
+            setWasEnter(true);
+            setNumberOfTeamMobile(mobileAndTabletOrder);
+            const theDreamTeam_main__item = itemRef.current as HTMLDivElement;
+            const img = theDreamTeam_main__item.children[0] as HTMLImageElement;
+            if (img.tagName.toLowerCase() === "img") img.click();
+       }
+        
+    }
 
     return(
-        <div className="theDreamTeam_main__item" style={
+        <div className="theDreamTeam_main__item"
+        style={
             Object.assign(
                 Functions.cloneObject(
                     Styles.theDreamTeam_main__item
@@ -450,22 +498,14 @@ function TheDreamTeamMainItem(props: { tabIndex: number | undefined; down: any; 
                 nowWidthWindow === "mobileScreen" ? Styles.theDreamTeam_main__itemMobile :
                 nowWidthWindow === "tablet" ? Styles.theDreamTeam_main__itemTablet :
                 nowWidthWindow === "computerNormalScreen" ? Styles.theDreamTeam_main__itemNormalScreen : {},
-                props.down ? Styles.theDreamTeam_main__item___down : {}
+                down ? Styles.theDreamTeam_main__item___down : {}
             )
-        } ref={itemRef}
-        onPointerEnter={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? () => undefined : enter}
-        onPointerLeave={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? () => undefined : leave}
-        tabIndex={props.tabIndex as number}
-        onFocus={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? enter : () => undefined}
-        onBlur={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? leave : () => undefined}
-        onClick={
-            nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? () => undefined : () => {
-                const theDreamTeam_main__item = itemRef.current as HTMLDivElement;
-                const img = theDreamTeam_main__item.children[0] as HTMLImageElement;
-                if (img.tagName.toLowerCase() === "img") img.click();
-            }
-        }>
-            <Functions.Img src={props.src} alt={props.person} isCanBeDownload={true} className="theDreamTeam_main__item___image" style={
+        }
+        ref={itemRef}
+        onPointerEnter={enter}
+        onPointerLeave={leave}
+        onClick={click}>
+            <Functions.Img src={src} alt={person} isCanBeDownload={true} className="theDreamTeam_main__item___image" style={
                 Functions.cloneObject(
                     Styles.theDreamTeam_main__item___img
                 )
@@ -480,7 +520,7 @@ function TheDreamTeamMainItem(props: { tabIndex: number | undefined; down: any; 
                         Styles.h5
                     )
                 }>
-                    {props.person}
+                    {person}
                 </h5>
             </div>
         </div>
@@ -546,41 +586,36 @@ function GrayBlock() {
     const [wasClick, setWasClick] = useState<boolean | null>(null);
 
     useEffect(() => {
+        const grayBlock = ref_grayBlock.current as HTMLDivElement;
+        const paragOfGrayBlock = grayBlock.children[0] as HTMLParagraphElement;
+        if ( nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ) {
+            Functions.changeStyleElem(paragOfGrayBlock, {
+                maxHeight: `${paragOfGrayBlock.scrollHeight}px`
+            });
+        }
+    }, [nowWidthWindow]);
+
+    useEffect(() => {
         const grayBlock = ref_grayBlock.current;
         if (grayBlock) {
-            const p = grayBlock.children[0], button = grayBlock.children[1];
-        if (wasClick) {
-            p.animate([
-                {
-                    maxHeight: `${p.clientHeight}px`
-                },
-                {
-                    maxHeight: `${p.scrollHeight}px`
+            const p = grayBlock.children[0] as HTMLParagraphElement, button = grayBlock.children[1];
+            if ( nowWidthWindow === "computerLargeScreen" || nowWidthWindow === "computerNormalScreen" ) {
+                if (wasClick) {
+                    Functions.changeStyleElem(p, {
+                        maxHeight: `${p.scrollHeight}px`
+                    });
+        
+                    button.textContent = "hide text";
+                } else if (wasClick === false) {
+                    Functions.changeStyleElem(p, {
+                        maxHeight: `${p.scrollHeight / 4}px`
+                    });
+        
+                    button.textContent = "read more";
                 }
-            ], {
-                duration: 300,
-                fill: "forwards",
-                easing: "ease-out"
-            });
-
-            button.textContent = "hide text";
-        } else if (wasClick === false) {
-            p.animate([
-                {
-                    maxHeight: `${p.scrollHeight}px`
-                }, {
-                    maxHeight: `${p.scrollHeight / 4}px`
-                }
-            ], {
-                duration: 300,
-                fill: "forwards",
-                easing: "ease-in"
-            });
-
-            button.textContent = "read more";
+            }
         }
-        }
-    }, [wasClick]);
+    }, [wasClick, nowWidthWindow]);
 
     const enter = (e: { currentTarget: any; }) => {
         const target = e.currentTarget;

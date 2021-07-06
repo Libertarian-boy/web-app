@@ -387,7 +387,7 @@ export const categories: CSSProperties = {
 };
 
 export const itemCategory: CSSProperties = {
-    transitionDuration: ".3s",
+    transitionDuration: ".45s",
     transitionTimingFunction: "ease-in",
     transitionProperty: "height, width",
     willChange: "height, width"
@@ -593,10 +593,12 @@ export const whyChooseUsMainListsStyleTablet: CSSProperties = {
     gap: "20px 30px"
 };
 
-export const categoriesTablet = {
+export const categoriesTablet: CSSProperties = {
     width: "50%",
     margin: "0 0 0 7%",
-    overflowX: "scroll"
+    overflowX: "scroll",
+    height: "900px",
+    maxHeight: "900px"
 };
 
 /* Стили для десктопной версии (средние компьютеры и ноутбуки) */
@@ -634,7 +636,10 @@ export const mainOurPortfolioMainStylesMedium = {
     width: "100%"
 };
 
-export const categoriesMedium = {
-    width: "60%",
-    overflowX: "scroll"
+export const categoriesMedium: CSSProperties = {
+    width: "80%",
+    maxWidth: "80%",
+    overflowX: "scroll",
+    height: "900px",
+    maxHeight: "900px"
 };

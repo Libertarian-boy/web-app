@@ -64,34 +64,34 @@ function Header() {
     const [wasClick, setWasClick] = useState(false);
 
     useEffect(() => {
-        const header = headerRef.current, forwardHeader = forwardHeaderRef.current,
-        textOfHeader = document.querySelector(".header_forward__body___main____description > p");
+        const header = headerRef.current as HTMLElement,
+        textOfHeader = document.querySelector(".header_forward__body___main____description > p") as HTMLParagraphElement;
 
-        if (header && textOfHeader && forwardHeader) {
-            if (down && nowWidthWindow !== "mobileScreen") {
-                Functions.changeStyleElem(header, {
-                    height: `${header.clientHeight + textOfHeader.clientHeight}px`
-                });
-    
-                Functions.changeStyleElem(forwardHeader, {
-                    height: `${forwardHeader.clientHeight + textOfHeader.clientHeight}px`
-                });
-            } else if (down === false && nowWidthWindow !== "mobileScreen") {
-                Functions.changeStyleElem(header, {
-                    height: `${header.clientHeight - (textOfHeader.clientHeight - 16) / 2}px` /* "850px" */
-                });
-    
-                Functions.changeStyleElem(forwardHeader, {
-                    height: `${header.clientHeight - (textOfHeader.clientHeight - 16) / 2}px` /* "850px" */
-                });
-            }
+        if (down && nowWidthWindow !== "mobileScreen") {
+            Functions.changeStyleElem(header, {
+                height: `${header.clientHeight + textOfHeader.clientHeight}px`
+            });
+        } 
+        if (down === false && nowWidthWindow !== "mobileScreen") {
+            Functions.changeStyleElem(header, {
+                height: `${header.clientHeight - (textOfHeader.clientHeight - 16) / 2}px` /* "850px" */
+            });
         }
     }, [down]);
+
+    useEffect(() => {
+        const header = headerRef.current as HTMLElement;
+        if (nowWidthWindow === "mobileScreen") {
+            Functions.changeStyleElem(header, {
+                height: "auto"
+            });
+        }
+    }, [nowWidthWindow]);
 
     return(
         <header ref={headerRef} style={Object.assign(Functions.cloneObject(Styles.HeaderStyle), {
             backgroundImage: `url(${Layer_1})`,
-            backgroundAttachment: "fixed"
+            backgroundAttachment: "scroll"
         })}>
             <div className="header_forward" ref={forwardHeaderRef} style={
                 Functions.cloneObject(
@@ -173,16 +173,22 @@ function HeaderHeadList(props: { wasClick: any; }) {
     )
 }
 
-function HeaderHeadButton(props: { wasClick: boolean; setWasClick: (arg0: boolean) => void; }) {
+function HeaderHeadButton({wasClick, setWasClick}: { wasClick: boolean; setWasClick: (arg0: boolean) => void; }) {
 
     const buttonRef = useRef<HTMLButtonElement>(null);
     const {nowWidthWindow} = useContext(Contexts.MediaContext);
 
     useEffect(() => {
+        if (nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet") {
+            setWasClick(false);
+        }
+    }, [nowWidthWindow]);
+
+    useEffect(() => {
 
         const buttonElem = buttonRef.current;
 
-        if (props.wasClick && buttonElem) {
+        if (wasClick && buttonElem) {
             const collectionOfLines = buttonElem.children as HTMLCollectionOf<HTMLElement>
 
             Functions.changeStyleElem(collectionOfLines[0], {
@@ -198,7 +204,7 @@ function HeaderHeadButton(props: { wasClick: boolean; setWasClick: (arg0: boolea
                 transform: "rotate(-45deg)"
             });
 
-        } else if (props.wasClick === false && buttonElem) {
+        } else if (wasClick === false && buttonElem) {
             const collectionOfLines = buttonElem.children as HTMLCollectionOf<HTMLElement>
 
             Functions.changeStyleElem(collectionOfLines[0], {
@@ -214,7 +220,7 @@ function HeaderHeadButton(props: { wasClick: boolean; setWasClick: (arg0: boolea
                 transform: "rotate(0)"
             });
         }
-    }, [props.wasClick]);
+    }, [wasClick]);
 
     const focus = (e: { currentTarget: any; }) => {
         Functions.changeStyleElem(e.currentTarget, {
@@ -223,7 +229,7 @@ function HeaderHeadButton(props: { wasClick: boolean; setWasClick: (arg0: boolea
     };
 
     const click = () => {
-        props.setWasClick(!props.wasClick);
+        setWasClick(!wasClick);
     };
 
     return(
@@ -301,7 +307,7 @@ function HeaderForwardBodyMain() {
                 nowWidthWindow === "computerNormalScreen" ? Styles.HeaderForwardBodyMainMedium : {}
             )
         }>
-            <Functions.Img src={Layer_4} alt="Layer_4" className="header_forward__body___main____img" style={
+            <Functions.Img src={Layer_4} alt="Layer_4" isCanBeDownload={true} className="header_forward__body___main____img" style={
                 Object.assign(
                     {},
                     nowWidthWindow === "mobileScreen" ? Styles.HeaderForwardBodyMainImgMobile :
@@ -327,7 +333,8 @@ function HeaderForwardBodyMainText() {
                 height: `${textOfHeader.clientHeight * 2 + 16}px`,
                 maxHeight: `${textOfHeader.clientHeight * 2 + 16}px`
             });
-        } else if (down === false && textOfHeader) {
+        }
+        if (down === false && textOfHeader) {
             Functions.changeStyleElem(textOfHeader, {
                 height: `${(textOfHeader.clientHeight - 16) / 2}px`,
                 maxHeight: `${(textOfHeader.clientHeight - 16) / 2}px`
@@ -678,15 +685,56 @@ function Categories({category}: { category: string; }) {
     const arrayOfImages = [Layer_5, Layer_8, Layer_11, Layer_6, Layer_9, Layer_14, Layer_7, Layer_10, Layer_13];
     const arrayOfCategories = [
         ["All", "webdesign", "graphic design", "fashion", "logo design", "advertising"],
-        ["All", "webdesign", "graphic design", "fashion", "logo design"],
         ["All", "webdesign", "graphic design", "fashion", "logo design", "advertising"],
-        ["All", "webdesign", "graphic design", "logo design"],
-        ["All", "webdesign", "graphic design", "fashion", "logo design", "advertising"],
+        ["All", "webdesign", "advertising"],
+        ["All", "webdesign", "graphic design", "logo design", "advertising"],
+        ["All", "webdesign", "advertising"],
         ["All", "webdesign", "graphic design", "fashion", "advertising"],
         ["All", "webdesign", "graphic design", "fashion", "logo design", "advertising"],
         ["All", "logo design", "advertising"],
         ["All", "graphic design", "fashion", "advertising"]
-    ]
+    ];
+    let indexLet = -1;
+
+    useEffect(() => {
+        const cateroryElement = categoryRef.current as HTMLDivElement;
+        Functions.changeFlexGapToMargin(cateroryElement, {
+            gap: 0
+        });
+
+        return () => {
+            Functions.changeFlexGapToMargin(cateroryElement, {
+                gap: "30px"
+            });
+        }
+    }, []);
+
+    useEffect(() => {
+        const styleTag = document.querySelector("style");
+        if (styleTag) {
+            styleTag.append(`
+            .categories::-webkit-scrollbar {
+                background-color: #60606e;
+                width: 5px;
+                height: 2px;
+            }
+
+            .categories::-webkit-scrollbar-button {
+                display: none;
+            }
+
+            .categories::-webkit-scrollbar-thumb {
+                background-color: #7beec7;
+                border-radius: 5px;
+                height: 5px;
+            }
+
+            .categories::-webkit-scrollbar-thumb:hover {
+                background-color: #d2f9ec;
+            }
+            `);
+        }
+    }, []);
 
     return(
         <div className="categories" style={
@@ -698,10 +746,20 @@ function Categories({category}: { category: string; }) {
             )
         } ref={categoryRef}>
             {
-                arrayOfImages.map((item, index) => (
-                    <ImageOfCategoryMemoized key={index} isCanBeDownload={true} category={category} arrayOfCategories={arrayOfCategories[index]} src={item} alt="category_image"
-                    style={Styles.itemCategory} />
-                ))
+                arrayOfImages.map((item, index) => {
+                    if (arrayOfCategories[index].includes(category)) {
+                        indexLet += 1;
+                        return(
+                            <ImageOfCategoryMemoized key={index} index={indexLet} isCanBeDownload={true} category={category} arrayOfCategories={arrayOfCategories[index]} src={item} alt="category_image"
+                            style={Styles.itemCategory} />
+                        )
+                    } else {
+                        return(
+                            <ImageOfCategoryMemoized key={index} index={index} isCanBeDownload={true} category={category} arrayOfCategories={arrayOfCategories[index]} src={item} alt="category_image"
+                            style={Styles.itemCategory} />
+                        )
+                    }
+                })
             }         
         </div>
     )
@@ -710,8 +768,8 @@ function Categories({category}: { category: string; }) {
 const ImageOfCategoryMemoized = memo(ImageOfCategory);
 
 function ImageOfCategory(
-    {isCanBeDownload, category, src, alt, style, arrayOfCategories, click}:
-    {isCanBeDownload: boolean, category?: string, src: string, alt: string, style: CSSProperties, arrayOfCategories?: string[], click?: boolean | null}
+    {isCanBeDownload, category, src, alt, style, arrayOfCategories, click, index}:
+    {isCanBeDownload: boolean, category?: string, src: string, alt: string, style: CSSProperties, arrayOfCategories?: string[], click?: boolean | null; index?: number}
 ) {
     const imageRef = useRef<HTMLImageElement>(null);
     const [sizeOfImage, setSizeOfImage] = useState<{height: string; width: string}>(
@@ -759,6 +817,32 @@ function ImageOfCategory(
             });
         }
     }, [category, sizeOfImage, arrayOfCategories, click]);
+
+    useEffect(() => {
+        const imageOfCategory = imageRef.current as HTMLImageElement;
+        if (category && index) {
+            if (+index === 0) {
+                Functions.changeFlexGapToMargin(imageOfCategory, {
+                    margin: 0
+                });
+            }
+            if (+index < 3 && +index > 0) {
+                Functions.changeFlexGapToMargin(imageOfCategory, {
+                    margin: "30px 0 0 0"
+                });
+            }
+            if (+index === 3 || +index === 6) {
+                Functions.changeFlexGapToMargin(imageOfCategory, {
+                    margin: "0 0 0 30px"
+                });
+            }
+            if ( (+index > 3 && +index < 6) || (+index > 6 && +index <= 8) ) {
+                Functions.changeFlexGapToMargin(imageOfCategory, {
+                    margin: "30px 0 0 30px"
+                });
+            }
+        }
+    }, [category, index]);
 
     return(
         <Functions.Img ref={imageRef} isCanBeDownload={isCanBeDownload} src={src} alt={alt} style={style} />
@@ -813,6 +897,27 @@ function CategoriesMobileButton(props: { setClick: (arg0: boolean) => void; clic
 function CategoriesMobile({click}: { click: boolean | null; }) {
     const categoryRef = useRef<HTMLDivElement>(null);
     const arrayOfImages = [Layer_5, Layer_6, Layer_7, Layer_8, Layer_9, Layer_10, Layer_11, Layer_14, Layer_13];
+
+    useEffect(() => {
+        const category = categoryRef.current as HTMLDivElement;
+        const childrenOfCategory = category.children as HTMLCollectionOf<HTMLImageElement>;
+
+        Functions.changeStyleElem(category, {
+            gap: 0
+        });
+        Functions.changeFlexGapToMargin(childrenOfCategory, {
+            margin: "10px 0 0 0",
+        }, true);
+
+        return () => {
+            Functions.changeStyleElem(category, {
+                gap: "10px"
+            });
+            Functions.changeFlexGapToMargin(childrenOfCategory, {
+                margin: 0,
+            }, true);
+        }
+    }, []);
 
     useEffect(() => {
         const category = categoryRef.current as HTMLDivElement;

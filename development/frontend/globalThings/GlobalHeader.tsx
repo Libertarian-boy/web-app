@@ -18,11 +18,10 @@ export default function GlobalHeader(props: { h1: any; h2: any; p: any; }) {
         <header style={
             Object.assign(
                 Functions.cloneObject(
-                    GlobalStyles.header
+                    GlobalStyles.headerStyles(Header_forward)
                 ),
-                {
-                    backgroundImage: `url(${Header_forward})`
-                }
+                nowWidthWindow === "computerNormalScreen" || nowWidthWindow === "tablet" || nowWidthWindow === "mobileScreen" ?
+                GlobalStyles.headerMobileTabletComputerNormalScreen : {}
             )
         }>
             <div className="header_forward" style={
@@ -246,13 +245,13 @@ export function MobileAndTabletNavVersion(props: { wasClick: boolean; }) {
     useEffect(() => {
         const ulElement = refUl.current;
 
-        let timeShow = 0;
+        let timeShow = 1;
 
         if (props.wasClick && ulElement) {
             const ulElementChildren = ulElement.children as HTMLCollectionOf<HTMLElement>;
 
             Functions.changeStyleElem(ulElement, {
-                transition: ".5s linear", 
+                transition: ".25s linear", 
                 transform: "translateY(50px)",
                 opacity: "1",
                 height: "413px"
@@ -264,12 +263,12 @@ export function MobileAndTabletNavVersion(props: { wasClick: boolean; }) {
                         transform: "translateX(0)",
                         opacity: "1" 
                     });
-                }, timeShow * 200);
+                }, timeShow * 50);
 
                 timeShow++;
             }
 
-            timeShow = 0;
+            timeShow = 1;
         } else if (props.wasClick === false && ulElement) {
             const ulElementChildren = ulElement.children as HTMLCollectionOf<HTMLElement>;
 
@@ -279,15 +278,15 @@ export function MobileAndTabletNavVersion(props: { wasClick: boolean; }) {
                         transform: "translateX(-15px)",
                         opacity: "0" 
                     });
-                }, timeShow * 100);
+                }, timeShow * 50);
                 
                 timeShow++;
             }
 
-            timeShow = 0;
+            timeShow = 1;
 
             Functions.changeStyleElem(ulElement, {
-                transition: ".8s linear", 
+                transition: ".5s linear", 
                 transform: "translateY(-10px)",
                 opacity: "0",
                 height: "0px"
@@ -315,7 +314,7 @@ export function MobileAndTabletNavVersion(props: { wasClick: boolean; }) {
                             })
                             : GlobalStyles.MobileNavVersionLiStyle
                         }>
-                            <NavLink to={`/${item}`} style={
+                            <NavLink to={`/${item === "portfolio" ? "Home#portfolio" : item}`} style={
                                 GlobalStyles.MobileNavVersionLiNavLinkStyle
                             }
                             activeStyle={

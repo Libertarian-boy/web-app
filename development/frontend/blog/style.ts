@@ -29,12 +29,15 @@ export const inputSearch_conteiner: CSSProperties = {
     width: "100%",
     backgroundColor: "#ececec",
     display: "flex",
-    alignItems: "center"
+    alignItems: "center",
+    height: "40px",
+    minHeight: "40px"
 };
 
 export const inputSearch: CSSProperties = {
     width: "90%",
-    height: "40px",
+    height: "100%",
+    minHeight: "100%",
     backgroundColor: "#ececec",
     fontFamily: "Montserrat, sans-serif",
     fontSize: "12px",
@@ -102,7 +105,8 @@ export const conteiner_info__posts = {
     flexDirection: "column",
     alignItems: "flex-start",
     justifyContent: "flex-start",
-    width: "100%"
+    width: "100%",
+    minHeight: "375px"
 };
 
 export const postsH2 = {
@@ -133,7 +137,8 @@ export const info_posts__titles = {
     display: "flex",
     alignItems: "center",
     justifyConstent: "space-between",
-    margin: "29px 0 0 0"
+    margin: "29px 0 0 0",
+    minHeight: "15.2px"
 };
 
 export const info_posts__lineConteiner = {
@@ -141,6 +146,7 @@ export const info_posts__lineConteiner = {
     position: "relative",
     width: "263px",
     height: "2px",
+    minHeight: "2px",
     backgroundColor: "#e6e6e6"
 };
 
@@ -158,6 +164,7 @@ export const info_posts__body = {
     width: "100%",
     height: "263px",
     maxHeight: "263px",
+    minHeight: "263px",
     display: "flex",
     scrollSnapType: "x mandatory",
     overflowX: "hidden",
@@ -165,21 +172,28 @@ export const info_posts__body = {
     margin: "29px 0 0 0"
 } as const;
 
-export const posts_body__column = {
+export const posts_body__column: CSSProperties = {
     width: "100%",
     minWidth: "100%",
     height: "100%",
+    minHeight: "100%",
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-start",
-    justifyContent: "flex-start"
-} as const;
+    justifyContent: "flex-start",
+    overflowX: "hidden",
+    transitionDuration: ".25s",
+    transitionTimingFunction: "linear",
+    transitionProperty: "transform"
+};
 
-export const column_post = {
+export const column_post: CSSProperties = {
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-start",
-    width: "100%"
+    width: "100%",
+    minHeight: "80px",
+    height: "80px"
 };
 
 export const column_post__text = {
@@ -211,7 +225,8 @@ export const listOfTypesBlog = {
     flexDirection: "column",
     alignItems: "flex-start",
     justifyContent: "flex-start",
-    width: "100%"
+    width: "100%",
+    minHeight: "220.8px"
 } as const;
 
 export const listOfTypesBlog_h3 = {
@@ -258,7 +273,8 @@ export const tags = {
     flexDirection: "column",
     alignItems: "flex-start",
     justifyContent: "flex-start",
-    width: "100%"
+    width: "100%",
+    minHeight: "147.8px"
 } as const;
 
 export const tags_h3 = {
@@ -528,7 +544,9 @@ export const arrowIcon: CSSProperties = {
 
 export const main_conteinerMobile: CSSProperties = {
     margin: "50px 10px 0 10px",
-    overflow: "hidden"
+    overflow: "hidden",
+    width: "calc(100% - 20px)",
+    minWidth: "calc(100% - 20px)"
 };
 
 export const main_conteiner__infoMobile: CSSProperties = {
@@ -539,7 +557,7 @@ export const main_conteiner__infoMobile: CSSProperties = {
     minWidth: "100%",
     maxHeight: "none",
     height: "auto",
-    overflow: "visible"
+    overflow: "hidden"
 };
 
 export const main_conteiner__blogsMobile: CSSProperties = {

@@ -74,12 +74,10 @@ export const appearElem = (elem: HTMLElement, timeOut: number) => {
 };
 
 export const downloaderBottomStart = () => {
-    const downloader = (document.getElementById("downloader") ?? null) as HTMLDivElement;
+    const downloader = document.getElementById("downloader") as HTMLDivElement;
     if (downloader) {
         changeStyleElem(downloader, {
-            bottom: `-${
-                Math.round((downloader.clientHeight + 7) * 100 / (document.documentElement.clientHeight / 1.5))
-            }%`
+            bottom: "-100%"
         });
     }
 };
@@ -95,6 +93,39 @@ export const downloadThing = (src: string, ext: string) => {
         alert("Don`t supported type of files or other problems");
     }
 };
+
+export function changeFlexGapToMargin
+    <TypeOfElements extends HTMLElement | SVGAElement | HTMLCollectionOf<HTMLElement | SVGAElement>>
+    (elements: TypeOfElements, styles: CSSProperties, isMobilePortfolio?: boolean) {
+        const userAgent = navigator.userAgent.toLowerCase();
+        let version = Number(userAgent.match(/(?:os\s)(\d|\_)+?(?:\s)/g)?.join("").replace(/os\s/g, "").replace(/\_/g, "."));
+        let startVersionSafariMobile = 14.5, startVersionSafari = 14.1;
+        if ( version === null ) return;
+        if ( ( !/(iphone|ipad)/.test(userAgent) || version >= startVersionSafariMobile  ) ||
+             ( !/(macbook)/.test(userAgent) || version >= startVersionSafari ) ) return;
+        const typeOfElements = elements.toString();
+        if (typeOfElements === "[object HTMLCollection]") {
+            const collectionOfElements = elements as HTMLCollectionOf<HTMLElement | SVGAElement>;
+            if (isMobilePortfolio) {
+                Array.from(collectionOfElements).forEach((elem, index) => {
+                    if (index !== 0) {
+                        changeStyleElem(elem, styles);
+                    }
+                });
+            } else {
+                Array.from(collectionOfElements).forEach(elem => {
+                    changeStyleElem(elem, styles);
+                });
+            }
+            return;
+        }
+        if (typeOfElements === "[object HTMLElement]" || typeOfElements === "[object HTMLDivElement]"
+        || typeOfElements === "[object HTMLImageElement]") {
+            changeStyleElem(elements as HTMLElement | SVGAElement, styles);
+            return;
+        }
+        console.error(`Arguments of function aren't valid: Elements: ${elements}!`);
+    }
 
 export class CreateUrlRequest {
     public url: string;

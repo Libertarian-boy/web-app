@@ -461,6 +461,10 @@ function Textarea({
                 text-transform: uppercase;
                 color: #cccccc;
             }
+
+            textarea::-webkit-scrollbar, textarea::-webkit-scrollbar-button, textarea::-webkit-scrollbar-thumb {
+                display: none;
+            }
         `)
     }, []);
 

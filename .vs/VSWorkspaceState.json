@@ -1,0 +1,12 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\development",
+    "\\development\\backend",
+    "\\development\\frontend",
+    "\\development\\frontend\\blog",
+    "\\development\\frontend\\globalThings"
+  ],
+  "SelectedNode": "\\development\\frontend\\globalThings\\GlobalStyles.ts",
+  "PreviewInSolutionExplorer": false
+}

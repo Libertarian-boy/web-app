@@ -71,14 +71,19 @@ export const titleStyleP = {
 
 /* Стили для глобального Headers */
 
-export const header: CSSProperties = {
-    gridArea: "header",
-    backgroundRepeat: "no-repeat",
-    backgroundSize: "cover",
-    transform: "translate(-20px, -20px)",
-    opacity: 0,
-    backgroundAttachment: "fixed"
-};
+export function headerStyles(backgroundUrl: string): CSSProperties {
+    const header: CSSProperties = {
+        gridArea: "header",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+        transform: "translate(-20px, -20px)",
+        opacity: 0,
+        backgroundAttachment: "scroll",
+        backgroundImage: `url(${backgroundUrl})`,
+        backgroundColor: "#adadad"
+    };
+    return header;
+}
 
 export const header_forward = {
     height: "100%",
@@ -414,7 +419,7 @@ export const logoStyle: CSSProperties = {
 export const downloader = {
     position: "fixed",
     width: "100%",
-    bottom: "-60%",
+    bottom: "-100%",
     right: 0,
     left: 0,
     backgroundColor: "#7beec7",
@@ -422,7 +427,7 @@ export const downloader = {
     display: "flex",
     justifyContent: "space-evenly",
     alignItems: "center",
-    transition: ".2s ease-in"
+    transition: "bottom .4s ease-in"
 };
 
 export const downloader_inf = {
@@ -445,8 +450,15 @@ export const downloader_inf__li: CSSProperties = {
     textAlign: "center"
 };
 
+export const downloader_buttons: CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-evenly",
+    width: "30%"
+};
+
 export const downloader_button = {
-    width: "165px",
+    width: "140px",
     height: "50px",
     backgroundColor: "#7beec7",
     display: "flex",
@@ -468,6 +480,10 @@ export const downloader_button = {
 
 /* Мобильные стили */
 
+export const headerMobileTabletComputerNormalScreen: CSSProperties = {
+    backgroundPosition: "center"
+};
+
 export const HeaderHeadListMobileAndTablet = {
     display: "none"
 };
@@ -478,13 +494,12 @@ export const MobileVersionNavStyle: CSSProperties = {
     transform: "translateY(-10px)",
     padding: 0,
     listStyleType: "none",
-    width: "75%",
     height: "0px",
+    width: "75%",
     display: "flex",
     flexDirection: "column",
     justifyContent: "flex-start",
     alignItems: "center",
-    transition: "5s linear",
     willChange: "transform, opacity, height"
 };
 
@@ -511,7 +526,8 @@ export const MobileNavVersionLiNavLinkStyle: CSSProperties = {
     lineHeight: "48px",
     textAlign: 'center',
     textTransform: 'uppercase',
-    textDecoration: "none"
+    textDecoration: "none",
+    width: "100%"
 };
 
 export const MobileNavVersionLiNavLinkActiveStyle: CSSProperties = {
@@ -616,6 +632,16 @@ export const downloader_infMobile = {
     flexDirection: "column"
 };
 
+export const downloader_inf__liMobileAndLargeAndMedium: CSSProperties = {
+    borderBottom: "2px solid #ffffff",
+    borderRadius: "1px"
+}
+
+export const downloader_buttonsMobile: CSSProperties = {
+    width: "100%",
+    justifyContent: "space-around"
+};
+
 export const downloader_buttonMobile = {
     margin: "0 0 35px 0"
 };
@@ -631,6 +657,7 @@ export const header_forward__mainNormalScreen = {
 };
 
 export const mainPrefooterStylesMedium = {
+    margin: "70px 0 0 0",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "flex-start",
@@ -657,6 +684,10 @@ export const formMedium = {
     width: "100%"
 };
 
+export const downloader_buttonMedium: CSSProperties = {
+    width: "40%"
+};
+
 /* Стили для планшетов */
 
 export const header_forward__mainTablet = {
@@ -664,6 +695,7 @@ export const header_forward__mainTablet = {
 };
 
 export const mainPrefooterStylesTablet = {
+    margin: "70px 0 0 0",
     height: "auto",
     flexDirection: "column",
     justifyContent: "flex-start",
@@ -726,6 +758,12 @@ export const footerTextUlTablet = {
     alignSelf: "center"
 };
 
+export const downloader_buttonsTablet: CSSProperties = {
+    flexWrap: "wrap",
+    rowGap: "15px",
+    margin: "15px 0 15px"
+};
+
 export const downloader_buttonTablet = {
-    width: "25%"
+    width: "140px"
 }

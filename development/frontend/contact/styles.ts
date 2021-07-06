@@ -31,8 +31,8 @@ export const form = {
 
 export const inputOfForm = {
     margin: 0,
-    padding: "0 0 0 19px",
-    width: "43.964%", /* 244px */
+    padding: "0 19px 0 19px",
+    width: "40%", /* 234px */
     height: "49px",
     backgroundColor: "#fefcf9",
     border: "1px solid rgba(0,0,0,0.09)",
@@ -59,7 +59,7 @@ export const textarea: CSSProperties = {
     fontWeight: 700,
     textTransform: "uppercase",
     margin: "31px 0 0 0",
-    padding: "0 0 0 21px"
+    padding: "0 21px 0 21px"
 }
 
 export const buttonOfForm: CSSProperties = {

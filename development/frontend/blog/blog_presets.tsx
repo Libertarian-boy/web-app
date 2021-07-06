@@ -46,19 +46,19 @@ export function OrientationChange() {
             const main_conteiner__blogs = document.querySelector(".main_conteiner__blogs") as HTMLDivElement;
             const main_conteiner__info = document.querySelector(".main_conteiner__info") as HTMLDivElement;
             main_conteiner__blogs.style.transform = "translateX(0)";
-            main_conteiner__info.style.transform = "translateX(0)"
+            main_conteiner__info.style.transform = "translateX(0)";
+
+            Functions.changeStyleElem(main_conteiner__info, {
+                height: document.documentElement.clientHeight - 35 + "px",
+                maxHeight: document.documentElement.clientHeight - 35 + "px"
+            });
         }
     }, [nowWidthWindow]);
 
     const orientationChangeFunction = () => {
         setTimeout(() => {
             Functions.setValueContextWindow(setNowWidthWindow, 0);
-            const main_conteiner__info = document.querySelector(".main_conteiner__info") as HTMLDivElement;
-            Functions.changeStyleElem(main_conteiner__info, {
-                height: document.documentElement.clientHeight - 35 + "px",
-                maxHeight: document.documentElement.clientHeight - 35 + "px"
-            });
-        }, 15);
+        }, 25);
     };
 
     useEffect(() => {

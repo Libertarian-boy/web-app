@@ -8,8 +8,38 @@ import * as GlobalStyles from "./GlobalStyles";
 export default function DownLoader() {
 
     const downloaderRef = useRef<HTMLDivElement>(null);
+    const downloader_buttonsRef = useRef<HTMLDivElement>(null);
     const {data} = useContext(LoaderContext);
     const {nowWidthWindow} = useContext(MediaContext);
+
+    const clickDocumentAndCancel = () => {
+        const downloader = downloaderRef.current;
+        if (downloader) {
+            Functions.changeStyleElem(downloader, {
+                bottom: "-100%"
+            });
+        }
+    };
+
+    useEffect(() => {
+        const downloader_buttons = downloader_buttonsRef.current as HTMLDivElement;
+        const lastButton = downloader_buttons.children[1] as HTMLButtonElement;
+        Functions.changeFlexGapToMargin(downloader_buttons, {
+            rowGap: 0
+        });
+        Functions.changeFlexGapToMargin(lastButton, {
+            margin: "15px 0 0 0",
+        });
+
+        return () => {
+            Functions.changeFlexGapToMargin(downloader_buttons, {
+                rowGap: "15px"
+            });
+            Functions.changeFlexGapToMargin(lastButton, {
+                margin: 0
+            });
+        }
+    }, []);
 
     useEffect(() => {
         if (data) {
@@ -27,19 +57,11 @@ export default function DownLoader() {
     }, [data]);
 
     useEffect(() => {
-        const clickDocument = () => {
-            const downloader = downloaderRef.current;
-            if (downloader) {
-                Functions.changeStyleElem(downloader, {
-                    bottom: `${-downloader.clientHeight}px`
-                });
-            }
-        };
 
-        document.addEventListener("click", clickDocument);
+        document.addEventListener("click", clickDocumentAndCancel);
 
         return () => {
-            document.removeEventListener("click", clickDocument);
+            document.removeEventListener("click", clickDocumentAndCancel);
         };
     });
 
@@ -65,32 +87,60 @@ export default function DownLoader() {
                 )
             }>
                 <li style={
-                    Functions.cloneObject(
-                        GlobalStyles.downloader_inf__li
+                    Object.assign(
+                        Functions.cloneObject(
+                            GlobalStyles.downloader_inf__li
+                        ),
+                        nowWidthWindow === "mobileScreen" || nowWidthWindow === "computerNormalScreen"
+                        || nowWidthWindow === "computerLargeScreen" ? GlobalStyles.downloader_inf__liMobileAndLargeAndMedium : {}
                     )
                 }>Name: {data?.name}</li>
                 <li style={
-                    Functions.cloneObject(
-                        GlobalStyles.downloader_inf__li
+                    Object.assign(
+                        Functions.cloneObject(
+                            GlobalStyles.downloader_inf__li
+                        ),
+                        nowWidthWindow === "mobileScreen" || nowWidthWindow === "computerNormalScreen"
+                        || nowWidthWindow === "computerLargeScreen" ? GlobalStyles.downloader_inf__liMobileAndLargeAndMedium : {}
                     )
                 }>Type: {data?.type}</li>
                 <li style={
-                    Functions.cloneObject(
-                        GlobalStyles.downloader_inf__li
+                    Object.assign(
+                        Functions.cloneObject(
+                            GlobalStyles.downloader_inf__li
+                        ),
+                        nowWidthWindow === "mobileScreen" || nowWidthWindow === "computerNormalScreen"
+                        || nowWidthWindow === "computerLargeScreen" ? GlobalStyles.downloader_inf__liMobileAndLargeAndMedium : {}
                     )
                 }>Ext: {data?.ext}</li>
                 <li style={
-                    Functions.cloneObject(
-                        GlobalStyles.downloader_inf__li
+                    Object.assign(
+                        Functions.cloneObject(
+                            GlobalStyles.downloader_inf__li
+                        ),
+                        nowWidthWindow === "mobileScreen" || nowWidthWindow === "computerNormalScreen"
+                        || nowWidthWindow === "computerLargeScreen" ? GlobalStyles.downloader_inf__liMobileAndLargeAndMedium : {}
                     )
                 }>Size: {data?.size}</li>
             </ul>
-            <Button/>
+            <div className="downloader_buttons" ref={downloader_buttonsRef} style={
+                Object.assign(
+                    Functions.cloneObject(
+                        GlobalStyles.downloader_buttons
+                    ),
+                    nowWidthWindow === "mobileScreen" ? GlobalStyles.downloader_buttonsMobile :
+                    nowWidthWindow === "tablet"  ? GlobalStyles.downloader_buttonsTablet :
+                    {}
+                )
+            }>
+                <Button type="download" />
+                <Button type="cancel" downloader={downloaderRef.current} />
+            </div>
         </div>
     )
 }
 
-function Button() {
+function Button({type, downloader}: {type: "download" | "cancel"; downloader?: HTMLDivElement | null}) {
 
     const {nowWidthWindow} = useContext(MediaContext);
     const {data} = useContext(LoaderContext);
@@ -114,8 +164,17 @@ function Button() {
     };
 
     const click = () => {
-        if (data?.src  && data?.ext) {
-            Functions.downloadThing(data.src, data.ext);
+        if (type === "download") {
+            if (data?.src  && data?.ext) {
+                Functions.downloadThing(data.src, data.ext);
+            }
+        }
+        if (type === "cancel") {
+            if (downloader) {
+                Functions.changeStyleElem(downloader, {
+                    bottom: "-100%"
+                });
+            }
         }
     };
 
@@ -126,7 +185,8 @@ function Button() {
                     GlobalStyles.downloader_button
                 ),
                 nowWidthWindow === "mobileScreen" ? GlobalStyles.downloader_buttonMobile :
-                nowWidthWindow === "tablet" ? GlobalStyles.downloader_buttonTablet : {}
+                nowWidthWindow === "tablet" ? GlobalStyles.downloader_buttonTablet :
+                nowWidthWindow === "computerNormalScreen" ? GlobalStyles.downloader_buttonMedium : {}
             )
         }
         onPointerEnter={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? () => undefined : enter}
@@ -134,7 +194,7 @@ function Button() {
         onFocus={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? enter : () => undefined}
         onBlur={nowWidthWindow === "mobileScreen" || nowWidthWindow === "tablet" ? out : () => undefined}
         onSelect={() => false} onClick={click}>
-            Download
+            {type === "download" ? "Download" : "Cancel"}
         </button>
     )
 }

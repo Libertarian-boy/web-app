@@ -44,9 +44,9 @@ export function OrientationChange() {
 
     const orientationchangeFunction = () => {
         setTimeout(() => {
-            const header = document.querySelector("header") ?? null, headerForward = (document.querySelector(".header_forward") ?? null) as HTMLElement;
+            const header = document.querySelector("header"), headerForward = document.querySelector(".header_forward") as HTMLElement;
             Functions.setValueContextWindow(setNowWidthWindow, 0);
-
+            Functions.downloaderBottomStart();
             if (nowWidthWindow === "tablet" && header && headerForward) {
                 header.style.height = "auto"
                 headerForward.style.height = "auto";
@@ -78,6 +78,7 @@ export function Resize() {
                     headerForward.style.height = "auto";
                 }
             }
+            Functions.downloaderBottomStart();
         }, 50);
     };
 

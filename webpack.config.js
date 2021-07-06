@@ -7,7 +7,7 @@ const ReactLoadableSSRAddon = require('react-loadable-ssr-addon');
 const clientConfig = 
     {
         name: "frontend",
-        mode: "production",
+        mode: "development",
         target: "web",
         entry: {
             app: "./development/frontend/index.tsx"
@@ -44,15 +44,15 @@ const clientConfig =
             runtimeChunk: 'single',
             splitChunks: {
                 cacheGroups: {
-                    vendors: {
-                        test: /[\\/]node_modules[\\/]/,
-                        name: "vendors",
-                        filename: "[name].bundle.js",
-                        chunks: "all"
-                    },
                     chunks: {
                         test: /[\\/]development[\\/]/,
                         name: "chunks",
+                        filename: "[name].bundle.js",
+                        chunks: "all"
+                    },
+                    vendors: {
+                        test: /[\\/]node_modules[\\/]/,
+                        name: "vendors",
                         filename: "[name].bundle.js",
                         chunks: "all"
                     }
@@ -76,7 +76,7 @@ const clientConfig =
 const serverConfig =
 {
     name: "backend",
-    mode: "production",
+    mode: "development",
     entry: {
         index: "./development/backend/index.js",
     },

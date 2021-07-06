@@ -1,0 +1,69 @@
+{
+  "entrypoints": [
+    "app"
+  ],
+  "origins": {
+    "app": [
+      216,
+      666,
+      962,
+      143
+    ],
+    "runtime": [
+      143,
+      216,
+      962,
+      666
+    ],
+    "chunks": [
+      143,
+      216,
+      666,
+      962
+    ],
+    "vendors": [
+      143,
+      666,
+      962,
+      216
+    ]
+  },
+  "assets": {
+    "143": {
+      "js": [
+        {
+          "file": "app.js",
+          "hash": "e72db19802870ea0d615",
+          "publicPath": "/docs/app.js"
+        }
+      ]
+    },
+    "216": {
+      "js": [
+        {
+          "file": "vendors.bundle.js",
+          "hash": "7f8495cf4cf12c2b1b83",
+          "publicPath": "/docs/vendors.bundle.js"
+        }
+      ]
+    },
+    "666": {
+      "js": [
+        {
+          "file": "runtime.js",
+          "hash": "d361ea1e1747eceeb7d1",
+          "publicPath": "/docs/runtime.js"
+        }
+      ]
+    },
+    "962": {
+      "js": [
+        {
+          "file": "chunks.bundle.js",
+          "hash": "377ac7e28cfeb40104fc",
+          "publicPath": "/docs/chunks.bundle.js"
+        }
+      ]
+    }
+  }
+}

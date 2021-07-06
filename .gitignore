@@ -84,7 +84,6 @@ typings/
 .dynamodb/
 
 # TypeScript output
-docs
 .gitignore
 out
 

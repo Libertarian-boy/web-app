@@ -2,7 +2,7 @@ import React, {CSSProperties, useContext, useEffect, useState, forwardRef, React
 import {titleStyle, titleStyleH2, titleStyleH2Block, titleStyleP} from "../globalThings/GlobalStyles";
 import {LoaderContext} from "./context";
 
-export const cloneObject = (obj: object) => {
+export const cloneObject = (obj: {}): {} => {
     if (obj === null || obj === undefined || typeof obj !== "object") return obj;
 
     const cloneObj = Object.assign({}, obj);
@@ -10,16 +10,18 @@ export const cloneObject = (obj: object) => {
     return cloneObj;
 };
 
-export function changeStyleElem<Type extends HTMLElement | SVGAElement>(elem: Type, style: CSSProperties) {
-    if (!elem) return;
+export function changeStyleElem<Type extends HTMLElement | SVGAElement>(elem: Type, style: CSSProperties): CSSProperties {
+    if (!elem) return {};
     const entriesOfStyle = Object.entries(style);
 
     for (let [prop, value] of entriesOfStyle) {
         elem.style[prop as "textAlign"] = value;
     }
+
+    return style;
 };
 
-export const createTagGoogleFonts = (href: string) => {
+export const createTagGoogleFonts = (href: string): void => {
     const head = document.querySelector("head"), link = document.createElement("link");
     link.setAttribute("rel", "stylesheet");
     link.setAttribute("type", "text/css");
@@ -28,7 +30,7 @@ export const createTagGoogleFonts = (href: string) => {
     head!.appendChild(link);
 };
 
-export const createTagLinkInHead = (relAttr: string, typeAttr: string, url: string) => {
+export const createTagLinkInHead = (relAttr: string, typeAttr: string, url: string): void => {
     const head = document.querySelector("head"), link = document.createElement("link");
     link.setAttribute("rel", relAttr);
     link.setAttribute("type", typeAttr);
@@ -37,7 +39,7 @@ export const createTagLinkInHead = (relAttr: string, typeAttr: string, url: stri
     head!.appendChild(link);
 };
 
-export const checkKeysOfObject = <ObjectType extends Object, ValidatorType extends Object>(object: ObjectType, validator: ValidatorType) => {
+export const checkKeysOfObject = <ObjectType extends {}, ValidatorType extends {}>(object: ObjectType, validator: ValidatorType): ValidatorType => {
     const validatorKeys = Object.keys(validator);
 
     for (let i = 0; i < validatorKeys.length; i++) {
@@ -49,7 +51,7 @@ export const checkKeysOfObject = <ObjectType extends Object, ValidatorType exten
     return validator;
 };
 
-export const setValueContextWindow = (setNowWidthWindow: Dispatch<SetStateAction<"" | "mobileScreen" | "tablet" | "computerNormalScreen" | "computerLargeScreen">>, timeout: number) => {
+export const setValueContextWindow = (setNowWidthWindow: Dispatch<SetStateAction<"" | "mobileScreen" | "tablet" | "computerNormalScreen" | "computerLargeScreen">>, timeout: number): void => {
     setTimeout(() => {
         const windowWidth = document.documentElement.clientWidth;
         if (windowWidth > 1179) {
@@ -64,16 +66,17 @@ export const setValueContextWindow = (setNowWidthWindow: Dispatch<SetStateAction
     }, timeout);
 }
 
-export const appearElem = (elem: HTMLElement, timeOut: number) => {
+export const appearElem = (elem: HTMLElement, timeOut: number): HTMLElement | undefined => {
     if (typeof elem == null) return;
     setTimeout(changeStyleElem, timeOut, elem, {
         transition: "0.35s ease-in",
         transform: "translate(0, 0)",
         opacity: 1
     });
+    return elem;
 };
 
-export const downloaderBottomStart = () => {
+export const downloaderBottomStart = (): void => {
     const downloader = document.getElementById("downloader") as HTMLDivElement;
     if (downloader) {
         changeStyleElem(downloader, {
@@ -82,7 +85,7 @@ export const downloaderBottomStart = () => {
     }
 };
 
-export const downloadThing = (src: string, ext: string) => {
+export const downloadThing = (src: string, ext: string): void => {
     if (ext.match(/png|jpeg|gif|pdf|docx/) && src) {
         const a = document.createElement("a");
         a.setAttribute("download", "true");
@@ -96,7 +99,7 @@ export const downloadThing = (src: string, ext: string) => {
 
 export function changeFlexGapToMargin
     <TypeOfElements extends HTMLElement | SVGAElement | HTMLCollectionOf<HTMLElement | SVGAElement>>
-    (elements: TypeOfElements, styles: CSSProperties, isMobilePortfolio?: boolean) {
+    (elements: TypeOfElements, styles: CSSProperties, isMobilePortfolio?: boolean): void {
         const userAgent = navigator.userAgent.toLowerCase();
         let version = Number(userAgent.match(/(?:os\s)(\d|\_)+?(?:\s)/g)?.join("").replace(/os\s/g, "").replace(/\_/g, "."));
         let startVersionSafariMobile = 14.5, startVersionSafari = 14.1;
@@ -126,6 +129,12 @@ export function changeFlexGapToMargin
         }
         console.error(`Arguments of function aren't valid: Elements: ${elements}!`);
     }
+
+export function logError<ErrorType extends Error>(err: ErrorType): ErrorType {
+    let message = `${err.name}: ${err.message}`;
+    console.error(message);
+    return err;
+}
 
 export class CreateUrlRequest {
     public url: string;

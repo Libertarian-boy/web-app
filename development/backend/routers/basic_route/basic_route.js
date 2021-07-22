@@ -3,8 +3,8 @@ import { renderToNodeStream } from "react-dom/server";
 import App from "../../../frontend/app.tsx"
 import React from "react";
 import Loadable from "react-loadable";
-import {StaticRouter} from "react-router-dom";
-import {getBundles} from "react-loadable-ssr-addon";
+import { StaticRouter } from "react-router-dom";
+import { getBundles } from "react-loadable-ssr-addon";
 import manifest from "../../../../docs/frontend/assets-manifest.json";
 export const basicRouter = Router();
 

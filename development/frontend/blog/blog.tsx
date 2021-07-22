@@ -938,14 +938,13 @@ function BlogInfo(
     const {nowWidthWindow} = useContext(MediaContext);
 
     async function setStateOfLike(idOfPost: number | string): Promise<any> {
-        const request = new Functions.CreateUrlRequest(`/blog/server/postsOfBlog?idOfPost=${idOfPost}`, {
+        const request = new Functions.CreateUrlRequest(`/blog/server/postsOfBlog?idOfPost=${idOfPost}&action=setStateOfLike`, {
             method: "PUT",
             keepalive: false,
             headers: {
                 "Content-Type": "application/json; charset=utf-8"
             },
             body: JSON.stringify({
-                type: "setStateOfLike",
                 countOfLikes: postData.wasLikedByUser ? postData.countOfLikes - 1 : postData.countOfLikes + 1,
                 wasLikedByUser: !postData.wasLikedByUser
             })
@@ -1023,48 +1022,53 @@ function CommentEnterOfPost(
     const [heightOfTextArea, setHeightOfTextArea] = useState<null | number | string>(null);
 
     const submit = async () => {
-        const commentElement = commentRef.current as HTMLTextAreaElement;
-        let value = commentElement.value;
-        if (value.length > 0) {
-            const dateObj = new Date();
-            let hours = dateObj.getHours(), minutes = dateObj.getMinutes(), seconds = dateObj.getSeconds();
-            const action = {
-                type: "writeComment",
-                countOfComments: postData.countOfComments + 1,
-                comment: {
-                    dateOfWrite: `${hours < 10 ? `0${hours}`: hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`,
-                    userName: undefined,
-                    content: value
-                }
-            };
-            const request = new Functions.CreateUrlRequest(`/blog/server/postsOfBlog?action=writeComment&idOfPost=${idOfPost}`, {
-                method: "PUT",
-                keepalive: false,
-                headers: {
-                    "Content-Type": "application/json; charset=utf-8"
-                },
-                body: JSON.stringify(action)
-            });
-            commentElement.value = "";
-            const response = await request.toFetch();
-            if (response.ok) {
-                const result = await response.toMethod("json");
-                dispatchOfPostData({
-                    type: "writeComment",
-                    ...result
+        try {
+            const commentElement = commentRef.current as HTMLTextAreaElement;
+            let value = commentElement.value;
+            if (value.length > 0) {
+                const dateObj = new Date();
+                let hours = dateObj.getHours(), minutes = dateObj.getMinutes(), seconds = dateObj.getSeconds();
+                const action = {
+                    countOfComments: postData.countOfComments + 1,
+                    comment: {
+                        dateOfWrite: `${hours < 10 ? `0${hours}`: hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`,
+                        userName: undefined,
+                        content: value
+                    }
+                };
+                const request = new Functions.CreateUrlRequest(`/blog/server/postsOfBlog?action=writeComment&idOfPost=${idOfPost}`, {
+                    method: "PUT",
+                    keepalive: false,
+                    headers: {
+                        "Content-Type": "application/json; charset=utf-8"
+                    },
+                    body: JSON.stringify(action)
                 });
+                commentElement.value = "";
+                const response = await request.toFetch();
+                if (response.ok) {
+                    const result = await response.toMethod("json");
+                    dispatchOfPostData({
+                        type: "writeComment",
+                        ...result
+                    });
+                } else {
+                    const error = await response.toMethod("text");
+                    throw new Error(error);
+                }
             } else {
-                console.error("Something wrong, try again!");
+                const styleTag = document.querySelector("style");
+                styleTag?.append(`
+                .enterComment::placeholder {
+                    color: #de2323
+                } 
+                `);
+                commentElement.placeholder = "Please, enter a comment containing letters...";
+                commentElement.blur();
             }
-        } else {
-            const styleTag = document.querySelector("style");
-            styleTag?.append(`
-               .enterComment::placeholder {
-                   color: #de2323
-               } 
-            `);
-            commentElement.placeholder = "Please, enter a comment containing letters...";
-            commentElement.blur();
+        } catch (err) {
+            let error = err as Error;
+            Functions.logError(error);
         }
     };
 

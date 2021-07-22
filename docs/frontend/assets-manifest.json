@@ -4,64 +4,64 @@
   ],
   "origins": {
     "app": [
-      216,
-      666,
-      962,
-      143
+      "chunks",
+      "runtime",
+      "vendors",
+      "app"
     ],
     "runtime": [
-      143,
-      216,
-      962,
-      666
+      "app",
+      "chunks",
+      "vendors",
+      "runtime"
     ],
     "chunks": [
-      143,
-      216,
-      666,
-      962
+      "app",
+      "runtime",
+      "vendors",
+      "chunks"
     ],
     "vendors": [
-      143,
-      666,
-      962,
-      216
+      "app",
+      "chunks",
+      "runtime",
+      "vendors"
     ]
   },
   "assets": {
-    "143": {
+    "app": {
       "js": [
         {
           "file": "app.js",
-          "hash": "e72db19802870ea0d615",
+          "hash": "b1b6ffe51a4c5b90ea99",
           "publicPath": "/docs/app.js"
         }
       ]
     },
-    "216": {
-      "js": [
-        {
-          "file": "vendors.bundle.js",
-          "hash": "7f8495cf4cf12c2b1b83",
-          "publicPath": "/docs/vendors.bundle.js"
-        }
-      ]
-    },
-    "666": {
+    "runtime": {
       "js": [
         {
           "file": "runtime.js",
-          "hash": "d361ea1e1747eceeb7d1",
+          "hash": "c3f57f2bf80fc4115c14",
           "publicPath": "/docs/runtime.js"
         }
       ]
     },
-    "962": {
+    "chunks": {
       "js": [
         {
           "file": "chunks.bundle.js",
-          "hash": "377ac7e28cfeb40104fc",
+          "hash": "0f26a832a353e0285915",
           "publicPath": "/docs/chunks.bundle.js"
+        }
+      ]
+    },
+    "vendors": {
+      "js": [
+        {
+          "file": "vendors.bundle.js",
+          "hash": "8c7d30e862b20a445b77",
+          "publicPath": "/docs/vendors.bundle.js"
         }
       ]
     }
